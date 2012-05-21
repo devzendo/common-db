@@ -70,7 +70,6 @@ Based on some of the ideas from the MiniMiser framework.
     </reporting>
 
     <dependencies>
-<!--
         <dependency>
             <groupId>org.devzendo</groupId>
             <artifactId>CommonCode</artifactId>
@@ -84,7 +83,7 @@ Based on some of the ideas from the MiniMiser framework.
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-
+<!--
         <dependency>
             <groupId>org.devzendo</groupId>
             <artifactId>CommonApp</artifactId>

@@ -17,11 +17,21 @@
 package org.devzendo.commondb
 
 import org.junit.rules.TemporaryFolder
-import java.io.{FileOutputStream, File}
-import org.easymock.EasyMock
-import org.junit.{After, Before}
+import java.io.File
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.apache.log4j.Logger
+import org.junit.{BeforeClass, After, Before}
+import org.devzendo.commoncode.logging.LoggingUnittestHelper
 
+object AbstractTempFolderUnittest {
+    private val LOGGER = Logger.getLogger(classOf[AbstractTempFolderUnittest])
+
+    @BeforeClass
+    def setupLogging() {
+        LoggingUnittestHelper.setupLogging()
+    }
+
+}
 class AbstractTempFolderUnittest extends AssertionsForJUnit with MustMatchersForJUnit {
     private[this] var tempDir: TemporaryFolder = null
     var temporaryDirectory: File = null
@@ -31,10 +41,12 @@ class AbstractTempFolderUnittest extends AssertionsForJUnit with MustMatchersFor
         tempDir = new TemporaryFolder()
         tempDir.create()
         temporaryDirectory = tempDir.getRoot()
+        AbstractTempFolderUnittest.LOGGER.info("temp directory is " + temporaryDirectory.getAbsolutePath)
     }
 
     @After
     def after {
+        AbstractTempFolderUnittest.LOGGER.info("tidying up temp dir")
         tempDir.delete()
     }
 }
