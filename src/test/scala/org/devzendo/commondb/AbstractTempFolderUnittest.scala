@@ -37,15 +37,15 @@ class AbstractTempFolderUnittest extends AssertionsForJUnit with MustMatchersFor
     var temporaryDirectory: File = null
 
     @Before
-    def before {
+    def before() {
         tempDir = new TemporaryFolder()
         tempDir.create()
-        temporaryDirectory = tempDir.getRoot()
+        temporaryDirectory = tempDir.getRoot
         AbstractTempFolderUnittest.LOGGER.info("temp directory is " + temporaryDirectory.getAbsolutePath)
     }
 
     @After
-    def after {
+    def after() {
         AbstractTempFolderUnittest.LOGGER.info("tidying up temp dir")
         tempDir.delete()
     }
