@@ -17,14 +17,29 @@
 package org.devzendo.commondb
 
 import org.junit.Test
+import org.easymock.EasyMock
 
 class OpeningDatabaseWorkflow extends AbstractTempFolderUnittest {
     val databaseAccessFactory = new DatabaseAccessFactory()
 
     @Test
-    def databaseDoesNotExist() {
-        val databaseAccess: Option[DatabaseAccess] = databaseAccessFactory.open(
-            temporaryDirectory, "doesnotexist", None, None)
-        databaseAccess must be(None)
+    def databaseDoesNotExistSoReturnsNone() {
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, None) must be(None)
+    }
+
+    @Test
+    def databaseDoesNotExistProgressReporting() {
+        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.isA(classOf[String]))
+        openerAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'doesnotexist'"))
+        openerAdapter.reportProgress(EasyMock.eq(NotPresent), EasyMock.isA(classOf[String]))
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, Some(openerAdapter))
+
+        EasyMock.verify(openerAdapter)
     }
 }
