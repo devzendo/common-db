@@ -53,45 +53,45 @@ class DatabaseAccessFactory {
         // prompt for password and retry.
         var tryingToOpenMessage = "Opening database '" + databaseName + "'";
         var passwordAttempt = password
-        while (true) {
+        //while (true) {
             try {
                 adapter.reportProgress(Opening, tryingToOpenMessage)
 
                 val details = accessDatabase(databasePath, databaseName, passwordAttempt, false)
-                Some(DatabaseAccess(details._1, details._2))
+//                Some(DatabaseAccess(details._1, details._2))
             } catch {
-
-                case bad: BadPasswordException =>
-                    DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
-                    adapter.reportProgress(PasswordRequired, "Password required for '" + databaseName + "'")
-                    val thisAttempt = adapter.requestPassword()
-                    passwordAttempt = thisAttempt
-                    passwordAttempt match {
-                        case None =>
-                            DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
-                            adapter.reportProgress(PasswordCancelled, "Open of '" + databaseName + "' cancelled")
-                            adapter.stopOpening()
-                            return None
-                        case _ =>
-                            // Change the progress message, second time round...
-                            tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
-                    }
-
+//
+//                case bad: BadPasswordException =>
+//                    DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
+//                    adapter.reportProgress(PasswordRequired, "Password required for '" + databaseName + "'")
+//                    val thisAttempt = adapter.requestPassword()
+//                    passwordAttempt = thisAttempt
+//                    passwordAttempt match {
+//                        case None =>
+//                            DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
+//                            adapter.reportProgress(PasswordCancelled, "Open of '" + databaseName + "' cancelled")
+//                            adapter.stopOpening()
+//                            return None
+//                        case _ =>
+//                            // Change the progress message, second time round...
+//                            tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
+//                    }
+//
                 case darfe: DataAccessResourceFailureException =>
                     DatabaseAccessFactory.LOGGER.warn("Could not open database: " + darfe.getMessage)
                     adapter.reportProgress(NotPresent, "Database '" + databaseName + "' not found")
                     adapter.databaseNotFound(darfe)
                     adapter.stopOpening()
                     return None
-
-                case dae: DataAccessException =>
-                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
-                    adapter.reportProgress(OpenFailed, "Open of '" + databaseName + "' failed")
-                    adapter.seriousProblemOccurred(dae)
-                    adapter.stopOpening()
-                    return None
+//
+//                case dae: DataAccessException =>
+//                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
+//                    adapter.reportProgress(OpenFailed, "Open of '" + databaseName + "' failed")
+//                    adapter.seriousProblemOccurred(dae)
+//                    adapter.stopOpening()
+//                    return None
             }
-        }
+//        }
         None
     }
 

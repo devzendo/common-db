@@ -32,9 +32,9 @@ class OpeningDatabaseWorkflow extends AbstractTempFolderUnittest {
         val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
         openerAdapter.startOpening()
-        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.isA(classOf[String]))
+        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.eq("Starting to open 'doesnotexist'"))
         openerAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'doesnotexist'"))
-        openerAdapter.reportProgress(EasyMock.eq(NotPresent), EasyMock.isA(classOf[String]))
+        openerAdapter.reportProgress(EasyMock.eq(NotPresent), EasyMock.eq("Database 'doesnotexist' not found"))
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
