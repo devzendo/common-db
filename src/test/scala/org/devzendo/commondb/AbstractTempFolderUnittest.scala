@@ -22,6 +22,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.apache.log4j.Logger
 import org.junit.{BeforeClass, After, Before}
 import org.devzendo.commoncode.logging.LoggingUnittestHelper
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 object AbstractTempFolderUnittest {
     private val LOGGER = Logger.getLogger(classOf[AbstractTempFolderUnittest])
@@ -29,6 +30,7 @@ object AbstractTempFolderUnittest {
     @BeforeClass
     def setupLogging() {
         LoggingUnittestHelper.setupLogging()
+        SLF4JBridgeHandler.install()
     }
 
 }
