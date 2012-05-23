@@ -18,8 +18,9 @@ package org.devzendo.commondb
 
 import org.junit.Test
 import org.easymock.EasyMock
+import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 
-class OpeningDatabaseWorkflow extends AbstractTempFolderUnittest {
+class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
 
     @Test

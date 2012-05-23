@@ -22,7 +22,6 @@ Based on some of the ideas from the MiniMiser framework.
     </parent>
 
     <build>
-        <defaultGoal>integration-test</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
@@ -50,6 +49,27 @@ Based on some of the ideas from the MiniMiser framework.
                         <configuration>
                             <scalaVersion>${scala.version}</scalaVersion>
                             <sendJavaToScalac>true</sendJavaToScalac>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.3</version>      <!-- more recent version 2.8.1 available -->
+                <executions>
+                    <execution>
+                        <id>scala-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <testSourceDirectory>src/test/scala</testSourceDirectory>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <includes>
+                                <include>**/Test*.class</include>
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>

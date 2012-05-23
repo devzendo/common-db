@@ -18,7 +18,6 @@ package org.devzendo.commondb
 
 import org.junit.rules.TemporaryFolder
 import java.io.File
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.apache.log4j.Logger
 import org.junit.{BeforeClass, After, Before}
 import org.devzendo.commoncode.logging.LoggingUnittestHelper
@@ -34,7 +33,7 @@ object AbstractTempFolderUnittest {
     }
 
 }
-class AbstractTempFolderUnittest extends AssertionsForJUnit with MustMatchersForJUnit {
+class AbstractTempFolderUnittest  {
     private[this] var tempDir: TemporaryFolder = null
     var temporaryDirectory: File = null
 
