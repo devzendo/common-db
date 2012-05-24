@@ -167,6 +167,8 @@ trait OpenWorkflowAdapter {
      */
     def requestMigration(): Boolean
 
+    // TODO need to add the migrate(dataSource, jdbcTemplate, etc) here
+
     /**
      * Report to the user the migration cannot be done as this
      * database is at a more recent version than the application

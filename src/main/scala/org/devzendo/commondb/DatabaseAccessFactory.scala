@@ -33,9 +33,28 @@ object DatabaseAccessFactory {
 }
 
 sealed case class DatabaseAccess(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+    def close() {
 
+    }
 }
+
 class DatabaseAccessFactory {
+    def create(
+        databasePath: File,
+        databaseName: String,
+        password: Option[String],
+        workflowAdapter: Option[CreateWorkflowAdapter]): Option[DatabaseAccess] = {
+
+        val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
+        adapter.startCreating()
+        DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'");
+        adapter.reportProgress(Creating, "Starting to create '" + databaseName + "'");
+        val details = accessDatabase(databasePath, databaseName, password, true)
+        // TODO create tables
+        // TODO populate tables
+        // TODO emit Created
+        Some(DatabaseAccess(details._1, details._2))
+    }
 
     def open(
         databasePath: File,
@@ -57,8 +76,14 @@ class DatabaseAccessFactory {
             try {
                 adapter.reportProgress(Opening, tryingToOpenMessage)
 
-                val details = accessDatabase(databasePath, databaseName, passwordAttempt, false)
+                //val details =
+                    accessDatabase(databasePath, databaseName, passwordAttempt, false)
+                // TODO check for other application?
+                // TODO migration...
+
+                // TODO emit Opened
 //                Some(DatabaseAccess(details._1, details._2))
+
             } catch {
 //
 //                case bad: BadPasswordException =>
@@ -99,7 +124,7 @@ class DatabaseAccessFactory {
             databasePath: File,
             databaseName: String,
             password: Option[String],
-            allowCreate: Boolean): Tuple2[DataSource, SimpleJdbcTemplate] = {
+            allowCreate: Boolean): (DataSource, SimpleJdbcTemplate) = {
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' at '" + databasePath + "'");
         DatabaseAccessFactory.LOGGER.debug("Validating arguments");
         if (databasePath == null) {
@@ -126,12 +151,12 @@ class DatabaseAccessFactory {
         // that keeps the old format; 1.2.129 made the PAGE_STORE format
         // the only one - but we want to keep the old format by default
         // for now.
-        DatabaseAccessFactory.LOGGER.debug("Obtaining data source bean")
         val dbURL = dbURLParts.mkString
         DatabaseAccessFactory.LOGGER.debug("DB URL is " + dbURL)
         val driverClassName = "org.h2.Driver"
         val userName = "sa"
         val suppressClose = false
+        DatabaseAccessFactory.LOGGER.debug("Obtaining data source bean")
         //noinspection deprecation
         val dataSource = new SingleConnectionDataSource(driverClassName,
             dbURL, userName, mDbPassword + " userpwd", suppressClose);
@@ -172,6 +197,77 @@ class DatabaseAccessFactory {
 
         }
 
+    }
+
+    /**
+     * A CreateWorkflowAdapter that decorates an existing CreateWorkflowAdapter,
+     * logging all calls made prior to passing them on to the decorated
+     * CreateWorkflowAdapter.
+     *
+     */
+    private class LoggingDecoratorCreateWorkflowAdapter(adapter: Option[CreateWorkflowAdapter]) extends CreateWorkflowAdapter {
+
+        def startCreating() {
+            DatabaseAccessFactory.LOGGER.info("Start creating")
+            for (a <- adapter) {
+                a.startCreating()
+            }
+        }
+
+        def reportProgress(progressStage: CreateProgressStage, description: String) {
+            DatabaseAccessFactory.LOGGER.info("Progress: " + progressStage + ": " + description)
+            for (a <- adapter) {
+                a.reportProgress(progressStage, description)
+            }
+        }
+
+        def requestApplicationCodeVersion() = {
+            DatabaseAccessFactory.LOGGER.info("Requesting application code version")
+            val requestedVersion = adapter.flatMap(a => Option[String] {
+                a.requestApplicationCodeVersion()
+            }).getOrElse("")
+            DatabaseAccessFactory.LOGGER.info("Application code is at version '" + requestedVersion + "'")
+            requestedVersion
+        }
+
+        def requestApplicationSchemaVersion() = {
+            DatabaseAccessFactory.LOGGER.info("Requesting application schema version")
+            val requestedVersion = adapter.flatMap(a => Option[String] {
+                a.requestApplicationSchemaVersion()
+            }).getOrElse("")
+            DatabaseAccessFactory.LOGGER.info("Application schema is at version '" + requestedVersion + "'")
+            requestedVersion
+        }
+
+        def createApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+            DatabaseAccessFactory.LOGGER.info("Creating application tables")
+            for (a <- adapter) {
+                a.createApplicationTables(dataSource, jdbcTemplate)
+            }
+            DatabaseAccessFactory.LOGGER.info("Created application tables")
+        }
+
+        def populateApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+            DatabaseAccessFactory.LOGGER.info("Populating application tables")
+            for (a <- adapter) {
+                a.populateApplicationTables(dataSource, jdbcTemplate)
+            }
+            DatabaseAccessFactory.LOGGER.info("Populated application tables")
+        }
+
+        def seriousProblemOccurred(exception: DataAccessException) {
+            DatabaseAccessFactory.LOGGER.warn("Serious problem occurred: " + exception.getMessage)
+            for (a <- adapter) {
+                a.seriousProblemOccurred(exception)
+            }
+        }
+
+        def stopCreating() {
+            DatabaseAccessFactory.LOGGER.info("Stop creating")
+            for (a <- adapter) {
+                a.stopCreating()
+            }
+        }
     }
 
     /**

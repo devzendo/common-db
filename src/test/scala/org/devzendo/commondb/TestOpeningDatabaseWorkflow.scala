@@ -19,6 +19,7 @@ package org.devzendo.commondb
 import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import java.io.File
 
 class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
@@ -43,4 +44,50 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
 
         EasyMock.verify(openerAdapter)
     }
+
+//    @Test
+//    def plainOpenMustReturnSome() {
+//        val dbName = "plainreturn"
+//        createDatabase(temporaryDirectory, dbName, None).get.close()
+//
+//        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
+//        try {
+//            database must be(Some)
+//        } finally {
+//            database match {
+//                case Some =>
+//                    database.get.close()
+//            }
+//        }
+//    }
+//
+//    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
+//        databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
+//    }
+//
+//    @Test
+//    def plainOpenProgressNotification() {
+//        val dbName = "plainprogress"
+//        createDatabase(temporaryDirectory, dbName, None).get.close()
+//        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
+//        EasyMock.checkOrder(openerAdapter, true)
+//        openerAdapter.startOpening()
+//        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.eq("Starting to open 'progressplain'"))
+//        openerAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'progressplain'"))
+//        openerAdapter.reportProgress(EasyMock.eq(Opened), EasyMock.eq("Opened database 'progressplain'"))
+//        openerAdapter.stopOpening()
+//        EasyMock.replay(openerAdapter)
+//
+//        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, Some(openerAdapter))
+//
+//        try {
+//            EasyMock.verify(openerAdapter)
+//        } finally {
+//            database match {
+//                case Some =>
+//                    database.get.close()
+//            }
+//        }
+//    }
+
 }
