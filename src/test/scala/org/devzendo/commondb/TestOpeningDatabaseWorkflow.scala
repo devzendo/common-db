@@ -61,9 +61,9 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
 //        }
 //    }
 //
-//    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
-//        databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
-//    }
+    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
+        databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
+    }
 //
 //    @Test
 //    def plainOpenProgressNotification() {
@@ -89,5 +89,42 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
 //            }
 //        }
 //    }
+
+    @Test
+    def plainOpenDatabaseIsActuallyOpen() {
+        val dbName = "plainopenisopen"
+        createDatabase(temporaryDirectory, dbName, None).get.close()
+
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
+
+        try {
+            database must be('defined)
+            database.get.isClosed must be(false)
+        } finally {
+            for (d <- database) {
+                d.close()
+            }
+        }
+        database.get.isClosed must be(true)
+    }
+
+    @Test
+    def plainOpenDatabaseCloseActuallyCloses() {
+        val dbName = "plainclose"
+        createDatabase(temporaryDirectory, dbName, None).get.close()
+
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
+
+        try {
+            database must be('defined)
+            database.get.isClosed must be(false)
+            database.get.close()
+            database.get.isClosed must be(true)
+        } finally {
+            for (d <- database) {
+                d.close()
+            }
+        }
+    }
 
 }

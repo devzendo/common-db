@@ -19,7 +19,6 @@ package org.devzendo.commondb
 import java.io.File
 import org.apache.log4j.Logger
 import collection.mutable.ListBuffer
-import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import javax.sql.DataSource
 import org.springframework.dao.{DataAccessException, DataAccessResourceFailureException}
@@ -27,14 +26,51 @@ import org.devzendo.commoncode.string.StringUtils
 
 import java.sql.SQLException
 import org.h2.constant.ErrorCode
+import org.springframework.jdbc.datasource.{DataSourceUtils, SingleConnectionDataSource}
+import org.springframework.jdbc.CannotGetJdbcConnectionException
 
 object DatabaseAccessFactory {
-    private val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
+    val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
 }
 
-sealed case class DatabaseAccess(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
-    def close() {
+sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+    private[this] var closed: Boolean = false
 
+    def close() {
+        if (closed) {
+            DatabaseAccessFactory.LOGGER.info("Database '" + databaseName + "' at '" + databasePath + "' is already closed")
+            return
+        }
+
+        // TODO callDatabaseClosingFacades();
+        try {
+            DatabaseAccessFactory.LOGGER.info("Closing database '" + databaseName + "' at '" + databasePath + "'")
+            DataSourceUtils.getConnection(dataSource).close()
+            DatabaseAccessFactory.LOGGER.info("Closed database '" + databaseName + "' at '" + databasePath + "'")
+            closed = true
+        } catch {
+            case e: CannotGetJdbcConnectionException =>
+                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on close: " + e.getMessage(), e)
+            case s: SQLException =>
+                DatabaseAccessFactory.LOGGER.warn("SQL Exception on close: " + s.getMessage(), s)
+        }
+    }
+
+    def isClosed: Boolean = {
+        if (closed)
+            return true
+        try {
+            return DataSourceUtils.getConnection(dataSource).isClosed
+        }
+        catch {
+            case e: CannotGetJdbcConnectionException => {
+                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on isClosed: " + e.getMessage, e)
+            }
+            case e: SQLException => {
+                DatabaseAccessFactory.LOGGER.warn("SQL Exception on isClosed: " + e.getMessage, e)
+            }
+        }
+        return false
     }
 }
 
@@ -53,7 +89,7 @@ class DatabaseAccessFactory {
         // TODO create tables
         // TODO populate tables
         // TODO emit Created
-        Some(DatabaseAccess(details._1, details._2))
+        Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
     }
 
     def open(
@@ -65,24 +101,24 @@ class DatabaseAccessFactory {
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)
 
         adapter.startOpening()
-        DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' from path '" + databasePath + "'");
-        adapter.reportProgress(Starting, "Starting to open '" + databaseName + "'");
+        DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' from path '" + databasePath + "'")
+        adapter.reportProgress(Starting, "Starting to open '" + databaseName + "'")
 
         // Try at first with the supplied password - if we get a BadPasswordException,
         // prompt for password and retry.
-        var tryingToOpenMessage = "Opening database '" + databaseName + "'";
+        var tryingToOpenMessage = "Opening database '" + databaseName + "'"
         var passwordAttempt = password
         //while (true) {
             try {
                 adapter.reportProgress(Opening, tryingToOpenMessage)
 
-                //val details =
+                val details =
                     accessDatabase(databasePath, databaseName, passwordAttempt, false)
                 // TODO check for other application?
                 // TODO migration...
 
                 // TODO emit Opened
-//                Some(DatabaseAccess(details._1, details._2))
+                return Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
 
             } catch {
 //
@@ -130,7 +166,7 @@ class DatabaseAccessFactory {
         if (databasePath == null) {
             throw new DataAccessResourceFailureException("Null database path")
         }
-        val mDbPath = databasePath.getAbsolutePath.trim()
+        val mDbPath = new File(databasePath, databaseName).getAbsolutePath.trim()
         if (mDbPath.length() == 0) {
             throw new DataAccessResourceFailureException(String.format("Incorrect database path '%s'", databasePath));
         }
