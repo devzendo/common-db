@@ -88,7 +88,8 @@ class DatabaseAccessFactory {
         val details = accessDatabase(databasePath, databaseName, password, true)
         // TODO create tables
         // TODO populate tables
-        // TODO emit Created
+        adapter.reportProgress(Created, "Created '" + databaseName + "'");
+        adapter.stopCreating()
         Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
     }
 
