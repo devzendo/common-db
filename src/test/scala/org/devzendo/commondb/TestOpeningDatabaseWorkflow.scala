@@ -48,31 +48,30 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
     def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
         databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
     }
-//
-//    @Test
-//    def plainOpenProgressNotification() {
-//        val dbName = "plainprogress"
-//        createDatabase(temporaryDirectory, dbName, None).get.close()
-//        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
-//        EasyMock.checkOrder(openerAdapter, true)
-//        openerAdapter.startOpening()
-//        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.eq("Starting to open 'progressplain'"))
-//        openerAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'progressplain'"))
-//        openerAdapter.reportProgress(EasyMock.eq(Opened), EasyMock.eq("Opened database 'progressplain'"))
-//        openerAdapter.stopOpening()
-//        EasyMock.replay(openerAdapter)
-//
-//        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, Some(openerAdapter))
-//
-//        try {
-//            EasyMock.verify(openerAdapter)
-//        } finally {
-//            database match {
-//                case Some =>
-//                    database.get.close()
-//            }
-//        }
-//    }
+
+    @Test
+    def plainOpenProgressNotification() {
+        val dbName = "plainprogress"
+        createDatabase(temporaryDirectory, dbName, None).get.close()
+        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(Starting), EasyMock.eq("Starting to open 'plainprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'plainprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(Opened), EasyMock.eq("Opened database 'plainprogress'"))
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, Some(openerAdapter))
+
+        try {
+            EasyMock.verify(openerAdapter)
+        } finally {
+            for (d <- database) {
+                d.close()
+            }
+        }
+    }
 
     @Test
     def plainOpenDatabaseIsActuallyOpen() {

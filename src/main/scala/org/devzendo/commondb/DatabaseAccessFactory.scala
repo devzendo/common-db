@@ -117,7 +117,8 @@ class DatabaseAccessFactory {
                 // TODO check for other application?
                 // TODO migration...
 
-                // TODO emit Opened
+                adapter.reportProgress(Opened, "Opened database '" + databaseName + "'")
+                adapter.stopOpening()
                 return Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
 
             } catch {
