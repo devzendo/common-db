@@ -45,22 +45,6 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         EasyMock.verify(openerAdapter)
     }
 
-//    @Test
-//    def plainOpenMustReturnSome() {
-//        val dbName = "plainreturn"
-//        createDatabase(temporaryDirectory, dbName, None).get.close()
-//
-//        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
-//        try {
-//            database must be(Some)
-//        } finally {
-//            database match {
-//                case Some =>
-//                    database.get.close()
-//            }
-//        }
-//    }
-//
     def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
         databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
     }
