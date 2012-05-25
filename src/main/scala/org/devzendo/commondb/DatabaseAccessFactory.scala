@@ -50,9 +50,9 @@ sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataS
             closed = true
         } catch {
             case e: CannotGetJdbcConnectionException =>
-                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on close: " + e.getMessage(), e)
+                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on close: " + e.getMessage, e)
             case s: SQLException =>
-                DatabaseAccessFactory.LOGGER.warn("SQL Exception on close: " + s.getMessage(), s)
+                DatabaseAccessFactory.LOGGER.warn("SQL Exception on close: " + s.getMessage, s)
         }
     }
 
@@ -70,7 +70,7 @@ sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataS
                 DatabaseAccessFactory.LOGGER.warn("SQL Exception on isClosed: " + e.getMessage, e)
             }
         }
-        return false
+        false
     }
 }
 
