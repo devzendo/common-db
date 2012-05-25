@@ -86,11 +86,11 @@ class DatabaseAccessFactory {
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
         adapter.startCreating()
         DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'");
-        adapter.reportProgress(Creating, "Starting to create '" + databaseName + "'");
+        adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'");
         val details = accessDatabase(databasePath, databaseName, password, true)
         // TODO create tables
         // TODO populate tables
-        adapter.reportProgress(Created, "Created '" + databaseName + "'");
+        adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'");
         adapter.stopCreating()
         Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
     }
@@ -256,7 +256,7 @@ class DatabaseAccessFactory {
             }
         }
 
-        def reportProgress(progressStage: CreateProgressStage, description: String) {
+        def reportProgress(progressStage: CreateProgressStage.Enum, description: String) {
             DatabaseAccessFactory.LOGGER.info("Progress: " + progressStage + ": " + description)
             for (a <- adapter) {
                 a.reportProgress(progressStage, description)

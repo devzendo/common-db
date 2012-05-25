@@ -20,60 +20,63 @@ import org.springframework.dao.{DataAccessResourceFailureException, DataAccessEx
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
+object CreateProgressStage {
 
-sealed trait CreateProgressStage {
-    def index: Int
+    sealed trait Enum {
+        def index: Int
+
+        /**
+         * How many steps are there in total?
+         * @return the maximum value of a CreateProgressStage
+         */
+        def maximumStages = 4
+    }
 
     /**
-     * How many steps are there in total?
-     * @return the maximum value of a CreateProgressStage
+     * The creation operation is starting. Sent almost immediately to give some
+     * immediate feedback.
      */
-    def maximumStages = 4
-}
+    case object CreateStarting extends Enum {
+        val index = 0;
+    }
 
-/**
- * The creation operation is starting. Sent almost immediately to give some
- * immediate feedback.
- */
-case object CreateStarting extends CreateProgressStage {
-    val index = 0;
-}
+    /**
+     * Sent immediately prior to creating the database.
+     */
+    case object Creating extends Enum {
+        val index = 1;
+    }
 
-/**
- * Sent immediately prior to creating the database.
- */
-case object Creating extends CreateProgressStage {
-    val index = 1;
-}
+    /**
+     * Sent before creating the tables
+     */
+    case object CreatingTables extends Enum {
+        val index = 2;
+    }
 
-/**
- * Sent before creating the tables
- */
-case object CreatingTables extends CreateProgressStage {
-    val index = 2;
-}
+    /**
+     * Sent before populating the tables
+     */
+    case object PopulatingTables extends Enum {
+        val index = 3;
+    }
 
-/**
- * Sent before populating the tables
- */
-case object PopulatingTables extends CreateProgressStage {
-    val index = 3;
-}
+    // End states ---------------------------------------------
 
-// End states ---------------------------------------------
+    /**
+     * Sent upon successful creation.
+     */
+    case object Created extends Enum {
+        val index = 4;
+    }
 
-/**
- * Sent upon successful creation.
- */
-case object Created extends CreateProgressStage {
-    val index = 4;
-}
+    /**
+     * Failed to creation for a serious reason
+     */
+    case object CreationFailed extends Enum {
+        val index = 4;
+    }
 
-/**
- * Failed to creation for a serious reason
- */
-case object CreationFailed extends CreateProgressStage {
-    val index = 4;
 }
 
 /**
@@ -102,7 +105,7 @@ trait CreateWorkflowAdapter {
      * @param progressStage the stage we have reached
      * @param description a short text to show the user
      */
-    def reportProgress(progressStage: CreateProgressStage, description: String)
+    def reportProgress(progressStage: CreateProgressStage.Enum, description: String)
 
     /**
      * Request the application code version.
