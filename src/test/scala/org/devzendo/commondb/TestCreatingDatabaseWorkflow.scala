@@ -22,10 +22,12 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 
 class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
+    val codeVersion = CodeVersion("1.0")
+    val schemaVersion = SchemaVersion("0.4")
 
     @Test
     def createDatabaseReturnsSome() {
-        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, None)
+        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None)
         for (d <- database) {
             d.close()
         }
@@ -45,7 +47,7 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with Asser
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)
 
-        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, Some(creatorAdapter))
+        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter))
         for (d <- database) {
             d.close()
         }

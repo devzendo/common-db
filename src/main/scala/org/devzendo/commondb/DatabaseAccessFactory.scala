@@ -79,6 +79,8 @@ class DatabaseAccessFactory {
         databasePath: File,
         databaseName: String,
         password: Option[String],
+        codeVersion: CodeVersion,
+        schemaVersion: SchemaVersion,
         workflowAdapter: Option[CreateWorkflowAdapter]): Option[DatabaseAccess] = {
 
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
@@ -97,6 +99,8 @@ class DatabaseAccessFactory {
         databasePath: File,
         databaseName: String,
         password: Option[String],
+        codeVersion: CodeVersion,
+        schemaVersion: SchemaVersion,
         workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess] = {
 
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)

@@ -23,10 +23,13 @@ import java.io.File
 
 class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
+    val codeVersion = CodeVersion("1.0")
+    val schemaVersion = SchemaVersion("0.4")
+
 
     @Test
     def databaseDoesNotExistSoReturnsNone() {
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, None) must be(None)
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None) must be(None)
     }
 
     @Test
@@ -40,13 +43,13 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, Some(openerAdapter))
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter))
 
         EasyMock.verify(openerAdapter)
     }
 
     def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
-        databaseAccessFactory.create(databaseDirectory, databaseName, password, None)
+        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None)
     }
 
     @Test
@@ -62,7 +65,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, Some(openerAdapter))
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, Some(openerAdapter))
 
         try {
             EasyMock.verify(openerAdapter)
@@ -78,7 +81,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         val dbName = "plainopenisopen"
         createDatabase(temporaryDirectory, dbName, None).get.close()
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
 
         try {
             database must be('defined)
@@ -96,7 +99,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         val dbName = "plainclose"
         createDatabase(temporaryDirectory, dbName, None).get.close()
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, None)
+        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
 
         try {
             database must be('defined)
