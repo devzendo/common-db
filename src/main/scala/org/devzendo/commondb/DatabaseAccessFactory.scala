@@ -107,7 +107,7 @@ class DatabaseAccessFactory {
 
         adapter.startOpening()
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' from path '" + databasePath + "'")
-        adapter.reportProgress(OpenStarting, "Starting to open '" + databaseName + "'")
+        adapter.reportProgress(OpenProgressStage.OpenStarting, "Starting to open '" + databaseName + "'")
 
         // Try at first with the supplied password - if we get a BadPasswordException,
         // prompt for password and retry.
@@ -115,14 +115,14 @@ class DatabaseAccessFactory {
         var passwordAttempt = password
         //while (true) {
             try {
-                adapter.reportProgress(Opening, tryingToOpenMessage)
+                adapter.reportProgress(OpenProgressStage.Opening, tryingToOpenMessage)
 
                 val details =
                     accessDatabase(databasePath, databaseName, passwordAttempt, false)
                 // TODO check for other application?
                 // TODO migration...
 
-                adapter.reportProgress(Opened, "Opened database '" + databaseName + "'")
+                adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
                 adapter.stopOpening()
                 return Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
 
@@ -130,13 +130,13 @@ class DatabaseAccessFactory {
 //
 //                case bad: BadPasswordException =>
 //                    DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
-//                    adapter.reportProgress(PasswordRequired, "Password required for '" + databaseName + "'")
+//                    adapter.reportProgress(OpenProgressStage.PasswordRequired, "Password required for '" + databaseName + "'")
 //                    val thisAttempt = adapter.requestPassword()
 //                    passwordAttempt = thisAttempt
 //                    passwordAttempt match {
 //                        case None =>
 //                            DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
-//                            adapter.reportProgress(PasswordCancelled, "Open of '" + databaseName + "' cancelled")
+//                            adapter.reportProgress(OpenProgressStage.PasswordCancelled, "Open of '" + databaseName + "' cancelled")
 //                            adapter.stopOpening()
 //                            return None
 //                        case _ =>
@@ -146,14 +146,14 @@ class DatabaseAccessFactory {
 //
                 case darfe: DataAccessResourceFailureException =>
                     DatabaseAccessFactory.LOGGER.warn("Could not open database: " + darfe.getMessage)
-                    adapter.reportProgress(NotPresent, "Database '" + databaseName + "' not found")
+                    adapter.reportProgress(OpenProgressStage.NotPresent, "Database '" + databaseName + "' not found")
                     adapter.databaseNotFound(darfe)
                     adapter.stopOpening()
                     return None
 //
 //                case dae: DataAccessException =>
 //                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
-//                    adapter.reportProgress(OpenFailed, "Open of '" + databaseName + "' failed")
+//                    adapter.reportProgress(OpenProgressStage.OpenFailed, "Open of '" + databaseName + "' failed")
 //                    adapter.seriousProblemOccurred(dae)
 //                    adapter.stopOpening()
 //                    return None
@@ -326,7 +326,7 @@ class DatabaseAccessFactory {
             }
         }
 
-        def reportProgress(progressStage: ProgressStage, description: String) {
+        def reportProgress(progressStage: OpenProgressStage.Enum, description: String) {
             DatabaseAccessFactory.LOGGER.info("Progress: " + progressStage + ": " + description)
             for (a <- adapter) {
                 a.reportProgress(progressStage, description)

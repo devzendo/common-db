@@ -18,138 +18,141 @@ package org.devzendo.commondb
 
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
-sealed trait ProgressStage {
-    def index: Int
+object OpenProgressStage {
+
+    sealed trait Enum {
+        def index: Int
+
+        /**
+         * How many steps are there in total?
+         * @return the maximum value of a ProgressStage
+         */
+        def maximumStages = 6
+    }
 
     /**
-     * How many steps are there in total?
-     * @return the maximum value of a ProgressStage
+     * The open operation is starting. Sent almost immediately to give some
+     * immediate feedback.
      */
-    def maximumStages = 6
-}
+    case object OpenStarting extends Enum {
+        val index = 0
+    }
 
-/**
- * The open operation is starting. Sent almost immediately to give some
- * immediate feedback.
- */
-case object OpenStarting extends ProgressStage {
-    val index = 0
-}
+    /**
+     * Sent immediately prior to opening the database.
+     */
+    case object Opening extends Enum {
+        val index = 1
+    }
 
-/**
- * Sent immediately prior to opening the database.
- */
-case object Opening extends ProgressStage {
-    val index = 1
-}
+    /**
+     * Sent before the password is requested from the adapter.
+     */
+    case object PasswordRequired extends Enum {
+        val index = 2
+    }
 
-/**
- * Sent before the password is requested from the adapter.
- */
-case object PasswordRequired extends ProgressStage {
-    val index = 2
-}
+    /**
+     * Sent if the database requires migration and the user should be prompted by the adapter.
+     */
+    case object MigrationRequired extends Enum {
+        val index = 3
+    }
 
-/**
- * Sent if the database requires migration and the user should be prompted by the adapter.
- */
-case object MigrationRequired extends ProgressStage {
-    val index = 3
-}
+    /**
+     * Sent during migration if the user allowed it.
+     */
+    case object Migrating extends Enum {
+        val index = 4
+    }
 
-/**
- * Sent during migration if the user allowed it.
- */
-case object Migrating extends ProgressStage {
-    val index = 4
-}
+    /**
+     * Sent after successful migration
+     */
+    case object Migrated extends Enum {
+        val index = 5
+    }
 
-/**
- * Sent after successful migration
- */
-case object Migrated extends ProgressStage {
-    val index = 5
-}
+    // End states ---------------------------------------------
 
-// End states ---------------------------------------------
+    /**
+     * Sent upon successful open.
+     */
+    case object Opened extends Enum {
+        val index = 6
+    }
 
-/**
- * Sent upon successful open.
- */
-case object Opened extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The user cancelled the password entry on an encrypted database.
+     */
+    case object PasswordCancelled extends Enum {
+        val index = 6
+    }
 
-/**
- * The user cancelled the password entry on an encrypted database.
- */
-case object PasswordCancelled extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The user rejected the migration request on an old database.
+     */
+    case object MigrationCancelled extends Enum {
+        val index = 6
+    }
 
-/**
- * The user rejected the migration request on an old database.
- */
-case object MigrationCancelled extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The migration cannot be done as this database is at a
+     * more recent version than the application supports. After
+     * receiving this ProgressStage, you will receive a
+     * migrationNotPossible() call.
+     */
+    case object MigrationNotPossible extends Enum {
+        val index = 6
+    }
 
-/**
- * The migration cannot be done as this database is at a
- * more recent version than the application supports. After
- * receiving this ProgressStage, you will receive a
- * migrationNotPossible() call.
- */
-case object MigrationNotPossible extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The migration cannot be done as this database was
+     * created by some other application (the application
+     * declared in the database does not match the
+     * runtime application). After receiving this ProgressStage,
+     * you will receive a createdByOtherApplication() call.
+     */
+    case object OtherApplicationDatabase extends Enum {
+        val index = 6
+    }
 
-/**
- * The migration cannot be done as this database was
- * created by some other application (the application
- * declared in the database does not match the
- * runtime application). After receiving this ProgressStage,
- * you will receive a createdByOtherApplication() call.
- */
-case object OtherApplicationDatabase extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The open cannot be done since there is no application
+     * details available, so the opener cannot check whether
+     * this database was created by that application. After
+     * receiving this ProgressStage, you will receive a
+     * noApplicationAvailable call.
+     */
+    case object NoApplicationDetails extends Enum {
+        val index = 6
+    }
 
-/**
- * The open cannot be done since there is no application
- * details available, so the opener cannot check whether
- * this database was created by that application. After
- * receiving this ProgressStage, you will receive a
- * noApplicationAvailable call.
- */
-case object NoApplicationDetails extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The migration failed and its effects have been rolled
+     * back (as far is as practical, given H2's auto-commit
+     * of DML when DDL is executed - ignoring the context
+     * of any outstanding transaction. After receiving this
+     * ProgressStage, you will receive a migrationFailed()
+     * call.
+     */
+    case object MigrationFailed extends Enum {
+        val index = 6
+    }
 
-/**
- * The migration failed and its effects have been rolled
- * back (as far is as practical, given H2's auto-commit
- * of DML when DDL is executed - ignoring the context
- * of any outstanding transaction. After receiving this
- * ProgressStage, you will receive a migrationFailed()
- * call.
- */
-case object MigrationFailed extends ProgressStage {
-    val index = 6
-}
+    /**
+     * The database is not present.
+     */
+    case object NotPresent extends Enum {
+        val index = 6
+    }
 
-/**
- * The database is not present.
- */
-case object NotPresent extends ProgressStage {
-    val index = 6
-}
-
-/**
- * Failed to open for a serious reason
- */
-case object OpenFailed extends ProgressStage {
-    val index = 6
+    /**
+     * Failed to open for a serious reason
+     */
+    case object OpenFailed extends Enum {
+        val index = 6
+    }
 }
 
 /**
@@ -176,7 +179,7 @@ trait OpenWorkflowAdapter {
      * @param progressStage the stage we have reached
      * @param description a short text to show the user
      */
-    def reportProgress(progressStage: ProgressStage, description: String)
+    def reportProgress(progressStage: OpenProgressStage.Enum, description: String)
 
     /**
      * The database is encrypted, and the password must be prompted for and
