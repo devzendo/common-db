@@ -107,7 +107,7 @@ class DatabaseAccessFactory {
 
         adapter.startOpening()
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' from path '" + databasePath + "'")
-        adapter.reportProgress(Starting, "Starting to open '" + databaseName + "'")
+        adapter.reportProgress(OpenStarting, "Starting to open '" + databaseName + "'")
 
         // Try at first with the supplied password - if we get a BadPasswordException,
         // prompt for password and retry.

@@ -18,10 +18,8 @@ package org.devzendo.commondb
 
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
-
 sealed trait ProgressStage {
     def index: Int
-    def description: String
 
     /**
      * How many steps are there in total?
@@ -34,49 +32,67 @@ sealed trait ProgressStage {
  * The open operation is starting. Sent almost immediately to give some
  * immediate feedback.
  */
-case object Starting extends ProgressStage { val index = 0; val description = "STARTING" }
+case object OpenStarting extends ProgressStage {
+    val index = 0
+}
 
 /**
  * Sent immediately prior to opening the database.
  */
-case object Opening extends ProgressStage { val index = 1; val description = "OPENING" }
+case object Opening extends ProgressStage {
+    val index = 1
+}
 
 /**
  * Sent before the password is requested from the adapter.
  */
-case object PasswordRequired extends ProgressStage { val index = 2; val description = "PASSWORD_REQUIRED" }
+case object PasswordRequired extends ProgressStage {
+    val index = 2
+}
 
 /**
  * Sent if the database requires migration and the user should be prompted by the adapter.
  */
-case object MigrationRequired extends ProgressStage { val index = 3; val description = "MIGRATION_REQUIRED" }
+case object MigrationRequired extends ProgressStage {
+    val index = 3
+}
 
 /**
  * Sent during migration if the user allowed it.
  */
-case object Migrating extends ProgressStage { val index = 4; val description = "MIGRATING" }
+case object Migrating extends ProgressStage {
+    val index = 4
+}
 
 /**
  * Sent after successful migration
  */
-case object Migrated extends ProgressStage { val index = 5; val description = "MIGRATED" }
+case object Migrated extends ProgressStage {
+    val index = 5
+}
 
 // End states ---------------------------------------------
 
 /**
  * Sent upon successful open.
  */
-case object Opened extends ProgressStage { val index = 6; val description = "OPENED" }
+case object Opened extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The user cancelled the password entry on an encrypted database.
  */
-case object PasswordCancelled extends ProgressStage { val index = 6; val description = "PASSWORD_CANCELLED" }
+case object PasswordCancelled extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The user rejected the migration request on an old database.
  */
-case object MigrationCancelled extends ProgressStage { val index = 6; val description = "MIGRATION_CANCELLED" }
+case object MigrationCancelled extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The migration cannot be done as this database is at a
@@ -84,7 +100,9 @@ case object MigrationCancelled extends ProgressStage { val index = 6; val descri
  * receiving this ProgressStage, you will receive a
  * migrationNotPossible() call.
  */
-case object MigrationNotPossible extends ProgressStage { val index = 6; val description = "MIGRATION_NOT_POSSIBLE" }
+case object MigrationNotPossible extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The migration cannot be done as this database was
@@ -93,7 +111,9 @@ case object MigrationNotPossible extends ProgressStage { val index = 6; val desc
  * runtime application). After receiving this ProgressStage,
  * you will receive a createdByOtherApplication() call.
  */
-case object OtherApplicationDatabase extends ProgressStage { val index = 6; val description = "OTHER_APPLICATION_DATABASE" }
+case object OtherApplicationDatabase extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The open cannot be done since there is no application
@@ -102,7 +122,9 @@ case object OtherApplicationDatabase extends ProgressStage { val index = 6; val 
  * receiving this ProgressStage, you will receive a
  * noApplicationAvailable call.
  */
-case object NoApplicationDetails extends ProgressStage { val index = 6; val description = "NO_APPLICATION_DETAILS" }
+case object NoApplicationDetails extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The migration failed and its effects have been rolled
@@ -112,17 +134,23 @@ case object NoApplicationDetails extends ProgressStage { val index = 6; val desc
  * ProgressStage, you will receive a migrationFailed()
  * call.
  */
-case object MigrationFailed extends ProgressStage { val index = 6; val description = "MIGRATION_FAILED" }
+case object MigrationFailed extends ProgressStage {
+    val index = 6
+}
 
 /**
  * The database is not present.
  */
-case object NotPresent extends ProgressStage { val index = 6; val description = "NOT_PRESENT" }
+case object NotPresent extends ProgressStage {
+    val index = 6
+}
 
 /**
  * Failed to open for a serious reason
  */
-case object OpenFailed extends ProgressStage { val index = 6; val description = "OPEN_FAILED" }
+case object OpenFailed extends ProgressStage {
+    val index = 6
+}
 
 /**
  * A DatabaseAccessFactory uses an OpenWorkflowAdapter to inform the user of:

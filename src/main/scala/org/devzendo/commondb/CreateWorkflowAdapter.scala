@@ -24,8 +24,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 sealed trait CreateProgressStage {
     def index: Int
 
-    def description: String
-
     /**
      * How many steps are there in total?
      * @return the maximum value of a CreateProgressStage
@@ -37,9 +35,8 @@ sealed trait CreateProgressStage {
  * The creation operation is starting. Sent almost immediately to give some
  * immediate feedback.
  */
-case object Starting extends CreateProgressStage {
+case object CreateStarting extends CreateProgressStage {
     val index = 0;
-    val description = "STARTING"
 }
 
 /**
@@ -47,7 +44,6 @@ case object Starting extends CreateProgressStage {
  */
 case object Creating extends CreateProgressStage {
     val index = 1;
-    val description = "CREATING"
 }
 
 /**
@@ -55,7 +51,6 @@ case object Creating extends CreateProgressStage {
  */
 case object CreatingTables extends CreateProgressStage {
     val index = 2;
-    val description = "CREATING_TABLES"
 }
 
 /**
@@ -63,7 +58,6 @@ case object CreatingTables extends CreateProgressStage {
  */
 case object PopulatingTables extends CreateProgressStage {
     val index = 3;
-    val description = "POPULATING_TABLES"
 }
 
 // End states ---------------------------------------------
@@ -73,7 +67,6 @@ case object PopulatingTables extends CreateProgressStage {
  */
 case object Created extends CreateProgressStage {
     val index = 4;
-    val description = "CREATED"
 }
 
 /**
@@ -81,7 +74,6 @@ case object Created extends CreateProgressStage {
  */
 case object CreationFailed extends CreateProgressStage {
     val index = 4;
-    val description = "CREATION_FAILED"
 }
 
 /**
