@@ -33,8 +33,21 @@ object DatabaseAccessFactory {
     val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
 }
 
-sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+trait VersionsDao {
+
+}
+trait XDatabaseAccess {
+    def close()
+    def isClosed: Boolean
+    def versionsDao: VersionsDao
+}
+
+private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
+
+}
+sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends XDatabaseAccess {
     private[this] var closed: Boolean = false
+    val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
 
     def close() {
         if (closed) {
