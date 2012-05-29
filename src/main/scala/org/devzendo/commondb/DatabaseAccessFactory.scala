@@ -36,7 +36,7 @@ object DatabaseAccessFactory {
 trait VersionsDao {
 
 }
-trait XDatabaseAccess {
+trait DatabaseAccess {
     def close()
     def isClosed: Boolean
     def versionsDao: VersionsDao
@@ -45,7 +45,7 @@ trait XDatabaseAccess {
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
 }
-sealed case class DatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends XDatabaseAccess {
+sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess {
     private[this] var closed: Boolean = false
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
 
@@ -105,7 +105,7 @@ class DatabaseAccessFactory {
         // TODO populate tables
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'");
         adapter.stopCreating()
-        Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
+        Some(JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2))
     }
 
     def open(
@@ -137,7 +137,7 @@ class DatabaseAccessFactory {
 
                 adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
                 adapter.stopOpening()
-                return Some(DatabaseAccess(databasePath, databaseName, details._1, details._2))
+                return Some(JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2))
 
             } catch {
 //
