@@ -35,14 +35,16 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
             database must be('defined)
             val databaseAccess = database.get
             def versionsDao = databaseAccess.versionsDao
-//
-//            def dbSchemaVersion = versionsDao.findVersion(SchemaVersion.name)
-//            dbSchemaVersion must be ('defined)
-//            dbSchemaVersion.get.getVersion() must be(schemaVersion)
-//
-//            def dbCodeVersion = versionsDao.findVersion(CodeVersion.name)
-//            dbCodeVersion must be ('defined)
-//            dbCodeVersion.get.getVersion() must be(codeVersion)
+
+            def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
+            dbSchemaVersion must be ('defined)
+            dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
+            dbSchemaVersion.get must be(schemaVersion)
+
+            def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
+            dbCodeVersion must be ('defined)
+            dbCodeVersion.get.getClass must be(classOf[CodeVersion])
+            dbCodeVersion.get must be(codeVersion)
         } finally {
             for (d <- database) {
                 d.close()

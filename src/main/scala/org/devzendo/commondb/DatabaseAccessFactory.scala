@@ -19,22 +19,24 @@ package org.devzendo.commondb
 import java.io.File
 import org.apache.log4j.Logger
 import collection.mutable.ListBuffer
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import javax.sql.DataSource
-import org.springframework.dao.{DataAccessException, DataAccessResourceFailureException}
 import org.devzendo.commoncode.string.StringUtils
 
-import java.sql.SQLException
 import org.h2.constant.ErrorCode
 import org.springframework.jdbc.datasource.{DataSourceUtils, SingleConnectionDataSource}
 import org.springframework.jdbc.CannotGetJdbcConnectionException
+import org.springframework.dao.{DataAccessException, DataAccessResourceFailureException}
+import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
+import java.sql.{ResultSet, SQLException}
 
 object DatabaseAccessFactory {
     val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
 }
 
 trait VersionsDao {
+    def persistVersion[V <: Version](versionType: Class[V], version: V)
 
+    def findVersion[V <: Version](versionType: Class[V]): Option[V]
 }
 trait DatabaseAccess {
     def close()
@@ -43,6 +45,46 @@ trait DatabaseAccess {
 }
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
+
+    @throws(classOf[DataAccessException])
+    def findVersion[V <: Version](versionType: Class[V]): Option[V] = {
+
+        val sql = "SELECT version FROM Versions WHERE entity = ?"
+        val mapper: ParameterizedRowMapper[V] = new ParameterizedRowMapper[V]() {
+
+            // notice the return type with respect to Java 5 covariant return types
+//                public Version mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+//                final Version version = new Version();
+//                version.setPluginName(rs.getString("plugin"));
+//                version.setEntity(rs.getString("entity"));
+//                version.setIsApplication(rs.getBoolean("isapplication"));
+//                version.setVersion(rs.getString("version"));
+//                return version;
+//            }
+            def mapRow(rs: ResultSet, rowNum: Int) = {
+                val ctor = versionType.getConstructor(classOf[String])
+                ctor.newInstance(rs.getString("version"))
+            }
+        }
+        //noinspection deprecation
+        return Some(jdbcTemplate.queryForObject(sql, mapper, versionType.getSimpleName))
+    }
+
+    @throws(classOf[DataAccessException])
+    def persistVersion[V <: Version](versionType: Class[V], version: V) {
+        val count = jdbcTemplate.queryForInt(
+            "SELECT COUNT(0) FROM Versions WHERE entity = ?",
+            versionType.getSimpleName)
+        if (count == 0) {
+            jdbcTemplate.update(
+                "INSERT INTO Versions (entity, version) VALUES (?, ?)",
+                versionType.getSimpleName, version.toRepresentation)
+        } else {
+            jdbcTemplate.update(
+                "UPDATE Versions SET version = ? WHERE entity = ?",
+                version.toRepresentation, versionType.getSimpleName)
+        }
+    }
 
 }
 sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess {
@@ -88,6 +130,12 @@ sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: S
 }
 
 class DatabaseAccessFactory {
+    private[this] val CREATION_DDL_STRINGS = List[String](
+        "CREATE TABLE Versions(" + "entity VARCHAR(40)," + "version VARCHAR(40)" + ")" //,
+        //        "CREATE SEQUENCE Sequence START WITH 1 INCREMENT BY 1"
+    )
+    private final val STATIC_CREATION_STEPS: Int = 4
+
     def create(
         databasePath: File,
         databaseName: String,
@@ -101,11 +149,26 @@ class DatabaseAccessFactory {
         DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'");
         adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'");
         val details = accessDatabase(databasePath, databaseName, password, true)
-        // TODO create tables
-        // TODO populate tables
+        val access = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
+        createTables(access, adapter, details._1, details._2)
+        populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'");
         adapter.stopCreating()
-        Some(JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2))
+        Some(access)
+    }
+
+    private[this] def createTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+        adapter.reportProgress(CreateProgressStage.CreatingTables, "Creating tables")
+        CREATION_DDL_STRINGS.foreach( (ddl) => {
+            jdbcTemplate.getJdbcOperations().execute(ddl)
+        })
+        // TODO call back into the caller to create its own tables
+    }
+
+    private[this] def populateTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
+        adapter.reportProgress(CreateProgressStage.PopulatingTables, "Populating tables")
+        access.versionsDao.persistVersion(classOf[SchemaVersion], schemaVersion)
+        access.versionsDao.persistVersion(classOf[CodeVersion], codeVersion)
     }
 
     def open(
