@@ -72,18 +72,18 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
 
     @throws(classOf[DataAccessException])
     def persistVersion[V <: Version](versionType: Class[V], version: V) {
-//        val count = jdbcTemplate.queryForInt(
-//            "SELECT COUNT(0) FROM Versions WHERE entity = ?",
-//            versionType.getSimpleName)
-//        if (count == 0) {
+        val count = jdbcTemplate.queryForInt(
+            "SELECT COUNT(0) FROM Versions WHERE entity = ?",
+            versionType.getSimpleName)
+        if (count == 0) {
             jdbcTemplate.update(
                 "INSERT INTO Versions (entity, version) VALUES (?, ?)",
                 versionType.getSimpleName, version.toRepresentation)
-//        } else {
-//            jdbcTemplate.update(
-//                "UPDATE Versions SET version = ? WHERE entity = ?",
-//                version.toRepresentation, versionType.getSimpleName)
-//        }
+        } else {
+            jdbcTemplate.update(
+                "UPDATE Versions SET version = ? WHERE entity = ?",
+                version.toRepresentation, versionType.getSimpleName)
+        }
     }
 
 }

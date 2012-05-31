@@ -51,4 +51,37 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
             }
         }
     }
+
+    @Test
+    def checkVersionsCanBeUpdated() {
+        val dbName = "checkversionscanbeupdated"
+        val codeVersion = CodeVersion("1.0")
+        val schemaVersion = SchemaVersion("0.4")
+
+        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+
+        try {
+            database must be('defined)
+            def versionsDao = database.get.versionsDao
+            val newSchemaVersion = SchemaVersion("0.5")
+            versionsDao.persistVersion(classOf[SchemaVersion], newSchemaVersion)
+            val newCodeVersion = CodeVersion("0.1")
+            versionsDao.persistVersion(classOf[CodeVersion], newCodeVersion)
+
+            def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
+            dbSchemaVersion must be ('defined)
+            dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
+            dbSchemaVersion.get must be(newSchemaVersion)
+
+            def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
+            dbCodeVersion must be ('defined)
+            dbCodeVersion.get.getClass must be(classOf[CodeVersion])
+            dbCodeVersion.get must be(newCodeVersion)
+        } finally {
+            for (d <- database) {
+                d.close()
+            }
+        }
+    }
+
 }
