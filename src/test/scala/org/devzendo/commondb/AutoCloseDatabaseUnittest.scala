@@ -18,7 +18,7 @@ package org.devzendo.commondb
 
 import org.junit.After
 
-trait AbstractTempDatabaseUnittest {
+trait AutoCloseDatabaseUnittest {
     val databaseAccessFactory = new DatabaseAccessFactory()
     var database: Option[DatabaseAccess] = None
 
