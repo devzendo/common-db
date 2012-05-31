@@ -62,4 +62,14 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
         dbCodeVersion.get.getClass must be(classOf[CodeVersion])
         dbCodeVersion.get must be(newCodeVersion)
     }
+
+
+    case class CustomVersion(version: String) extends Version(version)
+
+    @Test
+    def nonExistentVersionsAreFoundToBeNone() {
+        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None)
+
+        database.get.versionsDao.findVersion(classOf[CustomVersion]) must be(None)
+    }
 }

@@ -25,9 +25,9 @@ import org.devzendo.commoncode.string.StringUtils
 import org.h2.constant.ErrorCode
 import org.springframework.jdbc.datasource.{DataSourceUtils, SingleConnectionDataSource}
 import org.springframework.jdbc.CannotGetJdbcConnectionException
-import org.springframework.dao.{DataAccessException, DataAccessResourceFailureException}
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import java.sql.{ResultSet, SQLException}
+import org.springframework.dao.{EmptyResultDataAccessException, DataAccessException, DataAccessResourceFailureException}
 
 object DatabaseAccessFactory {
     val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
@@ -67,7 +67,11 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
             }
         }
         //noinspection deprecation
-        return Some(jdbcTemplate.queryForObject(sql, mapper, versionType.getSimpleName))
+        try {
+            Some(jdbcTemplate.queryForObject(sql, mapper, versionType.getSimpleName))
+        } catch {
+            case e: EmptyResultDataAccessException => None
+        }
     }
 
     @throws(classOf[DataAccessException])
