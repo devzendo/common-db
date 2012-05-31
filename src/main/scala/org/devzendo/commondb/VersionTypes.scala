@@ -24,6 +24,9 @@ object VersionTypes
  * A typesafe representation of a version of something.
  * This isn't sealed so that application code can have typesafe versions of its
  * own things.
+ * Note that due to the way Version subclass instances are reflectively
+ * constructed, it does not appear possible to define them as inner classes -
+ * construction fails in this case.
  */
 abstract class Version(version: String) extends RepresentationType[String](version)
 

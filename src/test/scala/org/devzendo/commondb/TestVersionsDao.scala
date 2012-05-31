@@ -19,6 +19,9 @@ package org.devzendo.commondb
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 
+
+case class CustomVersion(version: String) extends Version(version)
+
 class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")
@@ -64,12 +67,24 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
     }
 
 
-    case class CustomVersion(version: String) extends Version(version)
-
     @Test
     def nonExistentVersionsAreFoundToBeNone() {
         database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None)
 
         database.get.versionsDao.findVersion(classOf[CustomVersion]) must be(None)
+    }
+
+    @Test
+    def customVersionsCanBePersisted() {
+        database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None)
+
+        def versionsDao = database.get.versionsDao
+        val customVersion = CustomVersion("v12.75alpha")
+        versionsDao.persistVersion(customVersion)
+
+        val dbCustomVersion = versionsDao.findVersion(classOf[CustomVersion])
+        dbCustomVersion must be ('defined)
+        dbCustomVersion.get.getClass must be(classOf[CustomVersion])
+        dbCustomVersion.get must be(customVersion)
     }
 }
