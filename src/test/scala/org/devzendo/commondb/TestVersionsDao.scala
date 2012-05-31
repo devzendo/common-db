@@ -22,14 +22,14 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 
 class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
+    val initialCodeVersion = CodeVersion("1.0")
+    val initialSchemaVersion = SchemaVersion("0.4")
 
     @Test
     def checkVersionPopulation() {
         val dbName = "checkversionpopulation"
-        val codeVersion = CodeVersion("1.0")
-        val schemaVersion = SchemaVersion("0.4")
 
-        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
 
         try {
             database must be('defined)
@@ -39,12 +39,12 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
             def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
             dbSchemaVersion must be ('defined)
             dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
-            dbSchemaVersion.get must be(schemaVersion)
+            dbSchemaVersion.get must be(initialSchemaVersion)
 
             def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
             dbCodeVersion must be ('defined)
             dbCodeVersion.get.getClass must be(classOf[CodeVersion])
-            dbCodeVersion.get must be(codeVersion)
+            dbCodeVersion.get must be(initialCodeVersion)
         } finally {
             for (d <- database) {
                 d.close()
@@ -55,10 +55,8 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
     @Test
     def checkVersionsCanBeUpdated() {
         val dbName = "checkversionscanbeupdated"
-        val codeVersion = CodeVersion("1.0")
-        val schemaVersion = SchemaVersion("0.4")
 
-        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
 
         try {
             database must be('defined)
