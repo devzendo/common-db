@@ -34,7 +34,7 @@ object DatabaseAccessFactory {
 }
 
 trait VersionsDao {
-    def persistVersion[V <: Version](versionType: Class[V], version: V)
+    def persistVersion[V <: Version](version: V)
 
     def findVersion[V <: Version](versionType: Class[V]): Option[V]
 }
@@ -71,18 +71,18 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
     }
 
     @throws(classOf[DataAccessException])
-    def persistVersion[V <: Version](versionType: Class[V], version: V) {
+    def persistVersion[V <: Version](version: V) {
         val count = jdbcTemplate.queryForInt(
             "SELECT COUNT(0) FROM Versions WHERE entity = ?",
-            versionType.getSimpleName)
+            version.getClass.getSimpleName)
         if (count == 0) {
             jdbcTemplate.update(
                 "INSERT INTO Versions (entity, version) VALUES (?, ?)",
-                versionType.getSimpleName, version.toRepresentation)
+                version.getClass.getSimpleName, version.toRepresentation)
         } else {
             jdbcTemplate.update(
                 "UPDATE Versions SET version = ? WHERE entity = ?",
-                version.toRepresentation, versionType.getSimpleName)
+                version.toRepresentation, version.getClass.getSimpleName)
         }
     }
 
@@ -167,8 +167,8 @@ class DatabaseAccessFactory {
 
     private[this] def populateTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
         adapter.reportProgress(CreateProgressStage.PopulatingTables, "Populating tables")
-        access.versionsDao.persistVersion(classOf[SchemaVersion], schemaVersion)
-        access.versionsDao.persistVersion(classOf[CodeVersion], codeVersion)
+        access.versionsDao.persistVersion(schemaVersion)
+        access.versionsDao.persistVersion(codeVersion)
     }
 
     def open(

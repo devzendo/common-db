@@ -64,9 +64,9 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
             database must be('defined)
             def versionsDao = database.get.versionsDao
             val newSchemaVersion = SchemaVersion("0.5")
-            versionsDao.persistVersion(classOf[SchemaVersion], newSchemaVersion)
+            versionsDao.persistVersion(newSchemaVersion)
             val newCodeVersion = CodeVersion("0.1")
-            versionsDao.persistVersion(classOf[CodeVersion], newCodeVersion)
+            versionsDao.persistVersion(newCodeVersion)
 
             def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
             dbSchemaVersion must be ('defined)
