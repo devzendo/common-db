@@ -20,17 +20,13 @@ import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 
-class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val databaseAccessFactory = new DatabaseAccessFactory()
+class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
     @Test
     def createDatabaseReturnsSome() {
-        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None)
-        for (d <- database) {
-            d.close()
-        }
+        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None)
 
         database must be('defined)
     }
@@ -47,10 +43,7 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with Asser
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)
 
-        val database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter))
-        for (d <- database) {
-            d.close()
-        }
+        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter))
 
         EasyMock.verify(creatorAdapter)
     }

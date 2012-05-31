@@ -22,8 +22,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import java.io.File
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
-class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val databaseAccessFactory = new DatabaseAccessFactory()
+class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
@@ -67,15 +66,9 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, Some(openerAdapter))
+        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, Some(openerAdapter))
 
-        try {
-            EasyMock.verify(openerAdapter)
-        } finally {
-            for (d <- database) {
-                d.close()
-            }
-        }
+        EasyMock.verify(openerAdapter)
     }
 
     @Test
@@ -83,17 +76,10 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         val dbName = "plainopenisopen"
         createDatabase(temporaryDirectory, dbName, None).get.close()
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
 
-        try {
-            database must be('defined)
-            database.get.isClosed must be(false)
-        } finally {
-            for (d <- database) {
-                d.close()
-            }
-        }
-        database.get.isClosed must be(true)
+        database must be('defined)
+        database.get.isClosed must be(false)
     }
 
     @Test
@@ -101,18 +87,10 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
         val dbName = "plainclose"
         createDatabase(temporaryDirectory, dbName, None).get.close()
 
-        val database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
 
-        try {
-            database must be('defined)
-            database.get.isClosed must be(false)
-            database.get.close()
-            database.get.isClosed must be(true)
-        } finally {
-            for (d <- database) {
-                d.close()
-            }
-        }
+        database must be('defined)
+        database.get.close()
+        database.get.isClosed must be(true)
     }
-
 }
