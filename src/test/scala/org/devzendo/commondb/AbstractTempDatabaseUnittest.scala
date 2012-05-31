@@ -23,7 +23,7 @@ class AbstractTempDatabaseUnittest extends AbstractTempFolderUnittest {
     var database: Option[DatabaseAccess] = None
 
     @After
-    def closeDatabase {
+    def closeDatabase() {
         for (d <- database) {
             d.close()
         }

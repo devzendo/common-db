@@ -16,9 +16,8 @@
 
 package org.devzendo.commondb
 
-import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.{After, Test}
+import org.junit.Test
 
 class TestVersionsDao extends AbstractTempDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val initialCodeVersion = CodeVersion("1.0")
@@ -31,8 +30,7 @@ class TestVersionsDao extends AbstractTempDatabaseUnittest with AssertionsForJUn
         database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
 
         database must be('defined)
-        val databaseAccess = database.get
-        def versionsDao = databaseAccess.versionsDao
+        def versionsDao = database.get.versionsDao
 
         def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
         dbSchemaVersion must be ('defined)
