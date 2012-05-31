@@ -19,7 +19,7 @@ package org.devzendo.commondb
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 
-class TestVersionsDao extends AbstractTempDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestVersionsDao extends AbstractTempFolderUnittest with AbstractTempDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")
 

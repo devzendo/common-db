@@ -18,7 +18,7 @@ package org.devzendo.commondb
 
 import org.junit.After
 
-class AbstractTempDatabaseUnittest extends AbstractTempFolderUnittest {
+trait AbstractTempDatabaseUnittest {
     val databaseAccessFactory = new DatabaseAccessFactory()
     var database: Option[DatabaseAccess] = None
 
