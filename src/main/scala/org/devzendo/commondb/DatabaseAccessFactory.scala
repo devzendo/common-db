@@ -38,6 +38,7 @@ trait VersionsDao {
 
     def findVersion[V <: Version](versionType: Class[V]): Option[V]
 }
+
 trait DatabaseAccess {
     def close()
     def isClosed: Boolean
@@ -51,16 +52,7 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
 
         val sql = "SELECT version FROM Versions WHERE entity = ?"
         val mapper: ParameterizedRowMapper[V] = new ParameterizedRowMapper[V]() {
-
             // notice the return type with respect to Java 5 covariant return types
-//                public Version mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-//                final Version version = new Version();
-//                version.setPluginName(rs.getString("plugin"));
-//                version.setEntity(rs.getString("entity"));
-//                version.setIsApplication(rs.getBoolean("isapplication"));
-//                version.setVersion(rs.getString("version"));
-//                return version;
-//            }
             def mapRow(rs: ResultSet, rowNum: Int) = {
                 val ctor = versionType.getConstructor(classOf[String])
                 ctor.newInstance(rs.getString("version"))
@@ -138,7 +130,6 @@ class DatabaseAccessFactory {
         "CREATE TABLE Versions(" + "entity VARCHAR(40)," + "version VARCHAR(40)" + ")" //,
         //        "CREATE SEQUENCE Sequence START WITH 1 INCREMENT BY 1"
     )
-    private final val STATIC_CREATION_STEPS: Int = 4
 
     def create(
         databasePath: File,
@@ -164,7 +155,7 @@ class DatabaseAccessFactory {
     private[this] def createTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
         adapter.reportProgress(CreateProgressStage.CreatingTables, "Creating tables")
         CREATION_DDL_STRINGS.foreach( (ddl) => {
-            jdbcTemplate.getJdbcOperations().execute(ddl)
+            jdbcTemplate.getJdbcOperations.execute(ddl)
         })
         // TODO call back into the caller to create its own tables
     }
