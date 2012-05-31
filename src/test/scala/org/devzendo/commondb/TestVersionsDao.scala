@@ -25,9 +25,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionPopulation() {
-        val dbName = "checkversionpopulation"
-
-        database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionpopulation", None, initialCodeVersion, initialSchemaVersion, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
@@ -45,9 +43,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionsCanBeUpdated() {
-        val dbName = "checkversionscanbeupdated"
-
-        database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionscanbeupdated", None, initialCodeVersion, initialSchemaVersion, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
