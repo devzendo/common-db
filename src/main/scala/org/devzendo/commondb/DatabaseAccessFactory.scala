@@ -81,8 +81,8 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
                 version.toRepresentation, version.getClass.getSimpleName)
         }
     }
-
 }
+
 sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess {
     private[this] var closed: Boolean = false
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
@@ -307,9 +307,7 @@ class DatabaseAccessFactory {
                         // Assume that anything that goes wrong here is bad...
                         throw new org.springframework.jdbc.UncategorizedSQLException(exMessage, "", e)
                 }
-
         }
-
     }
 
     /**
@@ -449,7 +447,6 @@ class DatabaseAccessFactory {
             for (a <- adapter) {
                 a.noApplicationDetailsAvailable()
             }
-
         }
 
         def databaseNotFound(exception: DataAccessResourceFailureException) {
