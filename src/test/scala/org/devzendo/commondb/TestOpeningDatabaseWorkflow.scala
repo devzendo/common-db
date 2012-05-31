@@ -55,8 +55,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
 
     @Test
     def plainOpenProgressNotification() {
-        val dbName = "plainprogress"
-        createDatabase(temporaryDirectory, dbName, None).get.close()
+        createDatabase(temporaryDirectory, "plainprogress", None).get.close()
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
         openerAdapter.startOpening()
@@ -66,17 +65,16 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, Some(openerAdapter))
+        database = databaseAccessFactory.open(temporaryDirectory, "plainprogress", None, codeVersion, schemaVersion, Some(openerAdapter))
 
         EasyMock.verify(openerAdapter)
     }
 
     @Test
     def plainOpenDatabaseIsActuallyOpen() {
-        val dbName = "plainopenisopen"
-        createDatabase(temporaryDirectory, dbName, None).get.close()
+        createDatabase(temporaryDirectory, "plainopenisopen", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None)
 
         database must be('defined)
         database.get.isClosed must be(false)
@@ -84,10 +82,9 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
 
     @Test
     def plainOpenDatabaseCloseActuallyCloses() {
-        val dbName = "plainclose"
-        createDatabase(temporaryDirectory, dbName, None).get.close()
+        createDatabase(temporaryDirectory, "plainclose", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, dbName, None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainclose", None, codeVersion, schemaVersion, None)
 
         database must be('defined)
         database.get.close()
