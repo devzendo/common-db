@@ -37,12 +37,12 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with Asser
 
     @Test
     def createDatabaseProgressReporting() {
-        val creatorAdapter = EasyMock.createNiceMock(classOf[CreateWorkflowAdapter])
+        val creatorAdapter = EasyMock.createStrictMock(classOf[CreateWorkflowAdapter])
         EasyMock.checkOrder(creatorAdapter, true)
         creatorAdapter.startCreating()
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Creating), EasyMock.eq("Starting to create 'newdb'"))
-//        creatorAdapter.reportProgress(EasyMock.eq(Opening), EasyMock.eq("Opening database 'doesnotexist'"))
-//        creatorAdapter.reportProgress(EasyMock.eq(NotPresent), EasyMock.eq("Database 'doesnotexist' not found"))
+        creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.CreatingTables), EasyMock.eq("Creating tables"))
+        creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.PopulatingTables), EasyMock.eq("Populating tables"))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Created), EasyMock.eq("Created 'newdb'"))
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)

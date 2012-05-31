@@ -20,6 +20,7 @@ import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import java.io.File
+import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
 class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseAccessFactory = new DatabaseAccessFactory()
@@ -34,12 +35,13 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
 
     @Test
     def databaseDoesNotExistProgressReporting() {
-        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'doesnotexist'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'doesnotexist'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.NotPresent), EasyMock.eq("Database 'doesnotexist' not found"))
+        openerAdapter.databaseNotFound(EasyMock.isA(classOf[DataAccessResourceFailureException]))
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
@@ -56,7 +58,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with Assert
     def plainOpenProgressNotification() {
         val dbName = "plainprogress"
         createDatabase(temporaryDirectory, dbName, None).get.close()
-        val openerAdapter = EasyMock.createNiceMock(classOf[OpenWorkflowAdapter])
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'plainprogress'"))
