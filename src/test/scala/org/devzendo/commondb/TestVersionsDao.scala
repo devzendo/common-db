@@ -16,12 +16,11 @@
 
 package org.devzendo.commondb
 
-import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.junit.{After, Test}
 
-class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val databaseAccessFactory = new DatabaseAccessFactory()
+class TestVersionsDao extends AbstractTempDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")
 
@@ -29,57 +28,44 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AssertionsForJUnit
     def checkVersionPopulation() {
         val dbName = "checkversionpopulation"
 
-        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
 
-        try {
-            database must be('defined)
-            val databaseAccess = database.get
-            def versionsDao = databaseAccess.versionsDao
+        database must be('defined)
+        val databaseAccess = database.get
+        def versionsDao = databaseAccess.versionsDao
 
-            def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
-            dbSchemaVersion must be ('defined)
-            dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
-            dbSchemaVersion.get must be(initialSchemaVersion)
+        def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
+        dbSchemaVersion must be ('defined)
+        dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
+        dbSchemaVersion.get must be(initialSchemaVersion)
 
-            def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
-            dbCodeVersion must be ('defined)
-            dbCodeVersion.get.getClass must be(classOf[CodeVersion])
-            dbCodeVersion.get must be(initialCodeVersion)
-        } finally {
-            for (d <- database) {
-                d.close()
-            }
-        }
+        def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
+        dbCodeVersion must be ('defined)
+        dbCodeVersion.get.getClass must be(classOf[CodeVersion])
+        dbCodeVersion.get must be(initialCodeVersion)
     }
 
     @Test
     def checkVersionsCanBeUpdated() {
         val dbName = "checkversionscanbeupdated"
 
-        val database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, dbName, None, initialCodeVersion, initialSchemaVersion, None)
 
-        try {
-            database must be('defined)
-            def versionsDao = database.get.versionsDao
-            val newSchemaVersion = SchemaVersion("0.5")
-            versionsDao.persistVersion(newSchemaVersion)
-            val newCodeVersion = CodeVersion("0.1")
-            versionsDao.persistVersion(newCodeVersion)
+        database must be('defined)
+        def versionsDao = database.get.versionsDao
+        val newSchemaVersion = SchemaVersion("0.5")
+        versionsDao.persistVersion(newSchemaVersion)
+        val newCodeVersion = CodeVersion("0.1")
+        versionsDao.persistVersion(newCodeVersion)
 
-            def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
-            dbSchemaVersion must be ('defined)
-            dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
-            dbSchemaVersion.get must be(newSchemaVersion)
+        def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
+        dbSchemaVersion must be ('defined)
+        dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
+        dbSchemaVersion.get must be(newSchemaVersion)
 
-            def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
-            dbCodeVersion must be ('defined)
-            dbCodeVersion.get.getClass must be(classOf[CodeVersion])
-            dbCodeVersion.get must be(newCodeVersion)
-        } finally {
-            for (d <- database) {
-                d.close()
-            }
-        }
+        def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
+        dbCodeVersion must be ('defined)
+        dbCodeVersion.get.getClass must be(classOf[CodeVersion])
+        dbCodeVersion.get must be(newCodeVersion)
     }
-
 }
