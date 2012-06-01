@@ -19,7 +19,7 @@ package org.devzendo.commondb
 import org.junit.After
 
 trait AutoCloseDatabaseUnittest {
-    val databaseAccessFactory = new DatabaseAccessFactory()
+    val databaseAccessFactory = new JdbcTemplateDatabaseAccessFactory()
     var database: Option[DatabaseAccess] = None
 
     @After

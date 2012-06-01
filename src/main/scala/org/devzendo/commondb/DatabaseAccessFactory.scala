@@ -45,6 +45,24 @@ trait DatabaseAccess {
     def versionsDao: VersionsDao
 }
 
+trait DatabaseAccessFactory {
+    def create(
+        databasePath: File,
+        databaseName: String,
+        password: Option[String],
+        codeVersion: CodeVersion,
+        schemaVersion: SchemaVersion,
+        workflowAdapter: Option[CreateWorkflowAdapter]): Option[DatabaseAccess]
+
+    def open(
+        databasePath: File,
+        databaseName: String,
+        password: Option[String],
+        codeVersion: CodeVersion,
+        schemaVersion: SchemaVersion,
+        workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess]
+}
+
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
     @throws(classOf[DataAccessException])
@@ -125,7 +143,7 @@ sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: S
     }
 }
 
-class DatabaseAccessFactory {
+class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
     private[this] val CREATION_DDL_STRINGS = List[String](
         "CREATE TABLE Versions(" + "entity VARCHAR(40)," + "version VARCHAR(40)" + ")" //,
         //        "CREATE SEQUENCE Sequence START WITH 1 INCREMENT BY 1"
