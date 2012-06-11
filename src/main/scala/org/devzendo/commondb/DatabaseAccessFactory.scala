@@ -25,14 +25,18 @@ object DatabaseAccessFactory {
 
 trait VersionsDao {
     def persistVersion[V <: Version](version: V)
-
     def findVersion[V <: Version](versionType: Class[V]): Option[V]
+}
+
+trait SequenceDao {
+    def nextSequence: Long
 }
 
 trait DatabaseAccess {
     def close()
     def isClosed: Boolean
     def versionsDao: VersionsDao
+    def sequenceDao: SequenceDao
 }
 
 trait DatabaseAccessFactory {

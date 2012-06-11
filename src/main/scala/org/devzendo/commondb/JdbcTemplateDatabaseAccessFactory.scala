@@ -26,6 +26,7 @@ import collection.mutable.ListBuffer
 import org.springframework.jdbc.datasource.{SingleConnectionDataSource, DataSourceUtils}
 import org.h2.constant.ErrorCode
 import org.devzendo.commoncode.string.StringUtils
+import scala.throws
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -65,9 +66,17 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
     }
 }
 
+private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends SequenceDao {
+    @throws(classOf[DataAccessException])
+    def nextSequence: Long = {
+        jdbcTemplate.queryForLong("SELECT NEXT VALUE FOR SEQUENCE Sequence")
+    }
+}
+
 sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess {
     private[this] var closed: Boolean = false
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
+    val sequenceDao: SequenceDao = new JdbcTemplateSequenceDao(jdbcTemplate)
 
     def close() {
         if (closed) {
@@ -109,8 +118,8 @@ sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: S
 
 class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
     private[this] val CREATION_DDL_STRINGS = List[String](
-        "CREATE TABLE Versions(" + "entity VARCHAR(40)," + "version VARCHAR(40)" + ")" //,
-        //        "CREATE SEQUENCE Sequence START WITH 1 INCREMENT BY 1"
+        "CREATE TABLE Versions(entity VARCHAR(40), version VARCHAR(40))",
+        "CREATE SEQUENCE Sequence START WITH 0 INCREMENT BY 1"
     )
 
     def create(
