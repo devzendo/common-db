@@ -18,6 +18,8 @@ package org.devzendo.commondb
 
 import java.io.File
 import org.apache.log4j.Logger
+import javax.sql.DataSource
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 object DatabaseAccessFactory {
     val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
@@ -32,7 +34,13 @@ trait SequenceDao {
     def nextSequence: Long
 }
 
-trait DatabaseAccess {
+case class UserDatabaseAccess(databaseAccess: DatabaseAccess)
+
+abstract case class DatabaseAccess(
+        databasePath: File,
+        databaseName: String,
+        dataSource: DataSource,
+        jdbcTemplate: SimpleJdbcTemplate) {
     def close()
     def isClosed: Boolean
     def versionsDao: VersionsDao

@@ -73,7 +73,11 @@ private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends 
     }
 }
 
-sealed case class JdbcTemplateDatabaseAccess(databasePath: File, databaseName: String, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess {
+sealed case class JdbcTemplateDatabaseAccess(
+        override val databasePath: File,
+        override val databaseName: String,
+        override val dataSource: DataSource,
+        override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess(databasePath, databaseName, dataSource, jdbcTemplate) {
     private[this] var closed: Boolean = false
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
     val sequenceDao: SequenceDao = new JdbcTemplateSequenceDao(jdbcTemplate)
