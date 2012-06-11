@@ -132,13 +132,13 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
 
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
         adapter.startCreating()
-        DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'");
-        adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'");
-        val details = accessDatabase(databasePath, databaseName, password, true)
+        DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'")
+        adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'")
+        val details = accessDatabase(databasePath, databaseName, password, allowCreate = true)
         val access = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
         createTables(access, adapter, details._1, details._2)
         populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
-        adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'");
+        adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
         adapter.stopCreating()
         Some(access)
     }
@@ -180,7 +180,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
             adapter.reportProgress(OpenProgressStage.Opening, tryingToOpenMessage)
 
             val details =
-                accessDatabase(databasePath, databaseName, passwordAttempt, false)
+                accessDatabase(databasePath, databaseName, passwordAttempt, allowCreate = false)
             // TODO check for other application?
             // TODO migration...
 
@@ -229,14 +229,14 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
                                         databaseName: String,
                                         password: Option[String],
                                         allowCreate: Boolean): (DataSource, SimpleJdbcTemplate) = {
-        DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' at '" + databasePath + "'");
-        DatabaseAccessFactory.LOGGER.debug("Validating arguments");
+        DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' at '" + databasePath + "'")
+        DatabaseAccessFactory.LOGGER.debug("Validating arguments")
         if (databasePath == null) {
             throw new DataAccessResourceFailureException("Null database path")
         }
         val mDbPath = new File(databasePath, databaseName).getAbsolutePath.trim()
         if (mDbPath.length() == 0) {
-            throw new DataAccessResourceFailureException(String.format("Incorrect database path '%s'", databasePath));
+            throw new DataAccessResourceFailureException(String.format("Incorrect database path '%s'", databasePath))
         }
         val mDbPassword = password match {
             case None => ""
@@ -263,7 +263,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
         DatabaseAccessFactory.LOGGER.debug("Obtaining data source bean")
         //noinspection deprecation
         val dataSource = new SingleConnectionDataSource(driverClassName,
-            dbURL, userName, mDbPassword + " userpwd", suppressClose);
+            dbURL, userName, mDbPassword + " userpwd", suppressClose)
         DatabaseAccessFactory.LOGGER.debug("DataSource is " + dataSource)
 
         DatabaseAccessFactory.LOGGER.debug("Obtaining SimpleJdbcTemplate")
@@ -434,7 +434,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
         }
 
         def noApplicationDetailsAvailable() {
-            DatabaseAccessFactory.LOGGER.warn("No application details available; cannot check which application created this database");
+            DatabaseAccessFactory.LOGGER.warn("No application details available; cannot check which application created this database")
             for (a <- adapter) {
                 a.noApplicationDetailsAvailable()
             }
