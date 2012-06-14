@@ -37,12 +37,13 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
 
     val cheesyDatabaseAccessFactory = new JdbcTemplateDatabaseAccessFactory[CheeseDatabaseAccess]()
 
+    val cheeseUserDatabaseFactory = new ((DatabaseAccess[CheeseDatabaseAccess]) => CheeseDatabaseAccess) {
+        def apply(databaseAccess: DatabaseAccess[CheeseDatabaseAccess]) = new CheeseDatabaseAccess(databaseAccess)
+    }
+
     def createCheeseDatabase(name: String) = {
-        val factory = new ((DatabaseAccess[CheeseDatabaseAccess]) => CheeseDatabaseAccess) {
-            def apply(databaseAccess: DatabaseAccess[CheeseDatabaseAccess]) = new CheeseDatabaseAccess(databaseAccess)
-        }
         cheesyDatabaseAccessFactory.create(temporaryDirectory, name, None, codeVersion, schemaVersion, None,
-            Some(factory))
+            Some(cheeseUserDatabaseFactory))
     }
 
     @Test
