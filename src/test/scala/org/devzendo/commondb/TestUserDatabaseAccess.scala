@@ -31,7 +31,7 @@ class CheeseDatabaseAccess(override val databaseAccess: DatabaseAccess[CheeseDat
     }
 }
 
-class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
