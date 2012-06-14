@@ -19,6 +19,8 @@ package org.devzendo.commondb
 import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import javax.sql.DataSource
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val codeVersion = CodeVersion("1.0")
@@ -38,7 +40,9 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoC
         creatorAdapter.startCreating()
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Creating), EasyMock.eq("Starting to create 'newdb'"))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.CreatingTables), EasyMock.eq("Creating tables"))
+        creatorAdapter.createApplicationTables(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.PopulatingTables), EasyMock.eq("Populating tables"))
+        creatorAdapter.populateApplicationTables(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Created), EasyMock.eq("Created 'newdb'"))
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)

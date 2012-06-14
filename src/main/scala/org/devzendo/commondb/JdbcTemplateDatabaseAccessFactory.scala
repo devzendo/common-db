@@ -147,8 +147,13 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         for (userFactory <- userDatabaseAccessFactory) {
             access.user = Some(userFactory.apply(access))
         }
+
         createTables(access, adapter, details._1, details._2)
+        adapter.createApplicationTables(details._1, details._2)
+
         populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
+        adapter.populateApplicationTables(details._1, details._2)
+
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
         adapter.stopCreating()
         Some(access)
