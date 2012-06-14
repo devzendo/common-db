@@ -1,5 +1,4 @@
 Extension points:
-  Creation
   Close
   Migration
 
