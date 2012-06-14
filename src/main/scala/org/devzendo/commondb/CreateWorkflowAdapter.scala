@@ -16,8 +16,8 @@
 
 package org.devzendo.commondb
 
-import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 import javax.sql.DataSource
+import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 object CreateProgressStage {
@@ -37,28 +37,28 @@ object CreateProgressStage {
      * immediate feedback.
      */
     case object CreateStarting extends Enum {
-        val index = 0;
+        val index = 0
     }
 
     /**
      * Sent immediately prior to creating the database.
      */
     case object Creating extends Enum {
-        val index = 1;
+        val index = 1
     }
 
     /**
      * Sent before creating the tables
      */
     case object CreatingTables extends Enum {
-        val index = 2;
+        val index = 2
     }
 
     /**
      * Sent before populating the tables
      */
     case object PopulatingTables extends Enum {
-        val index = 3;
+        val index = 3
     }
 
     // End states ---------------------------------------------
@@ -67,14 +67,14 @@ object CreateProgressStage {
      * Sent upon successful creation.
      */
     case object Created extends Enum {
-        val index = 4;
+        val index = 4
     }
 
     /**
      * Failed to creation for a serious reason
      */
     case object CreationFailed extends Enum {
-        val index = 4;
+        val index = 4
     }
 
 }
