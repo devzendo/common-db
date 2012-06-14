@@ -46,6 +46,11 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
             Some(cheeseUserDatabaseFactory))
     }
 
+    def openCheeseDatabase(name: String) = {
+        cheesyDatabaseAccessFactory.open(temporaryDirectory, name, None, codeVersion, schemaVersion, None,
+            Some(cheeseUserDatabaseFactory))
+    }
+
     @Test
     def userAccessIsPossibleAfterCreation() {
         val userDatabase = createCheeseDatabase("useraccesscreate")
@@ -61,6 +66,16 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
 
     @Test
     def userAccessIsPossibleAfterOpening() {
-        // TODO
+        createCheeseDatabase("useraccessopen").get.close()
+
+        val userDatabase = openCheeseDatabase("useraccessopen")
+
+        userDatabase must be('defined)
+        val userAccess = userDatabase.get.user
+        userAccess must be('defined)
+        def cheeseDao = userAccess.get.cheeseDao
+
+        cheeseDao.nextSequence must be (0L)
+        cheeseDao.nextSequence must be (1L)
     }
 }

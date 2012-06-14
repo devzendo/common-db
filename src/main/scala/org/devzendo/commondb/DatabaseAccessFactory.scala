@@ -65,5 +65,6 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
         password: Option[String],
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
-        workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess[U]]
+        workflowAdapter: Option[OpenWorkflowAdapter],
+        userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]]
 }

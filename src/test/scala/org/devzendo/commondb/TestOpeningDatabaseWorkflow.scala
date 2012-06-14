@@ -29,7 +29,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
 
     @Test
     def databaseDoesNotExistSoReturnsNone() {
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None) must be(None)
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None, None) must be(None)
     }
 
     @Test
@@ -44,7 +44,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter))
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter), None)
 
         EasyMock.verify(openerAdapter)
     }
@@ -65,7 +65,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainprogress", None, codeVersion, schemaVersion, Some(openerAdapter))
+        database = databaseAccessFactory.open(temporaryDirectory, "plainprogress", None, codeVersion, schemaVersion, Some(openerAdapter), None)
 
         EasyMock.verify(openerAdapter)
     }
@@ -74,7 +74,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
     def plainOpenDatabaseIsActuallyOpen() {
         createDatabase(temporaryDirectory, "plainopenisopen", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None, None)
 
         database must be('defined)
         database.get.isClosed must be(false)
@@ -84,7 +84,7 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
     def plainOpenDatabaseCloseActuallyCloses() {
         createDatabase(temporaryDirectory, "plainclose", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainclose", None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainclose", None, codeVersion, schemaVersion, None, None)
 
         database must be('defined)
         database.get.close()

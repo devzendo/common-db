@@ -174,7 +174,8 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                 password: Option[String],
                 codeVersion: CodeVersion,
                 schemaVersion: SchemaVersion,
-                workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess[U]] = {
+                workflowAdapter: Option[OpenWorkflowAdapter],
+                userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)
 
@@ -197,7 +198,15 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
             adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
             adapter.stopOpening()
-            return Some(JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2))
+
+            // The access is created incomplete, then filled in with the user access,
+            // since the user access may need to use the rest of the access object.
+            val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
+            for (userFactory <- userDatabaseAccessFactory) {
+                access.user = Some(userFactory.apply(access))
+            }
+
+            return Some(access)
 
         } catch {
             //
