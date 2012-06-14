@@ -51,18 +51,23 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
             Some(cheeseUserDatabaseFactory))
     }
 
-    @Test
-    def userAccessIsPossibleAfterCreation() {
-        val userDatabase = createCheeseDatabase("useraccesscreate")
-
+    def performUserAccessChecks(userDatabase: Option[DatabaseAccess[CheeseDatabaseAccess]]) {
         userDatabase must be('defined)
         val userAccess = userDatabase.get.user
         userAccess must be('defined)
         def cheeseDao = userAccess.get.cheeseDao
 
-        cheeseDao.nextSequence must be (0L)
-        cheeseDao.nextSequence must be (1L)
+        cheeseDao.nextSequence must be(0L)
+        cheeseDao.nextSequence must be(1L)
     }
+
+    @Test
+    def userAccessIsPossibleAfterCreation() {
+        val userDatabase = createCheeseDatabase("useraccesscreate")
+
+        performUserAccessChecks(userDatabase)
+    }
+
 
     @Test
     def userAccessIsPossibleAfterOpening() {
@@ -70,12 +75,6 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
 
         val userDatabase = openCheeseDatabase("useraccessopen")
 
-        userDatabase must be('defined)
-        val userAccess = userDatabase.get.user
-        userAccess must be('defined)
-        def cheeseDao = userAccess.get.cheeseDao
-
-        cheeseDao.nextSequence must be (0L)
-        cheeseDao.nextSequence must be (1L)
+        performUserAccessChecks(userDatabase)
     }
 }
