@@ -76,9 +76,10 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsF
 
     @Test
     def userAccessIsPossibleAfterOpening() {
-        createCheeseDatabase("useraccessopen").get.close()
+        val dbName = "useraccessopen"
+        createCheeseDatabase(dbName).get.close()
 
-        val userDatabase = openCheeseDatabase("useraccessopen")
+        val userDatabase = openCheeseDatabase(dbName)
 
         try {
             performUserAccessChecks(userDatabase)
