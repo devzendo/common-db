@@ -22,7 +22,7 @@ import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 object DatabaseAccessFactory {
-    val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory])
+    val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory[_]])
 }
 
 trait VersionsDao {
@@ -34,27 +34,30 @@ trait SequenceDao {
     def nextSequence: Long
 }
 
-case class UserDatabaseAccess(databaseAccess: DatabaseAccess)
+class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
+}
 
-abstract case class DatabaseAccess(
+abstract case class DatabaseAccess[U <: UserDatabaseAccess](
         databasePath: File,
         databaseName: String,
         dataSource: DataSource,
         jdbcTemplate: SimpleJdbcTemplate) {
+    var user: Option[U] = None
     def close()
     def isClosed: Boolean
     def versionsDao: VersionsDao
     def sequenceDao: SequenceDao
 }
 
-trait DatabaseAccessFactory {
+trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
     def create(
         databasePath: File,
         databaseName: String,
         password: Option[String],
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
-        workflowAdapter: Option[CreateWorkflowAdapter]): Option[DatabaseAccess]
+        workflowAdapter: Option[CreateWorkflowAdapter],
+        userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]]
 
     def open(
         databasePath: File,
@@ -62,5 +65,5 @@ trait DatabaseAccessFactory {
         password: Option[String],
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
-        workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess]
+        workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess[U]]
 }

@@ -26,7 +26,7 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoC
 
     @Test
     def createDatabaseReturnsSome() {
-        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None, None)
 
         database must be('defined)
     }
@@ -43,7 +43,7 @@ class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoC
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)
 
-        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter))
+        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter), None)
 
         EasyMock.verify(creatorAdapter)
     }

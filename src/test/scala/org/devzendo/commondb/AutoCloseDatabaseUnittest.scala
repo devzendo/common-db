@@ -20,7 +20,7 @@ import org.junit.After
 
 trait AutoCloseDatabaseUnittest {
     val databaseAccessFactory = new JdbcTemplateDatabaseAccessFactory()
-    var database: Option[DatabaseAccess] = None
+    var database: Option[DatabaseAccess[_]] = None
 
     @After
     def closeDatabase() {

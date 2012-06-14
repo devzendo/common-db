@@ -73,11 +73,11 @@ private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends 
     }
 }
 
-sealed case class JdbcTemplateDatabaseAccess(
+sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
         override val databasePath: File,
         override val databaseName: String,
         override val dataSource: DataSource,
-        override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess(databasePath, databaseName, dataSource, jdbcTemplate) {
+        override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate) {
     private[this] var closed: Boolean = false
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
     val sequenceDao: SequenceDao = new JdbcTemplateSequenceDao(jdbcTemplate)
@@ -120,7 +120,7 @@ sealed case class JdbcTemplateDatabaseAccess(
     }
 }
 
-class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
+class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends DatabaseAccessFactory[U] {
     private[this] val CREATION_DDL_STRINGS = List[String](
         "CREATE TABLE Versions(entity VARCHAR(40), version VARCHAR(40))",
         "CREATE SEQUENCE Sequence START WITH 0 INCREMENT BY 1"
@@ -132,14 +132,21 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
                   password: Option[String],
                   codeVersion: CodeVersion,
                   schemaVersion: SchemaVersion,
-                  workflowAdapter: Option[CreateWorkflowAdapter]): Option[DatabaseAccess] = {
+                  workflowAdapter: Option[CreateWorkflowAdapter],
+                  userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
         adapter.startCreating()
         DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'")
         adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'")
         val details = accessDatabase(databasePath, databaseName, password, allowCreate = true)
-        val access = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
+
+        // The access is created incomplete, then filled in with the user access,
+        // since the user access may need to use the rest of the access object.
+        val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess[U](databasePath, databaseName, details._1, details._2)
+        for (userFactory <- userDatabaseAccessFactory) {
+            access.user = Some(userFactory.apply(access))
+        }
         createTables(access, adapter, details._1, details._2)
         populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
@@ -147,7 +154,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
         Some(access)
     }
 
-    private[this] def createTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+    private[this] def createTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
         adapter.reportProgress(CreateProgressStage.CreatingTables, "Creating tables")
         CREATION_DDL_STRINGS.foreach( (ddl) => {
             jdbcTemplate.getJdbcOperations.execute(ddl)
@@ -155,7 +162,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
         // TODO call back into the caller to create its own tables
     }
 
-    private[this] def populateTables(access: DatabaseAccess, adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
+    private[this] def populateTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
         adapter.reportProgress(CreateProgressStage.PopulatingTables, "Populating tables")
         access.versionsDao.persistVersion(schemaVersion)
         access.versionsDao.persistVersion(codeVersion)
@@ -167,7 +174,7 @@ class JdbcTemplateDatabaseAccessFactory extends DatabaseAccessFactory {
                 password: Option[String],
                 codeVersion: CodeVersion,
                 schemaVersion: SchemaVersion,
-                workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess] = {
+                workflowAdapter: Option[OpenWorkflowAdapter]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)
 

@@ -28,7 +28,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionPopulation() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checkversionpopulation", None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionpopulation", None, initialCodeVersion, initialSchemaVersion, None, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
@@ -46,7 +46,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionsCanBeUpdated() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checkversionscanbeupdated", None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionscanbeupdated", None, initialCodeVersion, initialSchemaVersion, None, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
@@ -69,14 +69,14 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def nonExistentVersionsAreFoundToBeNone() {
-        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None, None)
 
         database.get.versionsDao.findVersion(classOf[CustomVersion]) must be(None)
     }
 
     @Test
     def customVersionsCanBePersisted() {
-        database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None, None)
 
         def versionsDao = database.get.versionsDao
         val customVersion = CustomVersion("v12.75alpha")

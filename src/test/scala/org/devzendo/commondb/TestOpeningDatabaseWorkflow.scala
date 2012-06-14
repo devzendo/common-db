@@ -49,8 +49,8 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
         EasyMock.verify(openerAdapter)
     }
 
-    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess] = {
-        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None)
+    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None, None)
     }
 
     @Test
