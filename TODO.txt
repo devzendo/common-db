@@ -1,5 +1,4 @@
 Extension points:
-  Access
   Creation
   Close
   Migration

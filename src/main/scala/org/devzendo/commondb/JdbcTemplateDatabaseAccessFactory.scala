@@ -343,24 +343,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
 
-        def requestApplicationCodeVersion() = {
-            DatabaseAccessFactory.LOGGER.info("Requesting application code version")
-            val requestedVersion = adapter.flatMap(a => Option[String] {
-                a.requestApplicationCodeVersion()
-            }).getOrElse("")
-            DatabaseAccessFactory.LOGGER.info("Application code is at version '" + requestedVersion + "'")
-            requestedVersion
-        }
-
-        def requestApplicationSchemaVersion() = {
-            DatabaseAccessFactory.LOGGER.info("Requesting application schema version")
-            val requestedVersion = adapter.flatMap(a => Option[String] {
-                a.requestApplicationSchemaVersion()
-            }).getOrElse("")
-            DatabaseAccessFactory.LOGGER.info("Application schema is at version '" + requestedVersion + "'")
-            requestedVersion
-        }
-
         def createApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
             DatabaseAccessFactory.LOGGER.info("Creating application tables")
             for (a <- adapter) {

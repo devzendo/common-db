@@ -108,19 +108,6 @@ trait CreateWorkflowAdapter {
     def reportProgress(progressStage: CreateProgressStage.Enum, description: String)
 
     /**
-     * Request the application code version.
-     * @return the application code version.
-     */
-    def requestApplicationCodeVersion(): String
-
-    /**
-     * Request the application schema version.
-     * @return the application schema version.
-     */
-    def requestApplicationSchemaVersion(): String
-
-
-    /**
      * Create the tables for the application.
      * @param dataSource the JDBC DataSource to use in creating the tables
      * @param jdbcTemplate the Spring SimpleJdbcTemplate to use in creating the
