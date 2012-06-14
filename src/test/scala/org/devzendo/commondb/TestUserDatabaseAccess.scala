@@ -65,9 +65,14 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
     def userAccessIsPossibleAfterCreation() {
         val userDatabase = createCheeseDatabase("useraccesscreate")
 
-        performUserAccessChecks(userDatabase)
+        try {
+            performUserAccessChecks(userDatabase)
+        } finally {
+            for (u <- userDatabase) {
+                u.close()
+            }
+        }
     }
-
 
     @Test
     def userAccessIsPossibleAfterOpening() {
@@ -75,6 +80,12 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AutoCloseDa
 
         val userDatabase = openCheeseDatabase("useraccessopen")
 
-        performUserAccessChecks(userDatabase)
+        try {
+            performUserAccessChecks(userDatabase)
+        } finally {
+            for (u <- userDatabase) {
+                u.close()
+            }
+        }
     }
 }
