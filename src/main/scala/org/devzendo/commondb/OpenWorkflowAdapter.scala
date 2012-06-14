@@ -107,28 +107,6 @@ object OpenProgressStage {
     }
 
     /**
-     * The migration cannot be done as this database was
-     * created by some other application (the application
-     * declared in the database does not match the
-     * runtime application). After receiving this ProgressStage,
-     * you will receive a createdByOtherApplication() call.
-     */
-    case object OtherApplicationDatabase extends Enum {
-        val index = 6
-    }
-
-    /**
-     * The open cannot be done since there is no application
-     * details available, so the opener cannot check whether
-     * this database was created by that application. After
-     * receiving this ProgressStage, you will receive a
-     * noApplicationAvailable call.
-     */
-    case object NoApplicationDetails extends Enum {
-        val index = 6
-    }
-
-    /**
      * The migration failed and its effects have been rolled
      * back (as far is as practical, given H2's auto-commit
      * of DML when DDL is executed - ignoring the context
@@ -217,19 +195,6 @@ trait OpenWorkflowAdapter {
      * @param exception the data access exception that has occurred.
      */
     def migrationFailed(exception: DataAccessException)
-
-    /**
-     * The open failed as this database was created by some other
-     * application.
-     */
-    def createdByOtherApplication()
-
-    /**
-     * The open failed since the check for creation by the current
-     * application could not be done since there are no application
-     * details available.
-     */
-    def noApplicationDetailsAvailable()
 
     /**
      * Report to the user that the database could not be found.

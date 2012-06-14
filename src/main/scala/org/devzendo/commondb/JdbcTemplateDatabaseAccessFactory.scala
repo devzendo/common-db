@@ -428,20 +428,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
 
-        def createdByOtherApplication() {
-            DatabaseAccessFactory.LOGGER.warn("Could not open database created by another application")
-            for (a <- adapter) {
-                a.createdByOtherApplication()
-            }
-        }
-
-        def noApplicationDetailsAvailable() {
-            DatabaseAccessFactory.LOGGER.warn("No application details available; cannot check which application created this database")
-            for (a <- adapter) {
-                a.noApplicationDetailsAvailable()
-            }
-        }
-
         def databaseNotFound(exception: DataAccessResourceFailureException) {
             DatabaseAccessFactory.LOGGER.warn("Database not found: " + exception.getMessage)
             for (a <- adapter) {
