@@ -24,10 +24,16 @@ trait CheeseDao {
 }
 
 class CheeseDatabaseAccess(override val databaseAccess: DatabaseAccess[CheeseDatabaseAccess]) extends UserDatabaseAccess(databaseAccess) {
+    var closeCalled = false
+
     def cheeseDao = new CheeseDao {
         def nextSequence = {
             databaseAccess.jdbcTemplate.queryForLong("SELECT NEXT VALUE FOR SEQUENCE Sequence")
         }
+    }
+
+    def close() {
+        closeCalled = true
     }
 }
 
@@ -88,5 +94,18 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsF
                 u.close()
             }
         }
+    }
+
+    @Test
+    def closeIsCalledInUserAccessUponClose() {
+        val userDatabase = createCheeseDatabase("useraccessclose").get
+        val userAccess = userDatabase.user.get
+        userAccess.closeCalled must be(false)
+        userDatabase.isClosed must be(false)
+
+        userDatabase.close()
+
+        userAccess.closeCalled must be(true)
+        userDatabase.isClosed must be(true)
     }
 }

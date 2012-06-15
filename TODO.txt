@@ -1,5 +1,4 @@
 Extension points:
-  Close
   Migration
 
 Handle workflow of db migration.
@@ -8,3 +7,5 @@ Allow creation of encrypted db.
 Handle workflow of opening encrypted db.
 
 Sort out logging - shouldn't have dependency on logging impl in non-test scope.
+
+Documentation

@@ -88,9 +88,11 @@ sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
             return
         }
 
-        // TODO callDatabaseClosingFacades();
         try {
             DatabaseAccessFactory.LOGGER.info("Closing database '" + databaseName + "' at '" + databasePath + "'")
+            for (u <- user) {
+                u.close()
+            }
             DataSourceUtils.getConnection(dataSource).close()
             DatabaseAccessFactory.LOGGER.info("Closed database '" + databaseName + "' at '" + databasePath + "'")
             closed = true
@@ -164,7 +166,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         CREATION_DDL_STRINGS.foreach( (ddl) => {
             jdbcTemplate.getJdbcOperations.execute(ddl)
         })
-        // TODO call back into the caller to create its own tables
     }
 
     private[this] def populateTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {

@@ -34,7 +34,8 @@ trait SequenceDao {
     def nextSequence: Long
 }
 
-class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
+abstract class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
+    def close()
 }
 
 abstract case class DatabaseAccess[U <: UserDatabaseAccess](

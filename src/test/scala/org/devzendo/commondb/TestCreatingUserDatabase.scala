@@ -86,6 +86,9 @@ class CakeDatabaseAccess(override val databaseAccess: DatabaseAccess[CakeDatabas
                 case e: EmptyResultDataAccessException => None
             }
     }
+
+    def close() {
+    }
 }
 
 class TestCreatingUserDatabase extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
