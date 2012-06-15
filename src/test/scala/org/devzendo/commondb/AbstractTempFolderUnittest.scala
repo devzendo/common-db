@@ -18,17 +18,18 @@ package org.devzendo.commondb
 
 import org.junit.rules.TemporaryFolder
 import java.io.File
-import org.apache.log4j.Logger
 import org.junit.{BeforeClass, After, Before}
-import org.devzendo.commoncode.logging.LoggingUnittestHelper
 import org.slf4j.bridge.SLF4JBridgeHandler
+import org.apache.log4j.{BasicConfigurator, Logger}
 
 object AbstractTempFolderUnittest {
     private val LOGGER = Logger.getLogger(classOf[AbstractTempFolderUnittest])
 
     @BeforeClass
     def setupLogging() {
-        LoggingUnittestHelper.setupLogging()
+        BasicConfigurator.resetConfiguration();
+        BasicConfigurator.configure();
+
         SLF4JBridgeHandler.install()
     }
 

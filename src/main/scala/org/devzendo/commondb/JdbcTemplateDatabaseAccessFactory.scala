@@ -25,7 +25,7 @@ import org.springframework.dao.{DataAccessResourceFailureException, EmptyResultD
 import collection.mutable.ListBuffer
 import org.springframework.jdbc.datasource.{SingleConnectionDataSource, DataSourceUtils}
 import org.h2.constant.ErrorCode
-import org.devzendo.commoncode.string.StringUtils
+//import org.devzendo.commoncode.string.StringUtils
 import scala.throws
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
@@ -407,7 +407,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                 a.requestPassword()
             }).getOrElse(None)
 
-            DatabaseAccessFactory.LOGGER.info("Result of password request: '" + StringUtils.maskSensitiveText(requestedPassword.getOrElse("")) + "'")
+            DatabaseAccessFactory.LOGGER.info("Password provided")
             requestedPassword
         }
 
