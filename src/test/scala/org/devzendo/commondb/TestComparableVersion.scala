@@ -68,8 +68,30 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         version.classifier must be ("alpha")
     }
 
+    @Test
+    def testToString() {
+        new ComparableVersion("v1.0.3-beta").toString must be("v1.0.3-beta")
+        new ComparableVersion("v1.0.3").toString must be("v1.0.3")
+    }
 
-    /*
+    @Test
+    def testVersionIntegers() {
+        val versionNumberIntegers = new ComparableVersion("1.2.3").versionNumberIntegers
+        versionNumberIntegers must have size(3)
+        versionNumberIntegers(0) must be(1)
+        versionNumberIntegers(1) must be(2)
+        versionNumberIntegers(2) must be(3)
+
+        val singleVersionNumberIntegers = new ComparableVersion("1").versionNumberIntegers
+        singleVersionNumberIntegers must have size(1)
+        singleVersionNumberIntegers(0) must be(1)
+
+        val classifierVersionNumberIntegers = new ComparableVersion("1-beta").versionNumberIntegers
+        classifierVersionNumberIntegers must have size(1)
+        classifierVersionNumberIntegers(0) must be(1)
+    }
+
+                    /*
      *
      *
 
@@ -146,22 +168,6 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
     }
 
 
-    @Test
-    public void testVersionIntegers() {
-        final List<Integer> versionNumberIntegers = new ComparableVersion("1.2.3").getVersionNumberIntegers();
-        Assert.assertEquals(3, versionNumberIntegers.size());
-        Assert.assertEquals(new Integer(1), versionNumberIntegers.get(0));
-        Assert.assertEquals(new Integer(2), versionNumberIntegers.get(1));
-        Assert.assertEquals(new Integer(3), versionNumberIntegers.get(2));
-
-        final List<Integer> singleVersionNumberIntegers = new ComparableVersion("1").getVersionNumberIntegers();
-        Assert.assertEquals(1, singleVersionNumberIntegers.size());
-        Assert.assertEquals(new Integer(1), singleVersionNumberIntegers.get(0));
-
-        final List<Integer> classifierVersionNumberIntegers = new ComparableVersion("1-beta").getVersionNumberIntegers();
-        Assert.assertEquals(1, classifierVersionNumberIntegers.size());
-        Assert.assertEquals(new Integer(1), classifierVersionNumberIntegers.get(0));
-    }
 
     @Test
     public void rangeTests() {
@@ -173,11 +179,6 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         Assert.assertTrue(ComparableVersion.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
     }
 
-    @Test
-    public void testToString() {
-        Assert.assertEquals("v1.0.3-beta", new ComparableVersion("v1.0.3-beta").toString());
-        Assert.assertEquals("v1.0.3", new ComparableVersion("v1.0.3").toString());
-    }
     */
 
 }

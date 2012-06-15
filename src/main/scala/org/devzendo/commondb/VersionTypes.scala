@@ -41,11 +41,12 @@ abstract class Version(version: String) extends Comparable[Version] {
 
     println("input version '" + trimmedVersion + "'")
     val versionRegex = """^[vV]?(\d+(?:\.\d+)*)(-?)(\S+)?$""".r
-    val (versionNumberString, classifier, hyphen) =
+    val (versionNumberString, classifier, hyphen, versionNumberIntegers) =
         trimmedVersion match {
             case versionRegex(rversionNumbers, rhyphen, rclassifier) =>
                 println("good version '" + trimmedVersion + "'")
 
+                val stringNumbers = rversionNumbers.split("""\.""")
                 val processed = (rversionNumbers, // 1
 
                      rclassifier match {          // 2
@@ -56,7 +57,12 @@ abstract class Version(version: String) extends Comparable[Version] {
                      rhyphen match {              // 3
                          case null => ""
                          case _ => rhyphen
-                     })
+                     },
+
+                     (stringNumbers map {
+                         Integer.parseInt(_)
+                     }).toList // 4
+                    )
                 if (processed._3.length() != 0 && processed._2.length() == 0) {
                     throw new IllegalArgumentException("Version '" + version + "' does not have a classifier following a hyphen")
                 }
@@ -69,9 +75,8 @@ abstract class Version(version: String) extends Comparable[Version] {
 
     val representation = trimmedVersion
 
-    def toRepresentation(): String = {
-        representation
-    }
+    def toRepresentation = { representation }
+    override def toString = { representation }
 
     def compareTo(o: Version) = 0
 }
