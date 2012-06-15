@@ -56,6 +56,18 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion("1-x").classifier must be("x")
     }
 
+    @Test(expected = classOf[IllegalArgumentException])
+    def testBadClassifier() {
+        new ComparableVersion("2.3-")
+    }
+
+    @Test
+    def testClassifierWithNoHyphen() {
+        val version = new ComparableVersion("2.3alpha")
+        version.versionNumberString must be("2.3")
+        version.classifier must be ("alpha")
+    }
+
 
     /*
      *
@@ -133,18 +145,6 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         Assert.assertEquals(1, later.compareTo(early));
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBadClassifier() {
-        new ComparableVersion("2.3-");
-    }
-
-    @Test
-    public void testClassifierWithNoHyphen() {
-        final ComparableVersion version = new ComparableVersion("2.3alpha");
-        Assert.assertEquals("2.3", version.getVersionNumberString());
-        Assert.assertEquals("alpha", version.getClassifier());
-    }
 
     @Test
     public void testVersionIntegers() {
