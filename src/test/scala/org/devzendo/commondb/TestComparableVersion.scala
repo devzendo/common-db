@@ -43,14 +43,15 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion(" 1.0.0 ").toRepresentation must be("1.0.0");
     }
 
-    /*
-     *
-     *
-
     @Test(expected = classOf[IllegalArgumentException])
     def testBadForm() {
         new ComparableVersion("I say, Jeeves - what ho?")
     }
+
+    /*
+     *
+     *
+
 
 
 

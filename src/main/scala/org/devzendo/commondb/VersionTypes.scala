@@ -39,6 +39,13 @@ abstract class Version(version: String) extends Comparable[Version] {
         throw new IllegalArgumentException("Empty version not allowed")
     }
 
+    val versionRegex = """^[vV]?(\d+(?:\.\d+)*)(-?)(\S+)?$""".r
+    trimmedVersion match {
+        case versionRegex(versionNumbers, hyphen, classifier) =>
+        case _ =>
+            throw new IllegalArgumentException("Version '" + version + "' is not a valid version")
+    }
+
     val representation = trimmedVersion
 
     def toRepresentation(): String = {
