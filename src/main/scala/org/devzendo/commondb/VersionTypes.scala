@@ -79,10 +79,75 @@ abstract class Version(version: String) extends Comparable[Version] {
 
     val representation = trimmedVersion
 
-    def toRepresentation = { representation }
-    override def toString = { representation }
+    final def toRepresentation = { representation }
+    final override def toString = { representation }
 
-    def compareTo(o: Version) = 0
+    final override def hashCode: Int = {
+        val prime = 31
+        var result = 1
+        result = prime * result + ( if (classifier == null) 0 else classifier.hashCode() )
+        result = prime * result + ( if (versionNumberIntegers == null) 0 else versionNumberIntegers.hashCode() )
+        result
+    }
+
+    final override def equals(obj: Any): Boolean = {
+        obj match {
+            case that: Version =>
+                if (this eq that) {
+                    true
+                } else {
+                    compareTo(that) == 0
+                }
+            case _ => false
+        }
+    }
+
+    final def compareTo(obj: Version): Int = {
+        val elementSignum = compareElementForElement(obj)
+        if (elementSignum != 0) {
+            return elementSignum
+        }
+        // version numbers are identical, but shorter numbers of elements mean
+        // earlier releases (e.g. 1.0 is earlier than 1.0.1)
+        // TODO: I don't think these size comparisons work - compareElementForElement
+        // will have catered for this by right-zero-padding?
+        if (this.versionNumberIntegers.size < obj.versionNumberIntegers.size) {
+            return -1
+        }
+        if (this.versionNumberIntegers.size > obj.versionNumberIntegers.size) {
+            return 1
+        }
+        // version numbers are identical. classifiers always indicate earlier
+        // releases than non-classifiers
+        if (this.classifier.length() > 0 && obj.classifier.length() == 0) {
+            return -1
+        }
+        if (this.classifier.length() == 0 && obj.classifier.length() > 0) {
+            return 1
+        }
+        // they have equal version numbers and both have a classifier.
+        // I could go into snapshot < alpha < beta < rc and all that guff...?
+        0
+    }
+
+    /**
+     * compare version numbers by padding each out to same width, filling
+     * short ones with zeros, then comparing element-for-element.
+     * @param obj another one of these
+     * @return a signum value
+     */
+    final private[this] def compareElementForElement(obj: Version): Int = {
+        val maxVersionElements = Math.max(this.versionNumberIntegers.size, obj.versionNumberIntegers.size)
+        for (i <- 0 until maxVersionElements) {
+            val thisVersionElement = if (i < this.versionNumberIntegers.size) this.versionNumberIntegers(i) else 0
+            val thatVersionElement = if (i < obj.versionNumberIntegers.size) obj.versionNumberIntegers(i) else 0
+            val elementSignum = thisVersionElement.compareTo(thatVersionElement)
+            if (elementSignum != 0) {
+                return elementSignum
+            }
+        }
+        0
+    }
 }
 
 /**

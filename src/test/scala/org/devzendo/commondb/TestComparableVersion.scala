@@ -95,33 +95,36 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
     def testNoDigitsBetweenDots() {
         new ComparableVersion("1..2.3")
     }
-                    /*
-     *
-     *
-
-
-
-
-
-
 
     @Test
-    public void testEquality() {
-        final ComparableVersion firstOne = new ComparableVersion("1.0.0");
-        final ComparableVersion secondOne = new ComparableVersion("1.0.0");
-        Assert.assertEquals(firstOne, secondOne);
-        Assert.assertEquals(0, firstOne.compareTo(secondOne));
-        final ComparableVersion otherOne = new ComparableVersion("1.0");
-        Assert.assertFalse(firstOne.equals(otherOne));
-        Assert.assertFalse(firstOne.compareTo(otherOne) == 0);
-        final ComparableVersion firstOneClassifier = new ComparableVersion("1.0.0-beta");
-        Assert.assertFalse(firstOne.equals(firstOneClassifier));
-        Assert.assertFalse(firstOne.compareTo(firstOneClassifier) == 0);
+    def testEquality() {
+        val firstOne = new ComparableVersion("1.0.0")
+        val secondOne = new ComparableVersion("1.0.0")
+        firstOne must equal(secondOne)
+        firstOne.compareTo(secondOne) must be (0)
+        val otherOne = new ComparableVersion("1.0")
+        firstOne must not(equal(otherOne))
+        firstOne.compareTo(otherOne) must not(be(0))
+        val firstOneClassifier = new ComparableVersion("1.0.0-beta")
+        firstOne.equals(firstOneClassifier) must be(false)
+        firstOne.compareTo(firstOneClassifier) must not(be(0))
         // all classifiers are equal...
-        final ComparableVersion secondOneClassifier = new ComparableVersion("1.0.0-snapshot");
-        Assert.assertEquals(firstOneClassifier, secondOneClassifier);
-        Assert.assertEquals(0, firstOneClassifier.compareTo(secondOneClassifier));
+        val secondOneClassifier = new ComparableVersion("1.0.0-snapshot")
+        firstOneClassifier must equal(secondOneClassifier)
+        firstOneClassifier.compareTo(secondOneClassifier) must be(0)
     }
+
+
+    /*
+     *
+     *
+
+
+
+
+
+
+
 
 
     @Test
