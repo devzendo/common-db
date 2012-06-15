@@ -29,6 +29,28 @@ object VersionTypes
  * them as inner classes - construction fails in this case.
  */
 
+object Version {
+    /**
+     * Is the version within the range indicated, inclusively?
+     * @param version the version to test for
+     * @param leftBound the left hand side of the range
+     * @param rightBound the right hand side of the range
+     * @return true if leftBound <= version <= rightBound
+     */
+    def inRange(version: Version, leftBound: Version, rightBound: Version): Boolean = {
+        val fromSignum = version.compareTo(leftBound)
+        val toSignum = version.compareTo(rightBound)
+        if ((fromSignum == 0 || fromSignum == 1)
+            &&
+            (toSignum == 0 || toSignum == -1)) {
+            true
+        }
+        else {
+            false
+        }
+    }
+}
+
 abstract class Version(version: String) extends Comparable[Version] {
 
     if (version == null) {

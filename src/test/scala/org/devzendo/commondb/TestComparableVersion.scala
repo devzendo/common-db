@@ -157,24 +157,13 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         later.compareTo(early) must be(1)
     }
 
-
-
-    /*
-     *
-     *
-
-
-
     @Test
-    public void rangeTests() {
-        Assert.assertFalse(ComparableVersion.inRange(new ComparableVersion("1.0.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
-        Assert.assertFalse(ComparableVersion.inRange(new ComparableVersion("3.1.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
-        Assert.assertTrue(ComparableVersion.inRange(new ComparableVersion("2.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
-        Assert.assertTrue(ComparableVersion.inRange(new ComparableVersion("3.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
-        Assert.assertTrue(ComparableVersion.inRange(new ComparableVersion("2.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
-        Assert.assertTrue(ComparableVersion.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")));
+    def rangeTests() {
+        Version.inRange(new ComparableVersion("1.0.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(false)
+        Version.inRange(new ComparableVersion("3.1.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(false)
+        Version.inRange(new ComparableVersion("2.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
+        Version.inRange(new ComparableVersion("3.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
+        Version.inRange(new ComparableVersion("2.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
+        Version.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
     }
-
-    */
-
 }
