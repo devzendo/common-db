@@ -91,15 +91,15 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         classifierVersionNumberIntegers(0) must be(1)
     }
 
+    @Test(expected = classOf[IllegalArgumentException])
+    def testNoDigitsBetweenDots() {
+        new ComparableVersion("1..2.3")
+    }
                     /*
      *
      *
 
 
-    @Test(expected = classOf[IllegalArgumentException])
-    def testNoDigitsBetweenDots() {
-        new ComparableVersion("1..2.3")
-    }
 
 
 

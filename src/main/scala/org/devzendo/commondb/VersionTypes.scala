@@ -66,6 +66,10 @@ abstract class Version(version: String) extends Comparable[Version] {
                 if (processed._3.length() != 0 && processed._2.length() == 0) {
                     throw new IllegalArgumentException("Version '" + version + "' does not have a classifier following a hyphen")
                 }
+                if (processed._2.indexOf(".") != -1) {
+                    // the classifier regex should be non-whitespace but not dots
+                    throw new IllegalArgumentException("Version '" + version + "' does not have a valid classifier '" + processed._2 + "'")
+                }
 
                 processed
             case _ =>
