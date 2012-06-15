@@ -17,12 +17,12 @@
 package org.devzendo.commondb
 
 import java.io.File
-import org.apache.log4j.Logger
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
+import org.slf4j.LoggerFactory
 
 object DatabaseAccessFactory {
-    val LOGGER = Logger.getLogger(classOf[DatabaseAccessFactory[_]])
+    val LOGGER = LoggerFactory.getLogger(classOf[DatabaseAccessFactory[_]])
 }
 
 trait VersionsDao {

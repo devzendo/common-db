@@ -20,10 +20,11 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import org.junit.{BeforeClass, After, Before}
 import org.slf4j.bridge.SLF4JBridgeHandler
-import org.apache.log4j.{BasicConfigurator, Logger}
+import org.slf4j.LoggerFactory
+import org.apache.log4j.BasicConfigurator
 
 object AbstractTempFolderUnittest {
-    private val LOGGER = Logger.getLogger(classOf[AbstractTempFolderUnittest])
+    private val LOGGER = LoggerFactory.getLogger(classOf[AbstractTempFolderUnittest])
 
     @BeforeClass
     def setupLogging() {

@@ -18,11 +18,11 @@ package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
-import org.apache.log4j.Logger
+import org.slf4j.LoggerFactory
 
 
 class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val LOGGER = Logger.getLogger(classOf[TestSequenceDao])
+    val LOGGER = LoggerFactory.getLogger(classOf[TestSequenceDao])
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")
 
