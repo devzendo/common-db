@@ -28,8 +28,8 @@ object AbstractTempFolderUnittest {
 
     @BeforeClass
     def setupLogging() {
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
+        BasicConfigurator.resetConfiguration()
+        BasicConfigurator.configure()
 
         SLF4JBridgeHandler.install()
     }
