@@ -32,6 +32,10 @@ abstract class Version(version: String) extends RepresentationType[String](versi
     if (version == null) {
         throw new IllegalArgumentException("Null version not allowed")
     }
+    if (version.length() == 0) {
+        throw new IllegalArgumentException("Empty version not allowed")
+    }
+
 
     def compareTo(o: Version) = 0
 }
