@@ -39,10 +39,19 @@ abstract class Version(version: String) extends Comparable[Version] {
         throw new IllegalArgumentException("Empty version not allowed")
     }
 
+    println("input version '" + trimmedVersion + "'")
     val versionRegex = """^[vV]?(\d+(?:\.\d+)*)(-?)(\S+)?$""".r
+    var classifier = ""
     trimmedVersion match {
-        case versionRegex(versionNumbers, hyphen, classifier) =>
+        case versionRegex(rversionNumbers, rhyphen, rclassifier) =>
+            println("good version '" + trimmedVersion + "'")
+            classifier =
+                rclassifier match {
+                    case null => ""
+                    case _ => rclassifier
+                }
         case _ =>
+            println("bad version")
             throw new IllegalArgumentException("Version '" + version + "' is not a valid version")
     }
 

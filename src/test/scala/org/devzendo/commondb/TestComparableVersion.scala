@@ -48,18 +48,27 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion("I say, Jeeves - what ho?")
     }
 
+    @Test
+    def testClassifier() {
+        new ComparableVersion(" 1 ").classifier must be("")
+        new ComparableVersion("1.0.0").classifier must be("")
+        new ComparableVersion(" 1-x  ").classifier must be("x")
+        new ComparableVersion("1-x").classifier must be("x")
+    }
+
+
     /*
      *
      *
 
 
-
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testNoDigitsBetweenDots() {
-        new ComparableVersion("1..2.3");
+    @Test(expected = classOf[IllegalArgumentException])
+    def testNoDigitsBetweenDots() {
+        new ComparableVersion("1..2.3")
     }
+
+
+
 
 
     @Test
@@ -124,13 +133,6 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         Assert.assertEquals(1, later.compareTo(early));
     }
 
-    @Test
-    public void testClassifier() {
-        Assert.assertEquals("", new ComparableVersion(" 1 ").getClassifier());
-        Assert.assertEquals("", new ComparableVersion("1.0.0").getClassifier());
-        Assert.assertEquals("x", new ComparableVersion(" 1-x  ").getClassifier());
-        Assert.assertEquals("x", new ComparableVersion("1-x").getClassifier());
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBadClassifier() {
