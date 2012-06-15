@@ -28,7 +28,9 @@ object VersionTypes
  * constructed by the findVersion method, it does not appear possible to define
  * them as inner classes - construction fails in this case.
  */
-abstract class Version(version: String) extends RepresentationType[String](version)
+abstract class Version(version: String) extends RepresentationType[String](version) with Comparable[Version] {
+    def compareTo(o: Version) = 0
+}
 
 /**
  * Represents the software version of the application that created the database.
