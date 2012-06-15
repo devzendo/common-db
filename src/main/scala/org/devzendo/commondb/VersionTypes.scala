@@ -29,6 +29,10 @@ object VersionTypes
  * them as inner classes - construction fails in this case.
  */
 abstract class Version(version: String) extends RepresentationType[String](version) with Comparable[Version] {
+    if (version == null) {
+        throw new IllegalArgumentException("Null version not allowed")
+    }
+
     def compareTo(o: Version) = 0
 }
 
