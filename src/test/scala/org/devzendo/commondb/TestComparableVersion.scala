@@ -114,61 +114,54 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         firstOneClassifier.compareTo(secondOneClassifier) must be(0)
     }
 
+    @Test
+    def testSimpleComparison() {
+        val early = new ComparableVersion("1")
+        val later = new ComparableVersion("2")
+        early.compareTo(later) must be(-1)
+        later.compareTo(early) must be(1)
+    }
+
+    @Test
+    def testComparison() {
+        val early = new ComparableVersion("1.0.0")
+        val later = new ComparableVersion("1.2.3")
+        early.compareTo(later) must be(-1)
+        later.compareTo(early) must be(1)
+    }
+
+
+    @Test
+    def testComparisonWithMismatchedElements() {
+        val early = new ComparableVersion("1.0")
+        val later = new ComparableVersion("1.0.1")
+        early.compareTo(later) must be(-1)
+        later.compareTo(early) must be(1)
+    }
+
+
+    @Test
+    def testComparisonWithAdditionalZeroElements() {
+        val early = new ComparableVersion("1.0")
+        val later = new ComparableVersion("1.0.0.0")
+        early must not(equal(later))
+        early.compareTo(later) must be(-1)
+        later.compareTo(early) must be(1)
+    }
+
+    @Test
+    def testComparisonWithClassifiers() {
+        val early = new ComparableVersion("1.0.0-snapshot")
+        val later = new ComparableVersion("1.0.0")
+        early.compareTo(later) must be(-1)
+        later.compareTo(early) must be(1)
+    }
+
+
 
     /*
      *
      *
-
-
-
-
-
-
-
-
-
-    @Test
-    public void testSimpleComparison() {
-        final ComparableVersion early = new ComparableVersion("1");
-        final ComparableVersion later = new ComparableVersion("2");
-        Assert.assertEquals(-1, early.compareTo(later));
-        Assert.assertEquals(1, later.compareTo(early));
-    }
-
-    @Test
-    public void testComparison() {
-        final ComparableVersion early = new ComparableVersion("1.0.0");
-        final ComparableVersion later = new ComparableVersion("1.2.3");
-        Assert.assertEquals(-1, early.compareTo(later));
-        Assert.assertEquals(1, later.compareTo(early));
-    }
-
-
-    @Test
-    public void testComparisonWithMismatchedElements() {
-        final ComparableVersion early = new ComparableVersion("1.0");
-        final ComparableVersion later = new ComparableVersion("1.0.1");
-        Assert.assertEquals(-1, early.compareTo(later));
-        Assert.assertEquals(1, later.compareTo(early));
-    }
-
-
-    @Test
-    public void testComparisonWithAdditionalZeroElements() {
-        final ComparableVersion early = new ComparableVersion("1.0");
-        final ComparableVersion later = new ComparableVersion("1.0.0.0");
-        Assert.assertFalse(early.equals(later));
-        Assert.assertEquals(-1, early.compareTo(later));
-        Assert.assertEquals(1, later.compareTo(early));
-    }
-
-    @Test
-    public void testComparisonWithClassifiers() {
-        final ComparableVersion early = new ComparableVersion("1.0.0-snapshot");
-        final ComparableVersion later = new ComparableVersion("1.0.0");
-        Assert.assertEquals(-1, early.compareTo(later));
-        Assert.assertEquals(1, later.compareTo(early));
-    }
 
 
 
