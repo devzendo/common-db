@@ -33,15 +33,16 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion("")
     }
 
+    @Test(expected = classOf[IllegalArgumentException])
+    def testEmptySpace() {
+        new ComparableVersion("   ");
+    }
+
     /*
      *
      *
 
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptySpace() {
-        new ComparableVersion("   ");
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBadForm() {
