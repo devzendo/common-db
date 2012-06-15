@@ -28,7 +28,9 @@ object VersionTypes
  * constructed by the findVersion method, it does not appear possible to define
  * them as inner classes - construction fails in this case.
  */
-abstract class Version(version: String) extends RepresentationType[String](version) with Comparable[Version] {
+
+abstract class Version(version: String) extends Comparable[Version] {
+
     if (version == null) {
         throw new IllegalArgumentException("Null version not allowed")
     }
@@ -37,6 +39,11 @@ abstract class Version(version: String) extends RepresentationType[String](versi
         throw new IllegalArgumentException("Empty version not allowed")
     }
 
+    val representation = trimmedVersion
+
+    def toRepresentation(): String = {
+        representation
+    }
 
     def compareTo(o: Version) = 0
 }

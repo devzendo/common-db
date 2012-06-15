@@ -38,16 +38,21 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion("   ");
     }
 
+    @Test
+    def trimmedNicely() {
+        new ComparableVersion(" 1.0.0 ").toRepresentation must be("1.0.0");
+    }
+
     /*
      *
      *
 
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBadForm() {
-        new ComparableVersion("I say, Jeeves - what ho?");
+    @Test(expected = classOf[IllegalArgumentException])
+    def testBadForm() {
+        new ComparableVersion("I say, Jeeves - what ho?")
     }
+
+
 
 
     @Test(expected = IllegalArgumentException.class)
@@ -55,10 +60,6 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         new ComparableVersion("1..2.3");
     }
 
-    @Test
-    public void trimmedNicely() {
-        Assert.assertEquals("1.0.0", new ComparableVersion(" 1.0.0 ").getVersion());
-    }
 
     @Test
     public void testEquality() {
