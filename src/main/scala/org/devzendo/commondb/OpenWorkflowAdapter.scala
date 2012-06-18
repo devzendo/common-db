@@ -17,6 +17,8 @@
 package org.devzendo.commondb
 
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
+import javax.sql.DataSource
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 object OpenProgressStage {
 
@@ -139,6 +141,7 @@ object OpenProgressStage {
  * <li> progress during the open
  * <li> to request any password
  * <li> to request confirmation for migration
+ * <li> to perform the migration, if needed
  * <li> to inform the user of any failures.
  * </ul>
  * The start and end of an open operation can also be signalled, e.g. for
@@ -176,7 +179,31 @@ trait OpenWorkflowAdapter {
      */
     def requestMigration(): Boolean
 
-    // TODO need to add the migrate(dataSource, jdbcTemplate, etc) here
+    /**
+     * The database schema is at a version older than that given
+     * by the application, so migrate it to the latest version. The
+     * framework will record the new version in the Versions
+     * table, after migration. If the exception is thrown, the
+     * entire migration will be rolled back, and the open
+     * terminated.
+     *
+     * @param dataSource the DataSource, for low-level access to
+     * the database
+     * @param jdbcTemplate the Spring SimpleJdbcTemplate, for
+     * easier access to the database atop JDBC
+     * @param currentSchemaVersion the version of the application's database
+     * schema as recorded in the database currently; i.e. the version
+     * being upgraded from
+     * @throws DataAccessException on migration failure
+     */
+    @throws(classOf[DataAccessException])
+    def migrateSchema(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate,
+                      currentSchemaVersion: SchemaVersion)
+
+    /**
+     * Report to the user the migration succeeded.
+     */
+    def migrationSucceeded()
 
     /**
      * Report to the user the migration cannot be done as this

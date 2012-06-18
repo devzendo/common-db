@@ -20,6 +20,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 
 case class ComparableVersion(version: String) extends Version(version)
+case class OtherComparableVersion(version: String) extends Version(version)
 
 class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit {
 
@@ -165,5 +166,12 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         Version.inRange(new ComparableVersion("3.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
         Version.inRange(new ComparableVersion("2.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
         Version.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
+    }
+
+    @Test
+    def differentTypesCanBeCompared() { // unsure whether this makes sense....
+        val early = new ComparableVersion("1.0.0")
+        val later = new OtherComparableVersion("1.0.0")
+        early.compareTo(later) must be(0)
     }
 }

@@ -145,6 +145,8 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
         // The access is created incomplete, then filled in with the user access,
         // since the user access may need to use the rest of the access object.
+        // TODO wonder if this should be done after the creation and population
+        // in case the user code needs to get at the versions or sequence?
         val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess[U](databasePath, databaseName, details._1, details._2)
         for (userFactory <- userDatabaseAccessFactory) {
             access.user = Some(userFactory.apply(access))
@@ -172,6 +174,24 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         adapter.reportProgress(CreateProgressStage.PopulatingTables, "Populating tables")
         access.versionsDao.persistVersion(schemaVersion)
         access.versionsDao.persistVersion(codeVersion)
+    }
+
+    private[this] def migrate(databaseName: String, access: DatabaseAccess[U], adapter: OpenWorkflowAdapter, currentSchemaVersion: SchemaVersion, codeVersion: CodeVersion, schemaVersion: SchemaVersion): Boolean = {
+        adapter.reportProgress(OpenProgressStage.MigrationRequired, "Database '" + databaseName + "' requires migration")
+        if (adapter.requestMigration()) {
+            adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
+            // try {
+            adapter.migrateSchema(access.dataSource, access.jdbcTemplate, currentSchemaVersion)
+            adapter.migrationSucceeded()
+            // } catch {
+            //   case dae: DataAccessException => ...
+            // }
+            true
+        } else {
+            //adapter.reportProgress(OpenProgressStage.MigrationCancelled, "xxx")
+            // need a non-reportProgress way of indicating this
+            false
+        }
     }
 
     def open(
@@ -203,7 +223,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             // TODO migration...
 
             adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
-            adapter.stopOpening()
 
             // The access is created incomplete, then filled in with the user access,
             // since the user access may need to use the rest of the access object.
@@ -211,6 +230,22 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             for (userFactory <- userDatabaseAccessFactory) {
                 access.user = Some(userFactory.apply(access))
             }
+
+            val currentSchemaVersion = access.versionsDao.findVersion(classOf[SchemaVersion]).get
+            DatabaseAccessFactory.LOGGER.info("Schema version in database: " + currentSchemaVersion)
+            DatabaseAccessFactory.LOGGER.info("Current application schema version: " + schemaVersion)
+            currentSchemaVersion.compareTo(schemaVersion) match {
+                case 1 => // opened future database
+                    DatabaseAccessFactory.LOGGER.warn("This database is from the future!")
+                case -1 => // opened old database, so migrate it if request succeeds
+                    DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
+                    // if...
+                    migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)
+                    // else None
+                case 0 => // database is same version as current schema
+                    DatabaseAccessFactory.LOGGER.info("This database has the current schema version")
+            }
+            adapter.stopOpening()
 
             return Some(access)
 
@@ -418,6 +453,30 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }).getOrElse(false)
             DatabaseAccessFactory.LOGGER.info("Result of migration request: " + requestedMigration)
             requestedMigration
+        }
+
+        @throws(classOf[DataAccessException])
+        def migrateSchema(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate,
+                          currentSchemaVersion: SchemaVersion) = {
+            DatabaseAccessFactory.LOGGER.info("Migrating from schema version '"
+                + currentSchemaVersion + "' to latest version")
+            try {
+                for (a <- adapter) {
+                    a.migrateSchema(dataSource, jdbcTemplate, currentSchemaVersion)
+                }
+                DatabaseAccessFactory.LOGGER.info("Migration succeeded")
+            } catch {
+                case e: DataAccessException =>
+                    DatabaseAccessFactory.LOGGER.error("Migration failed: " + e.getMessage, e)
+                throw e
+            }
+        }
+
+        def migrationSucceeded() {
+            DatabaseAccessFactory.LOGGER.info("Migration succeeded")
+            for (a <- adapter) {
+                a.migrationSucceeded()
+            }
         }
 
         def migrationNotPossible() {
