@@ -28,6 +28,17 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         val databaseName = "oldschemaupdate"
         createOldDatabase(databaseName).get.close()
 
+        val openerAdapter = createMigratingAdapter()
+
+        database = openNewDatabase(databaseName, openerAdapter)
+        val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
+
+        updatedSchemaVersion must be(newSchemaVersion)
+
+        EasyMock.verify(openerAdapter)
+    }
+
+    private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
         val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.isA(classOf[OpenProgressStage.Enum]), EasyMock.isA(classOf[String]))
@@ -39,11 +50,6 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        database = openNewDatabase(databaseName, openerAdapter)
-        val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
-
-        updatedSchemaVersion must be(newSchemaVersion)
-
-        EasyMock.verify(openerAdapter)
+        openerAdapter
     }
 }
