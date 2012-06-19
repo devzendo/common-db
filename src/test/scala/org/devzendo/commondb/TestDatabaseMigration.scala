@@ -17,30 +17,41 @@
 package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.{After, Test}
+import org.junit.Test
 import org.easymock.EasyMock
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
+import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
+
+trait MigratingOpenWorkflowAdapter extends OpenWorkflowAdapter {
+    def startOpening() {}
+    def reportProgress(progressStage: OpenProgressStage.Enum, description: String) {}
+    def requestPassword() = null
+    def requestMigration() = true
+    def migrationSucceeded() {}
+    def migrationCancelled() {}
+    def migrationNotPossible() {}
+    def migrationFailed(exception: DataAccessException) {}
+    def databaseNotFound(exception: DataAccessResourceFailureException) {}
+    def seriousProblemOccurred(exception: DataAccessException) {}
+    def stopOpening() {}
+}
 
 class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-
-    val openerAdapter = createMigratingAdapter()
-
-    @After
-    def verifyAdapter() {
-        EasyMock.verify(openerAdapter)
-    }
 
     @Test
     def openOldDatabaseUpdatesSchemaVersionToCurrent() {
         val databaseName = "oldschemaupdate"
         createOldDatabase(databaseName).get.close()
+        val openerAdapter = createMigratingAdapter()
 
         database = openNewDatabase(databaseName, openerAdapter)
         val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
 
         updatedSchemaVersion must be(newSchemaVersion)
+        EasyMock.verify(openerAdapter)
     }
+
 
     private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
         val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
