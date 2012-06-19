@@ -22,6 +22,7 @@ import org.junit.Test
 import org.easymock.EasyMock
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
+import org.springframework.dao.{DataIntegrityViolationException, DataAccessException}
 
 class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val oldCodeVersion = CodeVersion("1.0")
@@ -84,6 +85,36 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         // code, but I don't want to trigger the code updated progress messages
         // in this test.
         database = databaseAccessFactory.open(temporaryDirectory, "oldschemacancelmigrationprogress", None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        database must be(None)
+
+        EasyMock.verify(openerAdapter)
+    }
+
+    @Test
+    def openOldDatabaseSchemaMigrationFailureProgressNotification() {
+        createOldDatabase(temporaryDirectory, "oldschemamigrationfailureprogress", None).get.close()
+
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opened), EasyMock.eq("Opened database 'oldschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationRequired), EasyMock.eq("Database 'oldschemamigrationfailureprogress' requires migration"))
+        openerAdapter.requestMigration()
+        EasyMock.expectLastCall().andReturn(true)
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemamigrationfailureprogress'"))
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        EasyMock.expectLastCall().andThrow(new DataIntegrityViolationException("Fake failure", new RuntimeException("some cause")))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationFailed), EasyMock.eq("Migration of database 'oldschemamigrationfailureprogress' failed: Fake failure; nested exception is java.lang.RuntimeException: some cause"))
+        openerAdapter.migrationFailed(EasyMock.isA(classOf[DataIntegrityViolationException]))
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        // It isn't possible to have a newer schema with the same version of
+        // code, but I don't want to trigger the code updated progress messages
+        // in this test.
+        database = databaseAccessFactory.open(temporaryDirectory, "oldschemamigrationfailureprogress", None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
         database must be(None)
 
         EasyMock.verify(openerAdapter)

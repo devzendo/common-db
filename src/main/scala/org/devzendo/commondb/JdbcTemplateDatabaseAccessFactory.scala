@@ -180,16 +180,22 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         adapter.reportProgress(OpenProgressStage.MigrationRequired, "Database '" + databaseName + "' requires migration")
         if (adapter.requestMigration()) {
             adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
-            // try {
-            adapter.migrateSchema(access.dataSource, access.jdbcTemplate, currentSchemaVersion)
-            adapter.migrationSucceeded()
-            // } catch {
-            //   case dae: DataAccessException => ...
-            // }
+            try {
+                adapter.migrateSchema(access.dataSource, access.jdbcTemplate, currentSchemaVersion)
+                adapter.migrationSucceeded()
+            } catch {
+                case dae: DataAccessException =>
+                    DatabaseAccessFactory.LOGGER.error("Migration failed: " + dae.getMessage, dae)
+                    adapter.reportProgress(OpenProgressStage.MigrationFailed, "Migration of database '" + databaseName + "' failed: " + dae.getMessage)
+                    adapter.migrationFailed(dae)
+                    DatabaseAccessFactory.LOGGER.info("Migration failed; closing")
+                    return false
+            }
             true
         } else {
             adapter.reportProgress(OpenProgressStage.MigrationCancelled, "Migration of database '" + databaseName + "' cancelled")
             adapter.migrationCancelled()
+            DatabaseAccessFactory.LOGGER.info("Migration cancelled; closing")
             false
         }
     }
@@ -241,7 +247,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                     DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
                     // if...
                     if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
-                        DatabaseAccessFactory.LOGGER.info("Migration cancelled; closing")
                         adapter.stopOpening()
                         access.close()
                         return None
