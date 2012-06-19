@@ -17,7 +17,7 @@
 package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.{After, Before, Test}
+import org.junit.{After, Test}
 import org.easymock.EasyMock
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
@@ -27,7 +27,7 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
     val openerAdapter = createMigratingAdapter()
 
     @After
-    def verifyAdapter {
+    def verifyAdapter() {
         EasyMock.verify(openerAdapter)
     }
 
