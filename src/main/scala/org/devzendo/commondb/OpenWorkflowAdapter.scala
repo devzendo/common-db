@@ -206,6 +206,11 @@ trait OpenWorkflowAdapter {
     def migrationSucceeded()
 
     /**
+     * Report to the user the migration was cancelled.
+     */
+    def migrationCancelled()
+
+    /**
      * Report to the user the migration cannot be done as this
      * database is at a more recent version than the application
      * supports.

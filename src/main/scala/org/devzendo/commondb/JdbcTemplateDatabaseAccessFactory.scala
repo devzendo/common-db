@@ -188,8 +188,8 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             // }
             true
         } else {
-            //adapter.reportProgress(OpenProgressStage.MigrationCancelled, "xxx")
-            // need a non-reportProgress way of indicating this
+            adapter.reportProgress(OpenProgressStage.MigrationCancelled, "Migration of database '" + databaseName + "' cancelled")
+            adapter.migrationCancelled()
             false
         }
     }
@@ -240,7 +240,12 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                 case -1 => // opened old database, so migrate it if request succeeds
                     DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
                     // if...
-                    migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)
+                    if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
+                        DatabaseAccessFactory.LOGGER.info("Migration cancelled; closing")
+                        adapter.stopOpening()
+                        access.close()
+                        return None
+                    }
                     // else None
                 case 0 => // database is same version as current schema
                     DatabaseAccessFactory.LOGGER.info("This database has the current schema version")
@@ -476,6 +481,13 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             DatabaseAccessFactory.LOGGER.info("Migration succeeded")
             for (a <- adapter) {
                 a.migrationSucceeded()
+            }
+        }
+
+        def migrationCancelled() {
+            DatabaseAccessFactory.LOGGER.info("Migration cancelled")
+            for (a <- adapter) {
+                a.migrationCancelled()
             }
         }
 
