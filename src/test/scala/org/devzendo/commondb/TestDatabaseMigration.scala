@@ -17,25 +17,29 @@
 package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
+import org.junit.{After, Before, Test}
 import org.easymock.EasyMock
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+
+    val openerAdapter = createMigratingAdapter()
+
+    @After
+    def verifyAdapter {
+        EasyMock.verify(openerAdapter)
+    }
+
     @Test
     def openOldDatabaseUpdatesSchemaVersionToCurrent() {
         val databaseName = "oldschemaupdate"
         createOldDatabase(databaseName).get.close()
 
-        val openerAdapter = createMigratingAdapter()
-
         database = openNewDatabase(databaseName, openerAdapter)
         val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
 
         updatedSchemaVersion must be(newSchemaVersion)
-
-        EasyMock.verify(openerAdapter)
     }
 
     private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
