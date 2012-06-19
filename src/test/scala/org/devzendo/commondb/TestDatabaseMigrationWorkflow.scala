@@ -31,8 +31,15 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     val newCodeVersion = CodeVersion("1.1")
     val newSchemaVersion = SchemaVersion("0.5")
 
-    def createOldDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
+    private[this] def createOldDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
         databaseAccessFactory.create(databaseDirectory, databaseName, password, oldCodeVersion, oldSchemaVersion, None, None)
+    }
+
+    private[this] def openNewDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {
+        // It isn't possible to have a newer schema with the same version of
+        // code, but I don't want to trigger the code updated progress messages
+        // in this test.
+        databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
     }
 
     @Test
@@ -55,14 +62,12 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        // It isn't possible to have a newer schema with the same version of
-        // code, but I don't want to trigger the code updated progress messages
-        // in this test.
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        database = openNewDatabase(databaseName, openerAdapter)
         database must be('defined)
 
         EasyMock.verify(openerAdapter)
     }
+
 
     @Test
     def openOldDatabaseSchemaButCancelMigrationProgressNotification() {
@@ -83,10 +88,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        // It isn't possible to have a newer schema with the same version of
-        // code, but I don't want to trigger the code updated progress messages
-        // in this test.
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        database = openNewDatabase(databaseName, openerAdapter)
         database must be(None)
 
         EasyMock.verify(openerAdapter)
@@ -114,10 +116,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        // It isn't possible to have a newer schema with the same version of
-        // code, but I don't want to trigger the code updated progress messages
-        // in this test.
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        database = openNewDatabase(databaseName, openerAdapter)
         database must be(None)
 
         EasyMock.verify(openerAdapter)
@@ -143,15 +142,11 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        // It isn't possible to have a newer schema with the same version of
-        // code, but I don't want to trigger the code updated progress messages
-        // in this test.
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        database = openNewDatabase(databaseName, openerAdapter)
         val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
 
         updatedSchemaVersion must be(newSchemaVersion)
 
         EasyMock.verify(openerAdapter)
     }
-
 }
