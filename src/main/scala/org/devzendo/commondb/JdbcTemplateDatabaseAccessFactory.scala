@@ -183,6 +183,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             try {
                 adapter.migrateSchema(access.dataSource, access.jdbcTemplate, currentSchemaVersion)
                 adapter.migrationSucceeded()
+                access.versionsDao.persistVersion(schemaVersion)
             } catch {
                 case dae: DataAccessException =>
                     DatabaseAccessFactory.LOGGER.error("Migration failed: " + dae.getMessage, dae)

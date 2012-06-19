@@ -120,5 +120,34 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
         EasyMock.verify(openerAdapter)
     }
 
-    // TODO schema version must be updated after successful migration
+    @Test
+    def openOldDatabaseUpdatesSchemaVersionToCurrent() {
+        createOldDatabase(temporaryDirectory, "oldschemaupdate", None).get.close()
+
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemaupdate'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemaupdate'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opened), EasyMock.eq("Opened database 'oldschemaupdate'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationRequired), EasyMock.eq("Database 'oldschemaupdate' requires migration"))
+        openerAdapter.requestMigration()
+        EasyMock.expectLastCall().andReturn(true)
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemaupdate'"))
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        openerAdapter.migrationSucceeded()
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        // It isn't possible to have a newer schema with the same version of
+        // code, but I don't want to trigger the code updated progress messages
+        // in this test.
+        database = databaseAccessFactory.open(temporaryDirectory, "oldschemaupdate", None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+        val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
+
+        updatedSchemaVersion must be(newSchemaVersion)
+
+        EasyMock.verify(openerAdapter)
+    }
+
 }
