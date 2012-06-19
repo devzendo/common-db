@@ -92,7 +92,9 @@ object OpenProgressStage {
     }
 
     /**
-     * The user rejected the migration request on an old database.
+     * The user rejected the migration request on an old database. After
+     * receiving this ProgressStage, you will receive a migrationCancelled()
+     * call.
      */
     case object MigrationCancelled extends Enum {
         val index = 6
