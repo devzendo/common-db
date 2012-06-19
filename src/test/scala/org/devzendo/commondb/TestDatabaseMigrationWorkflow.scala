@@ -23,24 +23,7 @@ import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.springframework.dao.DataIntegrityViolationException
 
-class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val oldCodeVersion = CodeVersion("1.0")
-    val oldSchemaVersion = SchemaVersion("0.4")
-
-    val newCodeVersion = CodeVersion("1.1")
-    val newSchemaVersion = SchemaVersion("0.5")
-
-    private[this] def createOldDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None)
-    }
-
-    private[this] def openNewDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {
-        // It isn't possible to have a newer schema with the same version of
-        // code, but I don't want to trigger the code updated progress messages
-        // in this test.
-        databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
-    }
-
+class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     @Test
     def openOldDatabaseSchemaProgressNotification() {
         val databaseName = "oldschemaprogress"
@@ -148,4 +131,11 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
 
         EasyMock.verify(openerAdapter)
     }
+
+    // TODO migration can effect the database
+
+    // TODO migrations occur in a transaction.
+
+
+    // TODO migration failure rolls back the transaction
 }
