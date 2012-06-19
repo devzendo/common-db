@@ -104,33 +104,6 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         EasyMock.verify(openerAdapter)
     }
 
-    @Test
-    def openOldDatabaseUpdatesSchemaVersionToCurrent() {
-        val databaseName = "oldschemaupdate"
-        createOldDatabase(databaseName).get.close()
-
-        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
-        EasyMock.checkOrder(openerAdapter, true)
-        openerAdapter.startOpening()
-        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemaupdate'"))
-        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemaupdate'"))
-        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opened), EasyMock.eq("Opened database 'oldschemaupdate'"))
-        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationRequired), EasyMock.eq("Database 'oldschemaupdate' requires migration"))
-        openerAdapter.requestMigration()
-        EasyMock.expectLastCall().andReturn(true)
-        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemaupdate'"))
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
-        openerAdapter.migrationSucceeded()
-        openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
-
-        database = openNewDatabase(databaseName, openerAdapter)
-        val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
-
-        updatedSchemaVersion must be(newSchemaVersion)
-
-        EasyMock.verify(openerAdapter)
-    }
 
     // TODO migration can effect the database
 
