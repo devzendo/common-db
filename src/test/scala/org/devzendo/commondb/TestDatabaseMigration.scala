@@ -24,20 +24,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
-    val openerAdapter = {
-        val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
-        openerAdapter.startOpening()
-        openerAdapter.reportProgress(EasyMock.isA(classOf[OpenProgressStage.Enum]), EasyMock.isA(classOf[String]))
-        EasyMock.expectLastCall().anyTimes()
-        openerAdapter.requestMigration()
-        EasyMock.expectLastCall().andReturn(true)
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
-        openerAdapter.migrationSucceeded()
-        openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
-
-        openerAdapter
-    }
+    val openerAdapter = createMigratingAdapter()
 
     @After
     def verifyAdapter() {
@@ -54,4 +41,29 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
 
         updatedSchemaVersion must be(newSchemaVersion)
     }
+
+    private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
+        val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.isA(classOf[OpenProgressStage.Enum]), EasyMock.isA(classOf[String]))
+        EasyMock.expectLastCall().anyTimes()
+        openerAdapter.requestMigration()
+        EasyMock.expectLastCall().andReturn(true)
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        openerAdapter.migrationSucceeded()
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        openerAdapter
+    }
+
+
+
+    // TODO migration can effect the database
+
+    // TODO migrations occur in a transaction.
+
+
+    // TODO migration failure rolls back the transaction
+
 }

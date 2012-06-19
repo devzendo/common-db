@@ -103,12 +103,4 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         EasyMock.verify(openerAdapter)
     }
-
-
-    // TODO migration can effect the database
-
-    // TODO migrations occur in a transaction.
-
-
-    // TODO migration failure rolls back the transaction
 }
