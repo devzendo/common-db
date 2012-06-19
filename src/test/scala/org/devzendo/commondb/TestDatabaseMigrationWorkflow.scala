@@ -30,8 +30,8 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     val newCodeVersion = CodeVersion("1.1")
     val newSchemaVersion = SchemaVersion("0.5")
 
-    private[this] def createOldDatabase(databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(temporaryDirectory, databaseName, password, oldCodeVersion, oldSchemaVersion, None, None)
+    private[this] def createOldDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None)
     }
 
     private[this] def openNewDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {
@@ -44,7 +44,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     @Test
     def openOldDatabaseSchemaProgressNotification() {
         val databaseName = "oldschemaprogress"
-        createOldDatabase(databaseName, None).get.close()
+        createOldDatabase(databaseName).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
@@ -71,7 +71,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     @Test
     def openOldDatabaseSchemaButCancelMigrationProgressNotification() {
         val databaseName = "oldschemacancelmigrationprogress"
-        createOldDatabase(databaseName, None).get.close()
+        createOldDatabase(databaseName).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
@@ -96,7 +96,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     @Test
     def openOldDatabaseSchemaMigrationFailureProgressNotification() {
         val databaseName = "oldschemamigrationfailureprogress"
-        createOldDatabase(databaseName, None).get.close()
+        createOldDatabase(databaseName).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
@@ -124,7 +124,7 @@ class TestDatabaseMigrationWorkflow extends AbstractTempFolderUnittest with Auto
     @Test
     def openOldDatabaseUpdatesSchemaVersionToCurrent() {
         val databaseName = "oldschemaupdate"
-        createOldDatabase(databaseName, None).get.close()
+        createOldDatabase(databaseName).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
