@@ -21,8 +21,12 @@ import org.junit.Test
 import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.TransactionStatus
 import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
+import org.slf4j.LoggerFactory
 
 case class CustomVersion(version: String) extends Version(version)
+object TestTransactionHandling {
+    val LOGGER = LoggerFactory.getLogger(classOf[TestTransactionHandling])
+}
 class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
@@ -77,4 +81,48 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         existsInTransaction must be(true)
         versionsDao.findVersion(classOf[CustomVersion]) must not(be('defined))
     }
+
+    /**
+     * Unfortunately, H2 does not deal nicely DDL inside a
+     * transaction - it'll not allow it to be rolled back.
+     * <p>
+     * This will change though:
+     * http://markmail.org/message/3yd3jxfgia7lzpq5?q=h2+transaction+ddl+list:com%2Egooglegroups%2Eh2-database+from:%22Thomas+Mueller%22
+     */
+    @Test
+    def ddlInATransactionCausesCommit() {
+        createDatabase("ddlcommit")
+        val access = database.get
+        val jdbcTemplate = access.jdbcTemplate
+        val transactionTemplate = access.createTransactionTemplate
+        val versionsDao = access.versionsDao
+        var existsInTransaction = false
+        try {
+            transactionTemplate.execute(new TransactionCallback[AnyRef]() {
+                def doInTransaction(ts: TransactionStatus): AnyRef = {
+                    val version = new CustomVersion("1.0")
+                    versionsDao.persistVersion(version)
+                    existsInTransaction = versionsDao.findVersion(classOf[CustomVersion]).isDefined
+                    // if I do some DDL then force a rollback, the above DML will commit
+                    jdbcTemplate.update("CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))")
+                    jdbcTemplate.update("INSERT INTO TEST (ID, NAME) VALUES(?, ?)", 69: java.lang.Integer, "testobject")
+                    throw new DataIntegrityViolationException("A simulated access failure")
+                }
+            })
+        } catch {
+            case dae: DataAccessException =>
+                // this is tested for elsewhere
+                TestTransactionHandling.LOGGER.warn("Correctly caught exception: " + dae.getMessage(), dae)
+        }
+
+        TestTransactionHandling.LOGGER.info("End of transaction template")
+        existsInTransaction must be(true)
+        // Unfortunately, the DML for the Versions table will have been committed.
+        versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
+        // But the DML for the TEST table will have been rolled back
+        // The TEST table will exist, however.
+        val count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM TEST WHERE NAME = ?", "testobject")
+        count must be(0)
+    }
+
 }
