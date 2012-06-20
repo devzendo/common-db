@@ -19,8 +19,6 @@ package org.devzendo.commondb
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.easymock.EasyMock
-import javax.sql.DataSource
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
 trait MigratingOpenWorkflowAdapter extends OpenWorkflowAdapter {
@@ -57,11 +55,11 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         val databaseName = "oldschemachangesmade"
         createOldDatabase(databaseName).get.close()
         val openerAdapter = new MigratingOpenWorkflowAdapter {
-            def migrateSchema(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, currentSchemaVersion: SchemaVersion) {
-                jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cheeses (name VARCHAR(40), age VARCHAR(40))")
+            def migrateSchema(access: DatabaseAccess[_], currentSchemaVersion: SchemaVersion) {
+                access.jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cheeses (name VARCHAR(40), age VARCHAR(40))")
                 val data: List[(String, Int)] = List(("Edam", 4), ("Cheddar", 1))
                 for (cake_age <- data) {
-                    jdbcTemplate.update("INSERT INTO Cheeses (name, age) VALUES (?, ?)",
+                    access.jdbcTemplate.update("INSERT INTO Cheeses (name, age) VALUES (?, ?)",
                         cake_age._1, cake_age._2: java.lang.Integer)
                 }
             }
@@ -83,17 +81,13 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         EasyMock.expectLastCall().anyTimes()
         openerAdapter.requestMigration()
         EasyMock.expectLastCall().andReturn(true)
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         openerAdapter.migrationSucceeded()
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
         openerAdapter
     }
-
-
-
-    // TODO migration can effect the database
 
     // TODO migrations occur in a transaction.
 

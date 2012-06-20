@@ -25,7 +25,6 @@ import org.springframework.dao.{DataAccessResourceFailureException, EmptyResultD
 import collection.mutable.ListBuffer
 import org.springframework.jdbc.datasource.{SingleConnectionDataSource, DataSourceUtils}
 import org.h2.constant.ErrorCode
-//import org.devzendo.commoncode.string.StringUtils
 import scala.throws
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
@@ -181,7 +180,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         if (adapter.requestMigration()) {
             adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
             try {
-                adapter.migrateSchema(access.dataSource, access.jdbcTemplate, currentSchemaVersion)
+                adapter.migrateSchema(access, currentSchemaVersion)
                 adapter.migrationSucceeded()
                 access.versionsDao.persistVersion(schemaVersion)
             } catch {
@@ -227,7 +226,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             val details =
                 accessDatabase(databasePath, databaseName, passwordAttempt, allowCreate = false)
             // TODO check for other application?
-            // TODO migration...
 
             adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
 
@@ -246,13 +244,11 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                     DatabaseAccessFactory.LOGGER.warn("This database is from the future!")
                 case -1 => // opened old database, so migrate it if request succeeds
                     DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
-                    // if...
                     if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
                         adapter.stopOpening()
                         access.close()
                         return None
                     }
-                    // else None
                 case 0 => // database is same version as current schema
                     DatabaseAccessFactory.LOGGER.info("This database has the current schema version")
             }
@@ -467,13 +463,13 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         }
 
         @throws(classOf[DataAccessException])
-        def migrateSchema(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate,
-                          currentSchemaVersion: SchemaVersion) = {
+        def migrateSchema(access: DatabaseAccess[_],
+                          currentSchemaVersion: SchemaVersion) {
             DatabaseAccessFactory.LOGGER.info("Migrating from schema version '"
                 + currentSchemaVersion + "' to latest version")
             try {
                 for (a <- adapter) {
-                    a.migrateSchema(dataSource, jdbcTemplate, currentSchemaVersion)
+                    a.migrateSchema(access, currentSchemaVersion)
                 }
                 DatabaseAccessFactory.LOGGER.info("Migration succeeded")
             } catch {

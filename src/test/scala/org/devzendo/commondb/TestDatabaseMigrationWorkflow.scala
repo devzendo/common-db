@@ -19,8 +19,6 @@ package org.devzendo.commondb
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.easymock.EasyMock
-import javax.sql.DataSource
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.springframework.dao.DataIntegrityViolationException
 
 class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
@@ -39,7 +37,7 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.requestMigration()
         EasyMock.expectLastCall().andReturn(true)
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemaprogress'"))
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         openerAdapter.migrationSucceeded()
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
@@ -91,7 +89,7 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.requestMigration()
         EasyMock.expectLastCall().andReturn(true)
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemamigrationfailureprogress'"))
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DataSource]), EasyMock.isA(classOf[SimpleJdbcTemplate]), EasyMock.eq(oldSchemaVersion))
+        openerAdapter.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         EasyMock.expectLastCall().andThrow(new DataIntegrityViolationException("Fake failure", new RuntimeException("some cause")))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationFailed), EasyMock.eq("Migration of database 'oldschemamigrationfailureprogress' failed: Fake failure; nested exception is java.lang.RuntimeException: some cause"))
         openerAdapter.migrationFailed(EasyMock.isA(classOf[DataIntegrityViolationException]))
