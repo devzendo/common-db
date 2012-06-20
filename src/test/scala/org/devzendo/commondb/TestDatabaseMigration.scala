@@ -52,6 +52,29 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         EasyMock.verify(openerAdapter)
     }
 
+    @Test
+    def openOldDatabaseMigrationCanPerformChanges() {
+        val databaseName = "oldschemachangesmade"
+        createOldDatabase(databaseName).get.close()
+        val openerAdapter = new MigratingOpenWorkflowAdapter {
+            def migrateSchema(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, currentSchemaVersion: SchemaVersion) {
+                jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cheeses (name VARCHAR(40), age VARCHAR(40))")
+                val data: List[(String, Int)] = List(("Edam", 4), ("Cheddar", 1))
+                for (cake_age <- data) {
+                    jdbcTemplate.update("INSERT INTO Cheeses (name, age) VALUES (?, ?)",
+                        cake_age._1, cake_age._2: java.lang.Integer)
+                }
+            }
+        }
+
+        database = openNewDatabase(databaseName, openerAdapter)
+        val jdbcTemplate = database.get.jdbcTemplate
+        val expected: List[(String, Int)] = List(("Edam", 1), ("Cheddar", 1), ("Gorgonzola", 0))
+        val actual: List[Int] = for(e <- expected) yield
+            jdbcTemplate.queryForInt("SELECT COUNT(0) FROM Cheeses WHERE name = ?", e._1)
+
+        (expected, actual).zip.foreach((e: ((String, Int), Int)) => {(e._1)._2 must be(e._2)})
+    }
 
     private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
         val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
