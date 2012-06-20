@@ -20,6 +20,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.TransactionStatus
+import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
 
 case class CustomVersion(version: String) extends Version(version)
 class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
@@ -50,4 +51,30 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
     }
 
+    @Test
+    def exceptionCausesDataRollback() {
+        createDatabase("rollback")
+        val access = database.get
+        val transactionTemplate = access.createTransactionTemplate
+        val versionsDao = access.versionsDao
+        var existsInTransaction = false
+        var correctlyCaught = false
+        try {
+            transactionTemplate.execute(new TransactionCallback[AnyRef]() {
+                def doInTransaction(ts: TransactionStatus): AnyRef = {
+                    val version = new CustomVersion("1.0")
+                    versionsDao.persistVersion(version)
+                    existsInTransaction = versionsDao.findVersion(classOf[CustomVersion]).isDefined
+                    throw new DataIntegrityViolationException("A simulated access failure")
+                }
+            })
+        } catch {
+            case dae: DataAccessException =>
+                correctlyCaught = true
+        }
+
+        correctlyCaught must be(true)
+        existsInTransaction must be(true)
+        versionsDao.findVersion(classOf[CustomVersion]) must not(be('defined))
+    }
 }
