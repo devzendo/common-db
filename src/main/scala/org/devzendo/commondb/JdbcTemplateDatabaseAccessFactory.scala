@@ -64,6 +64,11 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
                 version.toRepresentation, version.getClass.getSimpleName)
         }
     }
+
+    @throws(classOf[DataAccessException])
+    def exists[V <: Version](versionType: Class[V]): Boolean = {
+        findVersion(versionType).isDefined
+    }
 }
 
 private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends SequenceDao {

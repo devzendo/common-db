@@ -29,6 +29,7 @@ object DatabaseAccessFactory {
 trait VersionsDao {
     def persistVersion[V <: Version](version: V)
     def findVersion[V <: Version](versionType: Class[V]): Option[V]
+    def exists[V <: Version](versionType: Class[V]): Boolean
 }
 
 trait SequenceDao {

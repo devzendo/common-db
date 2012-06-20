@@ -46,13 +46,13 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
                 def doInTransaction(ts: TransactionStatus): Boolean = {
                     val version = new CustomVersion("1.0")
                     versionsDao.persistVersion(version)
-                    versionsDao.findVersion(classOf[CustomVersion]).isDefined
+                    versionsDao.exists(classOf[CustomVersion])
                 }
             }
         )
 
         existsInTransaction must equal(true)
-        versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
+        versionsDao.exists(classOf[CustomVersion]) must equal(true)
     }
 
     @Test
@@ -68,7 +68,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
                 def doInTransaction(ts: TransactionStatus): AnyRef = {
                     val version = new CustomVersion("1.0")
                     versionsDao.persistVersion(version)
-                    existsInTransaction = versionsDao.findVersion(classOf[CustomVersion]).isDefined
+                    existsInTransaction = versionsDao.exists(classOf[CustomVersion])
                     throw new DataIntegrityViolationException("A simulated access failure")
                 }
             })
@@ -79,7 +79,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
 
         correctlyCaught must equal(true)
         existsInTransaction must equal(true)
-        versionsDao.findVersion(classOf[CustomVersion]) must not(be('defined))
+        versionsDao.exists(classOf[CustomVersion]) must equal(false)
     }
 
     /**
@@ -102,7 +102,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
                 def doInTransaction(ts: TransactionStatus): AnyRef = {
                     val version = new CustomVersion("1.0")
                     versionsDao.persistVersion(version)
-                    existsInTransaction = versionsDao.findVersion(classOf[CustomVersion]).isDefined
+                    existsInTransaction = versionsDao.exists(classOf[CustomVersion])
                     // if I do some DDL then force a rollback, the above DML will commit
                     jdbcTemplate.update("CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))")
                     jdbcTemplate.update("INSERT INTO TEST (ID, NAME) VALUES(?, ?)", 69: java.lang.Integer, "testobject")
@@ -118,7 +118,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         TestTransactionHandling.LOGGER.info("End of transaction template")
         existsInTransaction must equal(true)
         // Unfortunately, the DML for the Versions table will have been committed.
-        versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
+        versionsDao.exists(classOf[CustomVersion]) must equal(true)
         // But the DML for the TEST table will have been rolled back
         // The TEST table will exist, however.
         val count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM TEST WHERE NAME = ?", "testobject")
