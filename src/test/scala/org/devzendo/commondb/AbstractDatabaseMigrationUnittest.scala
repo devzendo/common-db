@@ -27,10 +27,18 @@ abstract class AbstractDatabaseMigrationUnittest extends AbstractTempFolderUnitt
         databaseAccessFactory.create(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None)
     }
 
+    protected[this] def createNewDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, newCodeVersion, newSchemaVersion, None, None)
+    }
+
     protected[this] def openNewDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {
         // It isn't possible to have a newer schema with the same version of
         // code, but I don't want to trigger the code updated progress messages
         // in this test.
         databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), None)
+    }
+
+    protected[this] def openOldDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, Some(openerAdapter), None)
     }
 }

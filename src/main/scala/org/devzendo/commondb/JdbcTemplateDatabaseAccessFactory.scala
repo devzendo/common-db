@@ -242,6 +242,11 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             currentSchemaVersion.compareTo(schemaVersion) match {
                 case 1 => // opened future database
                     DatabaseAccessFactory.LOGGER.warn("This database is from the future!")
+                    adapter.reportProgress(OpenProgressStage.MigrationNotPossible, "Database '" + databaseName + "' has a more modern schema than this application supports")
+                    adapter.migrationNotPossible()
+                    adapter.stopOpening()
+                    access.close()
+                    return None
                 case -1 => // opened old database, so migrate it if request succeeds
                     DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
                     if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {

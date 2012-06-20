@@ -101,4 +101,26 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         EasyMock.verify(openerAdapter)
     }
+
+    @Test
+    def openFutureDatabaseSchemaProgressNotification() {
+        val databaseName = "futureschemamigrationfailureprogress"
+        createNewDatabase(databaseName).get.close() // NOTE: new
+
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'futureschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'futureschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opened), EasyMock.eq("Opened database 'futureschemamigrationfailureprogress'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationNotPossible), EasyMock.eq("Database 'futureschemamigrationfailureprogress' has a more modern schema than this application supports"))
+        openerAdapter.migrationNotPossible()
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        database = openOldDatabase(databaseName, openerAdapter)
+        database must be(None)
+
+        EasyMock.verify(openerAdapter)
+    }
 }
