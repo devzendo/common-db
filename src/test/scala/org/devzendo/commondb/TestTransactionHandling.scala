@@ -51,7 +51,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
             }
         )
 
-        existsInTransaction must be(true)
+        existsInTransaction must equal(true)
         versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
     }
 
@@ -77,8 +77,8 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
                 correctlyCaught = true
         }
 
-        correctlyCaught must be(true)
-        existsInTransaction must be(true)
+        correctlyCaught must equal(true)
+        existsInTransaction must equal(true)
         versionsDao.findVersion(classOf[CustomVersion]) must not(be('defined))
     }
 
@@ -112,11 +112,11 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         } catch {
             case dae: DataAccessException =>
                 // this is tested for elsewhere
-                TestTransactionHandling.LOGGER.warn("Correctly caught exception: " + dae.getMessage(), dae)
+                TestTransactionHandling.LOGGER.warn("Correctly caught exception: " + dae.getMessage, dae)
         }
 
         TestTransactionHandling.LOGGER.info("End of transaction template")
-        existsInTransaction must be(true)
+        existsInTransaction must equal(true)
         // Unfortunately, the DML for the Versions table will have been committed.
         versionsDao.findVersion(classOf[CustomVersion]) must be('defined)
         // But the DML for the TEST table will have been rolled back
