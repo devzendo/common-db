@@ -26,7 +26,6 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
-
     @Test
     def databaseDoesNotExistSoReturnsNone() {
         databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None, None) must be(None)

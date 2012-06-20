@@ -23,9 +23,10 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException
 import java.sql.{SQLException, ResultSet}
 import org.springframework.dao.{DataAccessResourceFailureException, EmptyResultDataAccessException, DataAccessException}
 import collection.mutable.ListBuffer
-import org.springframework.jdbc.datasource.{SingleConnectionDataSource, DataSourceUtils}
+import org.springframework.jdbc.datasource.{DataSourceTransactionManager, SingleConnectionDataSource, DataSourceUtils}
 import org.h2.constant.ErrorCode
 import scala.throws
+import org.springframework.transaction.support.TransactionTemplate
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -78,6 +79,8 @@ sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
         override val dataSource: DataSource,
         override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate) {
     private[this] var closed: Boolean = false
+    private[this] val transactionManager = new DataSourceTransactionManager(dataSource)
+
     val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
     val sequenceDao: SequenceDao = new JdbcTemplateSequenceDao(jdbcTemplate)
 
@@ -119,6 +122,11 @@ sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
         }
         false
     }
+
+    def createTransactionTemplate: TransactionTemplate = {
+        new TransactionTemplate(transactionManager)
+    }
+
 }
 
 class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends DatabaseAccessFactory[U] {

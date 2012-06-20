@@ -20,6 +20,7 @@ import java.io.File
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.slf4j.LoggerFactory
+import org.springframework.transaction.support.TransactionTemplate
 
 object DatabaseAccessFactory {
     val LOGGER = LoggerFactory.getLogger(classOf[DatabaseAccessFactory[_]])
@@ -48,6 +49,7 @@ abstract case class DatabaseAccess[U <: UserDatabaseAccess](
     def isClosed: Boolean
     def versionsDao: VersionsDao
     def sequenceDao: SequenceDao
+    def createTransactionTemplate: TransactionTemplate
 }
 
 trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
