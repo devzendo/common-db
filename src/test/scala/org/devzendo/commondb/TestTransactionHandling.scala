@@ -27,13 +27,7 @@ case class CustomTransactionVersion(version: String) extends Version(version)
 object TestTransactionHandling {
     val LOGGER = LoggerFactory.getLogger(classOf[TestTransactionHandling])
 }
-class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val codeVersion = CodeVersion("1.0")
-    val schemaVersion = SchemaVersion("0.4")
-
-    def createDatabase(databaseName: String)  {
-        database = databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None)
-    }
+class TestTransactionHandling extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
     @Test
     def commitCausesDataCommit() {

@@ -71,7 +71,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
     def nonExistentVersionsAreFoundToBeNone() {
         database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None, None)
 
-        database.get.versionsDao.findVersion(classOf[CustomVersion]) must be(None)
+        database.get.versionsDao.findVersion(classOf[CustomTransactionVersion]) must be(None)
     }
 
     @Test
@@ -79,12 +79,12 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
         database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None, None)
 
         def versionsDao = database.get.versionsDao
-        val customVersion = CustomVersion("v12.75alpha")
+        val customVersion = CustomTransactionVersion("v12.75alpha")
         versionsDao.persistVersion(customVersion)
 
-        val dbCustomVersion = versionsDao.findVersion(classOf[CustomVersion])
+        val dbCustomVersion = versionsDao.findVersion(classOf[CustomTransactionVersion])
         dbCustomVersion must be ('defined)
-        dbCustomVersion.get.getClass must be(classOf[CustomVersion])
+        dbCustomVersion.get.getClass must be(classOf[CustomTransactionVersion])
         dbCustomVersion.get must be(customVersion)
     }
 }

@@ -22,13 +22,11 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
-class TestCreatingDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val codeVersion = CodeVersion("1.0")
-    val schemaVersion = SchemaVersion("0.4")
+class TestCreatingDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
     @Test
     def createDatabaseReturnsSome() {
-        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, None, None)
+        createDatabase("newdb")
 
         database must be('defined)
     }
