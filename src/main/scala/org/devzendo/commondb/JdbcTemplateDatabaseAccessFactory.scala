@@ -67,7 +67,9 @@ private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends 
 
     @throws(classOf[DataAccessException])
     def exists[V <: Version](versionType: Class[V]): Boolean = {
-        findVersion(versionType).isDefined
+        jdbcTemplate.queryForInt(
+            "SELECT COUNT(0) FROM Versions WHERE entity = ?",
+            versionType.getSimpleName) == 1
     }
 }
 
