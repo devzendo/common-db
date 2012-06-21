@@ -22,9 +22,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import java.io.File
 import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 
-class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val codeVersion = CodeVersion("1.0")
-    val schemaVersion = SchemaVersion("0.4")
+class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
     @Test
     def databaseDoesNotExistSoReturnsNone() {
@@ -46,10 +44,6 @@ class TestOpeningDatabaseWorkflow extends AbstractTempFolderUnittest with AutoCl
         databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter), None)
 
         EasyMock.verify(openerAdapter)
-    }
-
-    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None, None)
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package org.devzendo.commondb
 
+import java.io.File
+
 class AutoCloseDatabaseCreatingUnittest extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
@@ -24,4 +26,7 @@ class AutoCloseDatabaseCreatingUnittest extends AbstractTempFolderUnittest with 
         database = databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None)
     }
 
+    def createDatabase(databaseDirectory: File, databaseName: String, password: Option[String]): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None, None)
+    }
 }
