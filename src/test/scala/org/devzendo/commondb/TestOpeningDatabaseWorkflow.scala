@@ -19,8 +19,7 @@ package org.devzendo.commondb
 import org.junit.Test
 import org.easymock.EasyMock
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import java.io.File
-import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
+import org.springframework.dao.DataAccessResourceFailureException
 
 class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
@@ -70,7 +69,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
         database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None, None)
 
         database must be('defined)
-        database.get.isClosed must be(false)
+        database.get.isClosed must equal(false)
     }
 
     @Test
@@ -81,6 +80,6 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
 
         database must be('defined)
         database.get.close()
-        database.get.isClosed must be(true)
+        database.get.isClosed must equal(true)
     }
 }
