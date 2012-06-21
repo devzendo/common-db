@@ -23,7 +23,7 @@ import org.springframework.transaction.TransactionStatus
 import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
 import org.slf4j.LoggerFactory
 
-case class CustomVersion(version: String) extends Version(version)
+case class CustomTransactionVersion(version: String) extends Version(version)
 object TestTransactionHandling {
     val LOGGER = LoggerFactory.getLogger(classOf[TestTransactionHandling])
 }
@@ -44,15 +44,15 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         val existsInTransaction = transactionTemplate.execute(
             new TransactionCallback[Boolean] {
                 def doInTransaction(ts: TransactionStatus): Boolean = {
-                    val version = new CustomVersion("1.0")
+                    val version = new CustomTransactionVersion("1.0")
                     versionsDao.persistVersion(version)
-                    versionsDao.exists(classOf[CustomVersion])
+                    versionsDao.exists(classOf[CustomTransactionVersion])
                 }
             }
         )
 
         existsInTransaction must equal(true)
-        versionsDao.exists(classOf[CustomVersion]) must equal(true)
+        versionsDao.exists(classOf[CustomTransactionVersion]) must equal(true)
     }
 
     @Test
@@ -66,9 +66,9 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         try {
             transactionTemplate.execute(new TransactionCallback[AnyRef]() {
                 def doInTransaction(ts: TransactionStatus): AnyRef = {
-                    val version = new CustomVersion("1.0")
+                    val version = new CustomTransactionVersion("1.0")
                     versionsDao.persistVersion(version)
-                    existsInTransaction = versionsDao.exists(classOf[CustomVersion])
+                    existsInTransaction = versionsDao.exists(classOf[CustomTransactionVersion])
                     throw new DataIntegrityViolationException("A simulated access failure")
                 }
             })
@@ -79,7 +79,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
 
         correctlyCaught must equal(true)
         existsInTransaction must equal(true)
-        versionsDao.exists(classOf[CustomVersion]) must equal(false)
+        versionsDao.exists(classOf[CustomTransactionVersion]) must equal(false)
     }
 
     /**
@@ -100,9 +100,9 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         try {
             transactionTemplate.execute(new TransactionCallback[AnyRef]() {
                 def doInTransaction(ts: TransactionStatus): AnyRef = {
-                    val version = new CustomVersion("1.0")
+                    val version = new CustomTransactionVersion("1.0")
                     versionsDao.persistVersion(version)
-                    existsInTransaction = versionsDao.exists(classOf[CustomVersion])
+                    existsInTransaction = versionsDao.exists(classOf[CustomTransactionVersion])
                     // if I do some DDL then force a rollback, the above DML will commit
                     jdbcTemplate.update("CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))")
                     jdbcTemplate.update("INSERT INTO TEST (ID, NAME) VALUES(?, ?)", 69: java.lang.Integer, "testobject")
@@ -118,7 +118,7 @@ class TestTransactionHandling extends AbstractTempFolderUnittest with AutoCloseD
         TestTransactionHandling.LOGGER.info("End of transaction template")
         existsInTransaction must equal(true)
         // Unfortunately, the DML for the Versions table will have been committed.
-        versionsDao.exists(classOf[CustomVersion]) must equal(true)
+        versionsDao.exists(classOf[CustomTransactionVersion]) must equal(true)
         // But the DML for the TEST table will have been rolled back
         // The TEST table will exist, however.
         val count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM TEST WHERE NAME = ?", "testobject")
