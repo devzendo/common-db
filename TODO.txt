@@ -1,9 +1,9 @@
-Extension points:
-  Migration
-
-Handle workflow of db migration.
-
 Allow creation of encrypted db.
 Handle workflow of opening encrypted db.
 
 Documentation
+
+Sizable example.
+
+Convert DataAccessException into Either?
+Add a DSL for more idiomatic template usage? (Scala in Depth illustrates this)
