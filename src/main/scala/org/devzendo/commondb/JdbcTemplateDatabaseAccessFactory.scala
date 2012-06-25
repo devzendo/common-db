@@ -236,81 +236,81 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         // prompt for password and retry.
         var tryingToOpenMessage = "Opening database '" + databaseName + "'"
         var passwordAttempt = password
-        //while (true) {
-        try {
-            adapter.reportProgress(OpenProgressStage.Opening, tryingToOpenMessage)
+        while (true) {
+            try {
+                adapter.reportProgress(OpenProgressStage.Opening, tryingToOpenMessage)
 
-            val details =
-                accessDatabase(databasePath, databaseName, passwordAttempt, allowCreate = false)
-            // TODO check for other application?
+                val details =
+                    accessDatabase(databasePath, databaseName, passwordAttempt, allowCreate = false)
+                // TODO check for other application?
 
-            adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
+                adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
 
-            // The access is created incomplete, then filled in with the user access,
-            // since the user access may need to use the rest of the access object.
-            val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
-            for (userFactory <- userDatabaseAccessFactory) {
-                access.user = Some(userFactory.apply(access))
-            }
+                // The access is created incomplete, then filled in with the user access,
+                // since the user access may need to use the rest of the access object.
+                val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess(databasePath, databaseName, details._1, details._2)
+                for (userFactory <- userDatabaseAccessFactory) {
+                    access.user = Some(userFactory.apply(access))
+                }
 
-            val currentSchemaVersion = access.versionsDao.findVersion(classOf[SchemaVersion]).get
-            DatabaseAccessFactory.LOGGER.info("Schema version in database: " + currentSchemaVersion)
-            DatabaseAccessFactory.LOGGER.info("Current application schema version: " + schemaVersion)
-            currentSchemaVersion.compareTo(schemaVersion) match {
-                case 1 => // opened future database
-                    DatabaseAccessFactory.LOGGER.warn("This database is from the future!")
-                    adapter.reportProgress(OpenProgressStage.MigrationNotPossible, "Database '" + databaseName + "' has a more modern schema than this application supports")
-                    adapter.migrationNotPossible()
-                    adapter.stopOpening()
-                    access.close()
-                    return None
-                case -1 => // opened old database, so migrate it if request succeeds
-                    DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
-                    if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
+                val currentSchemaVersion = access.versionsDao.findVersion(classOf[SchemaVersion]).get
+                DatabaseAccessFactory.LOGGER.info("Schema version in database: " + currentSchemaVersion)
+                DatabaseAccessFactory.LOGGER.info("Current application schema version: " + schemaVersion)
+                currentSchemaVersion.compareTo(schemaVersion) match {
+                    case 1 => // opened future database
+                        DatabaseAccessFactory.LOGGER.warn("This database is from the future!")
+                        adapter.reportProgress(OpenProgressStage.MigrationNotPossible, "Database '" + databaseName + "' has a more modern schema than this application supports")
+                        adapter.migrationNotPossible()
                         adapter.stopOpening()
                         access.close()
                         return None
-                    }
-                case 0 => // database is same version as current schema
-                    DatabaseAccessFactory.LOGGER.info("This database has the current schema version")
-            }
-            adapter.stopOpening()
-
-            return Some(access)
-
-        } catch {
-
-            case bad: BadPasswordException =>
-                DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
-                adapter.reportProgress(OpenProgressStage.PasswordRequired, "Password required for '" + databaseName + "'")
-                val thisAttempt = adapter.requestPassword()
-                passwordAttempt = thisAttempt
-                passwordAttempt match {
-                    case None =>
-                        DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
-                        adapter.reportProgress(OpenProgressStage.PasswordCancelled, "Open of '" + databaseName + "' cancelled")
-                        adapter.stopOpening()
-                        return None
-//                    case _ =>
-//                        // Change the progress message, second time round...
-//                        tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
+                    case -1 => // opened old database, so migrate it if request succeeds
+                        DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
+                        if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
+                            adapter.stopOpening()
+                            access.close()
+                            return None
+                        }
+                    case 0 => // database is same version as current schema
+                        DatabaseAccessFactory.LOGGER.info("This database has the current schema version")
                 }
-
-            case darfe: DataAccessResourceFailureException =>
-                DatabaseAccessFactory.LOGGER.warn("Could not open database: " + darfe.getMessage)
-                adapter.reportProgress(OpenProgressStage.NotPresent, "Database '" + databaseName + "' not found")
-                adapter.databaseNotFound(darfe)
                 adapter.stopOpening()
-                return None
-            //
-            //                case dae: DataAccessException =>
-            //                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
-            //                    adapter.reportProgress(OpenProgressStage.OpenFailed, "Open of '" + databaseName + "' failed")
-            //                    adapter.seriousProblemOccurred(dae)
-            //                    adapter.stopOpening()
-            //                    return None
+
+                return Some(access)
+
+            } catch {
+
+                case bad: BadPasswordException =>
+                    DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
+                    adapter.reportProgress(OpenProgressStage.PasswordRequired, "Password required for '" + databaseName + "'")
+                    val thisAttempt = adapter.requestPassword()
+                    passwordAttempt = thisAttempt
+                    passwordAttempt match {
+                        case None =>
+                            DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
+                            adapter.reportProgress(OpenProgressStage.PasswordCancelled, "Open of '" + databaseName + "' cancelled")
+                            adapter.stopOpening()
+                            return None
+                        case _ =>
+                            // Change the progress message, second time round...
+                            tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
+                    }
+
+                case darfe: DataAccessResourceFailureException =>
+                    DatabaseAccessFactory.LOGGER.warn("Could not open database: " + darfe.getMessage)
+                    adapter.reportProgress(OpenProgressStage.NotPresent, "Database '" + databaseName + "' not found")
+                    adapter.databaseNotFound(darfe)
+                    adapter.stopOpening()
+                    return None
+                //
+                //                case dae: DataAccessException =>
+                //                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
+                //                    adapter.reportProgress(OpenProgressStage.OpenFailed, "Open of '" + databaseName + "' failed")
+                //                    adapter.seriousProblemOccurred(dae)
+                //                    adapter.stopOpening()
+                //                    return None
+            }
         }
-        //        }
         None
     }
 

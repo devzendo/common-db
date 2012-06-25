@@ -46,4 +46,41 @@ class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnit
 
         EasyMock.verify(openerAdapter)
     }
+
+    @Test
+    def encryptedDatabaseCannotBeOpenedWithWrongPasswordHaveAnotherGo() {
+        val databaseName = "encrypteddbopenwithwrongpasswordhaveanothergo"
+        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(creationPassword), codeVersion, schemaVersion, None, None).get.close()
+
+        val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
+        EasyMock.checkOrder(openerAdapter, true)
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.PasswordRequired), EasyMock.eq("Password required for 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        // first bad attempt
+        openerAdapter.requestPassword()
+        EasyMock.expectLastCall().andReturn(Some("notquitetherightone"))
+        // note different message second time around
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Trying to open database 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.PasswordRequired), EasyMock.eq("Password required for 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        // second bad attempt
+        openerAdapter.requestPassword()
+        EasyMock.expectLastCall().andReturn(Some("stillnotright"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Trying to open database 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.PasswordRequired), EasyMock.eq("Password required for 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        // now get it right
+        openerAdapter.requestPassword()
+        EasyMock.expectLastCall().andReturn(Some(creationPassword))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Trying to open database 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opened), EasyMock.eq("Opened database 'encrypteddbopenwithwrongpasswordhaveanothergo'"))
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        val incorrectPassword = "evilhacker"
+        database = databaseAccessFactory.open(temporaryDirectory, databaseName, Some(incorrectPassword), codeVersion, schemaVersion, Some(openerAdapter), None)
+        database must be('defined)
+
+        EasyMock.verify(openerAdapter)
+    }
 }
