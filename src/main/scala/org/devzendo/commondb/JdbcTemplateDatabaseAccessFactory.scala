@@ -279,23 +279,23 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             return Some(access)
 
         } catch {
-            //
-            //                case bad: BadPasswordException =>
-            //                    DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
-            //                    adapter.reportProgress(OpenProgressStage.PasswordRequired, "Password required for '" + databaseName + "'")
-            //                    val thisAttempt = adapter.requestPassword()
-            //                    passwordAttempt = thisAttempt
-            //                    passwordAttempt match {
-            //                        case None =>
-            //                            DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
-            //                            adapter.reportProgress(OpenProgressStage.PasswordCancelled, "Open of '" + databaseName + "' cancelled")
-            //                            adapter.stopOpening()
-            //                            return None
-            //                        case _ =>
-            //                            // Change the progress message, second time round...
-            //                            tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
-            //                    }
-            //
+
+            case bad: BadPasswordException =>
+                DatabaseAccessFactory.LOGGER.warn("Bad password: " + bad.getMessage)
+                adapter.reportProgress(OpenProgressStage.PasswordRequired, "Password required for '" + databaseName + "'")
+                val thisAttempt = adapter.requestPassword()
+                passwordAttempt = thisAttempt
+                passwordAttempt match {
+                    case None =>
+                        DatabaseAccessFactory.LOGGER.info("Open of encrypted database cancelled")
+                        adapter.reportProgress(OpenProgressStage.PasswordCancelled, "Open of '" + databaseName + "' cancelled")
+                        adapter.stopOpening()
+                        return None
+//                    case _ =>
+//                        // Change the progress message, second time round...
+//                        tryingToOpenMessage = "Trying to open database '" + databaseName + "'"
+                }
+
             case darfe: DataAccessResourceFailureException =>
                 DatabaseAccessFactory.LOGGER.warn("Could not open database: " + darfe.getMessage)
                 adapter.reportProgress(OpenProgressStage.NotPresent, "Database '" + databaseName + "' not found")
@@ -376,11 +376,11 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                 e.getErrorCode match {
                     case ErrorCode.DATABASE_NOT_FOUND_1 =>
                         val dbnfMessage = String.format("Database at %s not found", databasePath)
-                        DatabaseAccessFactory.LOGGER.debug(dbnfMessage)
+                        DatabaseAccessFactory.LOGGER.warn(dbnfMessage)
                         throw new DataAccessResourceFailureException(dbnfMessage)
                     case ErrorCode.FILE_ENCRYPTION_ERROR_1 =>
                         val feeMessage = String.format("Bad password opening database at %s", databasePath)
-                        DatabaseAccessFactory.LOGGER.debug(feeMessage)
+                        DatabaseAccessFactory.LOGGER.warn(feeMessage)
                         throw new BadPasswordException(feeMessage)
                     case _ =>
                         val exMessage = "Could not open database - SQL Error Code " + e.getErrorCode
