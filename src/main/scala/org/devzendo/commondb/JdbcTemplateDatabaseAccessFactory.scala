@@ -168,10 +168,10 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             access.user = Some(userFactory.apply(access))
         }
 
-        createTables(access, adapter, details._1, details._2)
+        createTables(access, adapter)
         adapter.createApplicationTables(access)
 
-        populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
+        populateTables(access, adapter, codeVersion, schemaVersion)
         adapter.populateApplicationTables(access)
 
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
@@ -179,14 +179,14 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         Some(access)
     }
 
-    private[this] def createTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+    private[this] def createTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter) {
         adapter.reportProgress(CreateProgressStage.CreatingTables, "Creating tables")
         CREATION_DDL_STRINGS.foreach( (ddl) => {
-            jdbcTemplate.getJdbcOperations.execute(ddl)
+            access.jdbcTemplate.getJdbcOperations.execute(ddl)
         })
     }
 
-    private[this] def populateTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
+    private[this] def populateTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter, codeVersion: CodeVersion, schemaVersion: SchemaVersion) {
         adapter.reportProgress(CreateProgressStage.PopulatingTables, "Populating tables")
         access.versionsDao.persistVersion(schemaVersion)
         access.versionsDao.persistVersion(codeVersion)
