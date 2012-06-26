@@ -26,7 +26,7 @@ object TestCreatingEncryptedDatabase {
 }
 
 class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
-    val password = "Squeamish Ossifrage"
+    val password = Password("Squeamish Ossifrage")
 
     @Test
     def encryptedDatabaseLooksRandom() {

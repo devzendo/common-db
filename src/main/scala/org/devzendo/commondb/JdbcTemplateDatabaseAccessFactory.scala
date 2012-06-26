@@ -147,7 +147,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     def create(
                   databasePath: File,
                   databaseName: String,
-                  password: Option[String],
+                  password: Option[Password],
                   codeVersion: CodeVersion,
                   schemaVersion: SchemaVersion,
                   workflowAdapter: Option[CreateWorkflowAdapter],
@@ -220,7 +220,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     def open(
                 databasePath: File,
                 databaseName: String,
-                password: Option[String],
+                password: Option[Password],
                 codeVersion: CodeVersion,
                 schemaVersion: SchemaVersion,
                 workflowAdapter: Option[OpenWorkflowAdapter],
@@ -317,7 +317,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     private[this] def accessDatabase(
                                         databasePath: File,
                                         databaseName: String,
-                                        password: Option[String],
+                                        password: Option[Password],
                                         allowCreate: Boolean): (DataSource, SimpleJdbcTemplate) = {
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' at '" + databasePath + "'")
         DatabaseAccessFactory.LOGGER.debug("Validating arguments")
@@ -330,7 +330,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         }
         val mDbPassword = password match {
             case None => ""
-            case Some(p) => p
+            case Some(p) => p.toRepresentation
         }
         val dbURLParts = ListBuffer.empty[String]
         dbURLParts.append(mDbPassword.length() match {
@@ -465,9 +465,9 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
 
-        def requestPassword(): Option[String] = {
+        def requestPassword(): Option[Password] = {
             DatabaseAccessFactory.LOGGER.info("Requesting password")
-            val requestedPassword = adapter.flatMap(a => Option[Option[String]] {
+            val requestedPassword = adapter.flatMap(a => Option[Option[Password]] {
                 a.requestPassword()
             }).getOrElse(None)
 

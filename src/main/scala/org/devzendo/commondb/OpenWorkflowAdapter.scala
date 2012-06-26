@@ -167,7 +167,7 @@ trait OpenWorkflowAdapter {
      * returned.
      * @return Some(password), or None if the user cancels the password entry.
      */
-    def requestPassword(): Option[String]
+    def requestPassword(): Option[Password]
 
     /**
      * This is an old database, and must be migrated before it can

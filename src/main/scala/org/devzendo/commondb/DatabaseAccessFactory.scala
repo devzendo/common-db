@@ -53,11 +53,13 @@ abstract case class DatabaseAccess[U <: UserDatabaseAccess](
     def createTransactionTemplate: TransactionTemplate
 }
 
+case class Password(password: String) extends RepresentationType[String](password)
+
 trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
     def create(
         databasePath: File,
         databaseName: String,
-        password: Option[String],
+        password: Option[Password],
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
         workflowAdapter: Option[CreateWorkflowAdapter],
@@ -66,7 +68,7 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
     def open(
         databasePath: File,
         databaseName: String,
-        password: Option[String],
+        password: Option[Password],
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
         workflowAdapter: Option[OpenWorkflowAdapter],
