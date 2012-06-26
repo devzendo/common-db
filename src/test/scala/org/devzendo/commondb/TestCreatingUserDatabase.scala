@@ -18,8 +18,6 @@ package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
-import javax.sql.DataSource
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.springframework.dao.{EmptyResultDataAccessException, DataAccessException}
 

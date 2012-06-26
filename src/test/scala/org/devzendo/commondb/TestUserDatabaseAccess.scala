@@ -100,12 +100,12 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsF
     def closeIsCalledInUserAccessUponClose() {
         val userDatabase = createCheeseDatabase("useraccessclose").get
         val userAccess = userDatabase.user.get
-        userAccess.closeCalled must be(false)
-        userDatabase.isClosed must be(false)
+        userAccess.closeCalled must equal(false)
+        userDatabase.isClosed must equal(false)
 
         userDatabase.close()
 
-        userAccess.closeCalled must be(true)
-        userDatabase.isClosed must be(true)
+        userAccess.closeCalled must equal(true)
+        userDatabase.isClosed must equal(true)
     }
 }
