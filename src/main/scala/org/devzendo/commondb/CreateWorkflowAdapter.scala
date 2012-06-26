@@ -117,11 +117,11 @@ trait CreateWorkflowAdapter {
 
     /**
      * Populate the tables for the application.
-     * @param dataSource the JDBC DataSource to use in populating the tables
-     * @param jdbcTemplate the Spring SimpleJdbcTemplate to use in populating
-     * the tables.
+     * @param access the DatabaseAccess, which contains the DataSource, for
+     * low-level access to the database, the Spring SimpleJdbcTemplate, for
+     * easier access to the database atop JDBC, and the Version/Sequence DAOs
      */
-    def populateApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate)
+    def populateApplicationTables(access: DatabaseAccess[_])
 
     /**
      * Report to the user that a serious problem has occurred.

@@ -42,10 +42,10 @@ class CakeCreateWorkflowAdapter extends CreateWorkflowAdapter {
         access.jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cakes(name VARCHAR(40), age VARCHAR(40))")
     }
 
-    def populateApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+    def populateApplicationTables(access: DatabaseAccess[_]) {
         val data: List[(String, Int)] = List(("Sponge", 4), ("Gateaux", 1))
         for (cake_age <- data) {
-            jdbcTemplate.update("INSERT INTO Cakes (name, age) VALUES (?, ?)",
+            access.jdbcTemplate.update("INSERT INTO Cakes (name, age) VALUES (?, ?)",
                 cake_age._1, cake_age._2: java.lang.Integer)
         }
     }

@@ -172,7 +172,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         adapter.createApplicationTables(access)
 
         populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
-        adapter.populateApplicationTables(details._1, details._2)
+        adapter.populateApplicationTables(access)
 
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
         adapter.stopCreating()
@@ -421,10 +421,10 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             DatabaseAccessFactory.LOGGER.info("Created application tables")
         }
 
-        def populateApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+        def populateApplicationTables(access: DatabaseAccess[_]) {
             DatabaseAccessFactory.LOGGER.info("Populating application tables")
             for (a <- adapter) {
-                a.populateApplicationTables(dataSource, jdbcTemplate)
+                a.populateApplicationTables(access)
             }
             DatabaseAccessFactory.LOGGER.info("Populated application tables")
         }
