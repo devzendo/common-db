@@ -302,13 +302,13 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                     adapter.databaseNotFound(darfe)
                     adapter.stopOpening()
                     return None
-                //
-                //                case dae: DataAccessException =>
-                //                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
-                //                    adapter.reportProgress(OpenProgressStage.OpenFailed, "Open of '" + databaseName + "' failed")
-                //                    adapter.seriousProblemOccurred(dae)
-                //                    adapter.stopOpening()
-                //                    return None
+
+                case dae: DataAccessException =>
+                    DatabaseAccessFactory.LOGGER.warn("Data access exception opening database: " + dae.getMessage, dae)
+                    adapter.reportProgress(OpenProgressStage.OpenFailed, "Open of '" + databaseName + "' failed")
+                    adapter.seriousProblemOccurred(dae)
+                    adapter.stopOpening()
+                    return None
             }
         }
         None
