@@ -1,6 +1,3 @@
-Allow creation of encrypted db.
-Handle workflow of opening encrypted db.
-
 Documentation
 
 Sizable example.
