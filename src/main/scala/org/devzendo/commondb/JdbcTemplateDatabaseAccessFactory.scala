@@ -169,7 +169,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         }
 
         createTables(access, adapter, details._1, details._2)
-        adapter.createApplicationTables(details._1, details._2)
+        adapter.createApplicationTables(access)
 
         populateTables(access, adapter, details._1, details._2, codeVersion, schemaVersion)
         adapter.populateApplicationTables(details._1, details._2)
@@ -413,10 +413,10 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
 
-        def createApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
+        def createApplicationTables(access: DatabaseAccess[_]) {
             DatabaseAccessFactory.LOGGER.info("Creating application tables")
             for (a <- adapter) {
-                a.createApplicationTables(dataSource, jdbcTemplate)
+                a.createApplicationTables(access)
             }
             DatabaseAccessFactory.LOGGER.info("Created application tables")
         }

@@ -38,8 +38,8 @@ class CakeCreateWorkflowAdapter extends CreateWorkflowAdapter {
     def reportProgress(progressStage: Enum, description: String) {
     }
 
-    def createApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
-        jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cakes(name VARCHAR(40), age VARCHAR(40))")
+    def createApplicationTables(access: DatabaseAccess[_]) {
+        access.jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cakes(name VARCHAR(40), age VARCHAR(40))")
     }
 
     def populateApplicationTables(dataSource: DataSource, jdbcTemplate: SimpleJdbcTemplate) {
