@@ -36,12 +36,12 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
 
     @Test(expected = classOf[IllegalArgumentException])
     def testEmptySpace() {
-        new ComparableVersion("   ");
+        new ComparableVersion("   ")
     }
 
     @Test
     def trimmedNicely() {
-        new ComparableVersion(" 1.0.0 ").toRepresentation must be("1.0.0");
+        new ComparableVersion(" 1.0.0 ").toRepresentation must be("1.0.0")
     }
 
     @Test(expected = classOf[IllegalArgumentException])
@@ -107,7 +107,7 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
         firstOne must not(equal(otherOne))
         firstOne.compareTo(otherOne) must not(be(0))
         val firstOneClassifier = new ComparableVersion("1.0.0-beta")
-        firstOne.equals(firstOneClassifier) must be(false)
+        firstOne.equals(firstOneClassifier) must equal(false)
         firstOne.compareTo(firstOneClassifier) must not(be(0))
         // all classifiers are equal...
         val secondOneClassifier = new ComparableVersion("1.0.0-snapshot")
@@ -160,12 +160,12 @@ class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit
 
     @Test
     def rangeTests() {
-        Version.inRange(new ComparableVersion("1.0.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(false)
-        Version.inRange(new ComparableVersion("3.1.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(false)
-        Version.inRange(new ComparableVersion("2.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
-        Version.inRange(new ComparableVersion("3.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
-        Version.inRange(new ComparableVersion("2.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
-        Version.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must be(true)
+        Version.inRange(new ComparableVersion("1.0.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(false)
+        Version.inRange(new ComparableVersion("3.1.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(false)
+        Version.inRange(new ComparableVersion("2.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(true)
+        Version.inRange(new ComparableVersion("3.0"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(true)
+        Version.inRange(new ComparableVersion("2.1"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(true)
+        Version.inRange(new ComparableVersion("2.9.9"), new ComparableVersion("2.0"), new ComparableVersion("3.0")) must equal(true)
     }
 
     @Test

@@ -16,9 +16,7 @@
 
 package org.devzendo.commondb
 
-import javax.sql.DataSource
 import org.springframework.dao.DataAccessException
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 
 object CreateProgressStage {
 
