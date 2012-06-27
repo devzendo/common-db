@@ -390,6 +390,16 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     }
 
     /**
+     * A BadPasswordException is thrown when an attempt is made to access
+     * an encrypted database for migration but the wrong password is
+     * supplied.
+     *
+     */
+    private class BadPasswordException(message: String) extends RuntimeException(message) {
+
+    }
+
+    /**
      * A CreateWorkflowAdapter that decorates an existing CreateWorkflowAdapter,
      * logging all calls made prior to passing them on to the decorated
      * CreateWorkflowAdapter.
