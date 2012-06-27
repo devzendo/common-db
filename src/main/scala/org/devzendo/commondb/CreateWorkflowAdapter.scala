@@ -108,7 +108,9 @@ trait CreateWorkflowAdapter {
     def reportProgress(progressStage: CreateProgressStage.Enum, description: String)
 
     /**
-     * Create the tables for the application.
+     * Create the tables for the application. This will be called before
+     * populateApplicationTables, so that you can create any tables needed by
+     * your application.
      * @param access the DatabaseAccess, which contains the DataSource, for
      * low-level access to the database, the Spring SimpleJdbcTemplate, for
      * easier access to the database atop JDBC, and the Version/Sequence DAOs
@@ -116,7 +118,10 @@ trait CreateWorkflowAdapter {
     def createApplicationTables(access: DatabaseAccess[_])
 
     /**
-     * Populate the tables for the application.
+     * Populate the tables for the application. This is called after
+     * createApplicationTables, so that you can populate the tables previously
+     * created. After this, your UserDatabaseAccessFactory's apply function
+     * will be called, to create your UserDatabaseAccess facade.
      * @param access the DatabaseAccess, which contains the DataSource, for
      * low-level access to the database, the Spring SimpleJdbcTemplate, for
      * easier access to the database atop JDBC, and the Version/Sequence DAOs

@@ -161,18 +161,17 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
         // The access is created incomplete, then filled in with the user access,
         // since the user access may need to use the rest of the access object.
-        // TODO wonder if this should be done after the creation and population
-        // in case the user code needs to get at the versions or sequence?
         val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess[U](databasePath, databaseName, details._1, details._2)
-        for (userFactory <- userDatabaseAccessFactory) {
-            access.user = Some(userFactory.apply(access))
-        }
 
         createTables(access, adapter)
         adapter.createApplicationTables(access)
 
         populateTables(access, adapter, codeVersion, schemaVersion)
         adapter.populateApplicationTables(access)
+
+        for (userFactory <- userDatabaseAccessFactory) {
+            access.user = Some(userFactory.apply(access))
+        }
 
         adapter.reportProgress(CreateProgressStage.Created, "Created '" + databaseName + "'")
         adapter.stopCreating()
