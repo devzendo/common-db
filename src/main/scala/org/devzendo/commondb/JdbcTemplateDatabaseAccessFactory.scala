@@ -241,7 +241,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
                 val details =
                     accessDatabase(databasePath, databaseName, passwordAttempt, allowCreate = false)
-                // TODO check for other application?
 
                 adapter.reportProgress(OpenProgressStage.Opened, "Opened database '" + databaseName + "'")
 
