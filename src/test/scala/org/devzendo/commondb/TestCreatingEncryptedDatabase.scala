@@ -78,11 +78,11 @@ class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest wi
             val twentyPercent: Double = (bytesPerfectlyEquallyDistributed * 0.2)
             val upperTolerance: Double = bytesPerfectlyEquallyDistributed + twentyPercent
             val lowerTolerance: Double = bytesPerfectlyEquallyDistributed - twentyPercent
-            TestCreatingEncryptedDatabase.LOGGER.debug("[%f, %f, %f]".format(lowerTolerance, bytesPerfectlyEquallyDistributed, upperTolerance))
+//            TestCreatingEncryptedDatabase.LOGGER.debug("[%f, %f, %f]".format(lowerTolerance, bytesPerfectlyEquallyDistributed, upperTolerance))
             var numWithinTolerance = 0
             for (i <- 0 until 256) {
                 val withinTolerance = (hist(i) >= lowerTolerance.toLong) && (hist(i) <= upperTolerance.toLong)
-                TestCreatingEncryptedDatabase.LOGGER.debug("Byte 0x%02X, count %d %swithin tolerance".format(i, hist(i), if(withinTolerance) " " else "NOT "))
+//                TestCreatingEncryptedDatabase.LOGGER.debug("Byte 0x%02X, count %d %swithin tolerance".format(i, hist(i), if(withinTolerance) " " else "NOT "))
                 if (withinTolerance) {
                     numWithinTolerance += 1
                 }
