@@ -150,11 +150,13 @@ Based on some of the ideas from the MiniMiser framework.
             <version>${scala.version}</version>
         </dependency>
 
+        <!-- conversion of DataAccessExceptions to Validation to be done later
         <dependency>
             <groupId>org.scalaz</groupId>
             <artifactId>scalaz-core_${scala.version}</artifactId>
             <version>6.0.4</version>
         </dependency>
+        -->
 
         <!-- testing -->
         <dependency>
