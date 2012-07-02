@@ -51,6 +51,18 @@ object Version {
     }
 }
 
+/**
+ * A Version string that may be compared to another Version.
+ * The Version syntax is:
+ * <ul>
+ *     <li> Optionally starts with a v or V </li>
+ *     <li> digits . digits . digits (as many dot-separated sequences of digits
+ *     as required) </li>
+ *     <li> An optional classifier, starting with a hyphen, for example: -beta3,
+ *     -alpha, -SNAPSHOT, -ga </li>
+ * </ul>
+ * @param version a version string conforming to the above syntax
+ */
 abstract class Version(version: String) extends Comparable[Version] {
 
     if (version == null) {
@@ -120,6 +132,20 @@ abstract class Version(version: String) extends Comparable[Version] {
         }
     }
 
+    /**
+     * Compare a Version against this Version.
+     * Some examples:
+     * <ul>
+     *     <li> 1.0 &lt; 1.0.1 </li>
+     *     <li> 1.0 &lt; 1.1 </li>
+     *     <li> 1.0-alpha &lt; 1.0 </li>
+     *     *     <li> 1.0-ga &lt; 1.0 <b>beware</b> </li>
+     * </ul>
+     * Classifiers are not parsed; there is no difference between -alpha, -beta,
+     * -octopus. Their presence is taken to mean that this Version is 'earlier'.
+     * @param obj some other Version
+     * @return -1, 0 or 1
+     */
     final def compareTo(obj: Version): Int = {
         val elementSignum = compareElementForElement(obj)
         if (elementSignum != 0) {
