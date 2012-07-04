@@ -25,6 +25,8 @@ import scala.throws
 import org.springframework.dao.DataAccessException
 
 object DatabaseAccessFactory {
+    def apply[U <: UserDatabaseAccess]() = new JdbcTemplateDatabaseAccessFactory[U]
+
     val LOGGER = LoggerFactory.getLogger(classOf[DatabaseAccessFactory[_]])
 }
 

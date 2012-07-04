@@ -1,5 +1,10 @@
 Documentation
 
+CreateOrOpen method in the factory.
+
+A method to get a Jdbc factory without having to know the concrete type of the
+factory class.
+
 Sizable example.
 
 Convert DataAccessException into Either?
