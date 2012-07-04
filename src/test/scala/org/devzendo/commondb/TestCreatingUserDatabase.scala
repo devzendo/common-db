@@ -104,11 +104,6 @@ class TestCreatingUserDatabase extends AbstractTempFolderUnittest with Assertion
             Some(new CakeCreateWorkflowAdapter), Some(cakeUserDatabaseFactory))
     }
 
-    def openCheeseDatabase(name: String) = {
-        cakeDatabaseAccessFactory.open(temporaryDirectory, name, None, codeVersion, schemaVersion,
-            None, Some(cakeUserDatabaseFactory))
-    }
-
     @Test
     def userDaoCanBeUsedToAccessCreatedUserDataAfterCreation() {
         val userDatabase = createCakeDatabase("userdao")
