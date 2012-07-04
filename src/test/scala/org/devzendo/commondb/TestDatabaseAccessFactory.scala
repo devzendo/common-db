@@ -26,8 +26,15 @@ class AnorakDatabaseAccess(override val databaseAccess: DatabaseAccess[AnorakDat
 
 class TestDatabaseAccessFactory extends AssertionsForJUnit with MustMatchersForJUnit {
     @Test
-    def aJdbcDatabaseAccessFactoryIsAvailable() {
+    def aTypedJdbcDatabaseAccessFactoryIsAvailable() {
         val factory = DatabaseAccessFactory[AnorakDatabaseAccess]()
         factory.getClass must be(classOf[JdbcTemplateDatabaseAccessFactory[AnorakDatabaseAccess]])
     }
+
+    @Test
+    def anExistentialJdbcDatabaseAccessFactoryIsAvailable() {
+        val factory = DatabaseAccessFactory()
+        factory.getClass must be(classOf[JdbcTemplateDatabaseAccessFactory[_]])
+    }
+
 }
