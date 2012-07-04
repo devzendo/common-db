@@ -41,7 +41,7 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsF
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
-    val cheesyDatabaseAccessFactory = new JdbcTemplateDatabaseAccessFactory[CheeseDatabaseAccess]()
+    val cheesyDatabaseAccessFactory = DatabaseAccessFactory[CheeseDatabaseAccess]()
 
     val cheeseUserDatabaseFactory = new ((DatabaseAccess[CheeseDatabaseAccess]) => CheeseDatabaseAccess) {
         def apply(databaseAccess: DatabaseAccess[CheeseDatabaseAccess]) = new CheeseDatabaseAccess(databaseAccess)

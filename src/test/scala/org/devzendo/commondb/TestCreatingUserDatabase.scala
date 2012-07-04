@@ -93,7 +93,7 @@ class TestCreatingUserDatabase extends AbstractTempFolderUnittest with Assertion
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 
-    val cakeDatabaseAccessFactory = new JdbcTemplateDatabaseAccessFactory[CakeDatabaseAccess]()
+    val cakeDatabaseAccessFactory = DatabaseAccessFactory[CakeDatabaseAccess]()
 
     val cakeUserDatabaseFactory = new ((DatabaseAccess[CakeDatabaseAccess]) => CakeDatabaseAccess) {
         def apply(databaseAccess: DatabaseAccess[CakeDatabaseAccess]) = new CakeDatabaseAccess(databaseAccess)
