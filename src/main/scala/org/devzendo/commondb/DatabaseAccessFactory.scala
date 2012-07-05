@@ -146,6 +146,19 @@ case class Password(password: String) extends RepresentationType[String](passwor
  * @tparam U the subtype that provides user database access, DAOs, etc.
  */
 trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
+
+    /**
+     * Check whether a database exists, so you can tell whether to call open or
+     * create.
+     *
+     * @param databasePath the directory in which the database's file set are to be
+     *                     stored.
+     * @param databaseName the common prefix name used by the database's file set.
+     * @return true iff the database exists, according to H2
+     *
+     */
+    def exists(databasePath: File, databaseName: String): Boolean
+
     /**
      * Create a new database.
      *

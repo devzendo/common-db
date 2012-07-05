@@ -27,6 +27,7 @@ import org.springframework.jdbc.datasource.{DataSourceTransactionManager, Single
 import org.h2.constant.ErrorCode
 import scala.throws
 import org.springframework.transaction.support.TransactionTemplate
+import org.h2.engine.Database
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -143,6 +144,11 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         "CREATE TABLE Versions(entity VARCHAR(40), version VARCHAR(40))",
         "CREATE SEQUENCE Sequence START WITH 0 INCREMENT BY 1"
     )
+
+    def exists(databasePath: File, databaseName: String): Boolean = {
+        val pathToDatabaseFile = new File(databasePath, databaseName)
+        Database.exists(pathToDatabaseFile.getAbsolutePath)
+    }
 
     def create(
                   databasePath: File,
