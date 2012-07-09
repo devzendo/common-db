@@ -20,12 +20,17 @@ import java.sql.Date
 import java.util
 
 object NormalisedDate {
-    implicit def nonNormalisedDate2NormaliseDate(nonNormalisedDate: Date): NormalisedDate = {
+    implicit def nonNormalisedDate2NormalisedDate(nonNormalisedDate: Date) = new NormalisedDate(nonNormalisedDate)
+
+    implicit def normalisedDate2NonNormalisedDate(normalisedDate: Date) = normalisedDate.self
+
+    def apply(nonNormalisedDate: Date): NormalisedDate = {
         new NormalisedDate(DateUtils.normalise(nonNormalisedDate))
     }
 }
 
-case class NormalisedDate(normalisedDate: Date) extends RepresentationType[Date](normalisedDate) {
+class NormalisedDate private(nonNormalisedDate: Date) extends Proxy {
+    val self: Date = DateUtils.normalise(nonNormalisedDate)
 }
 
 object DateUtils {

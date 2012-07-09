@@ -20,7 +20,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import java.util
 import java.sql.Date
-import org.devzendo.commondb.NormalisedDate._
+//import org.devzendo.commondb.NormalisedDate._
 
 
 class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
@@ -57,8 +57,9 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         calendar.getTimeInMillis
     }
 
+    // implicit conversion of a Date to a NormalisedDate happens here
     def isGivenNormalisedDate(nd: NormalisedDate) {
-        timeMustBeZero(nd.toRepresentation)
+        timeMustBeZero(nd.self)
     }
 
     @Test
@@ -66,5 +67,13 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
         val startDate = new Date(millisWithHourMinuteSecondMillis)
         isGivenNormalisedDate(startDate)
+    }
+
+    @Test
+    def testApplyFactoryConversionOfDates() {
+        val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
+        val startDate = new Date(millisWithHourMinuteSecondMillis)
+        val appliedDate = NormalisedDate(startDate)
+        timeMustBeZero(appliedDate.self)
     }
 }
