@@ -19,6 +19,15 @@ package org.devzendo.commondb
 import java.sql.Date
 import java.util
 
+object NormalisedDate {
+    implicit def nonNormalisedDate2NormaliseDate(nonNormalisedDate: Date): NormalisedDate = {
+        new NormalisedDate(DateUtils.normalise(nonNormalisedDate))
+    }
+}
+
+case class NormalisedDate(normalisedDate: Date) extends RepresentationType[Date](normalisedDate) {
+}
+
 object DateUtils {
     /**
      * Given a Date, possibly having Hour, Minute, Second, Millisecond values, return a
@@ -36,3 +45,5 @@ object DateUtils {
         new Date(calendar.getTimeInMillis)
     }
 }
+
+

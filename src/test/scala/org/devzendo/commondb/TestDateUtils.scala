@@ -20,6 +20,8 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import java.util
 import java.sql.Date
+import org.devzendo.commondb.NormalisedDate._
+
 
 class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     @Test
@@ -27,15 +29,18 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
         val startDate = new Date(millisWithHourMinuteSecondMillis)
         val normalisedDate = DateUtils.normalise(startDate)
+        timeMustBeZero(normalisedDate)
+    }
+
+    def timeMustBeZero(normalisedDate: Date) {
         val calendar = new util.GregorianCalendar()
         calendar.setTime(normalisedDate)
         calendar.get(util.Calendar.HOUR) must be(0)
         calendar.get(util.Calendar.MINUTE) must be(0)
         calendar.get(util.Calendar.SECOND) must be(0)
         calendar.get(util.Calendar.MILLISECOND) must be(0)
+
     }
-
-
     /**
      * @return a time in milliseconds that does have hours, minutes, seconds, and millisecond
      * values that are positive
@@ -50,5 +55,16 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         calendar.set(util.Calendar.SECOND, 23)
         calendar.set(util.Calendar.MILLISECOND, 223)
         calendar.getTimeInMillis
+    }
+
+    def isGivenNormalisedDate(nd: NormalisedDate) {
+        timeMustBeZero(nd.toRepresentation)
+    }
+
+    @Test
+    def testImplicitConversionOfDates() {
+        val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
+        val startDate = new Date(millisWithHourMinuteSecondMillis)
+        isGivenNormalisedDate(startDate)
     }
 }
