@@ -20,17 +20,22 @@ import java.sql.Date
 import java.util
 
 object NormalisedDate {
-    implicit def nonNormalisedDate2NormalisedDate(nonNormalisedDate: Date) = new NormalisedDate(nonNormalisedDate)
+    implicit def nonNormalisedDate2NormalisedDate(nonNormalisedDate: Date) = new NormalisedDate(XDate(nonNormalisedDate))
 
-    implicit def normalisedDate2NonNormalisedDate(normalisedDate: Date) = normalisedDate.self
+    implicit def normalisedDate2NonNormalisedDate(normalisedDate: Date) = normalisedDate.toRepresentation
 
     def apply(nonNormalisedDate: Date): NormalisedDate = {
-        new NormalisedDate(DateUtils.normalise(nonNormalisedDate))
+        new NormalisedDate(XDate(DateUtils.normalise(nonNormalisedDate)))
     }
 }
 
-class NormalisedDate private(nonNormalisedDate: Date) extends Proxy {
-    val self: Date = DateUtils.normalise(nonNormalisedDate)
+case class XDate(date: Date) extends RepresentationType[Date](date)
+
+// Private constructor, the XDate representation type is just there to make
+// the signature different - you should use the apply factory in the companion
+// object.
+case class NormalisedDate private(nonNormalisedDate: XDate) extends RepresentationType[Date](nonNormalisedDate.toRepresentation) {
+    override def toRepresentation: Date = DateUtils.normalise(nonNormalisedDate.toRepresentation)
 }
 
 object DateUtils {

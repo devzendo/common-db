@@ -58,15 +58,15 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     }
 
     // implicit conversion of a Date to a NormalisedDate happens here
-    def isGivenNormalisedDate(nd: NormalisedDate) {
-        timeMustBeZero(nd.self)
+    def whenCalledIsGivenNormalisedDate(nd: NormalisedDate) {
+        timeMustBeZero(nd.toRepresentation)
     }
 
     @Test
     def testImplicitConversionOfDates() {
         val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
         val startDate = new Date(millisWithHourMinuteSecondMillis)
-        isGivenNormalisedDate(startDate)
+        whenCalledIsGivenNormalisedDate(startDate)
     }
 
     @Test
@@ -74,6 +74,6 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
         val startDate = new Date(millisWithHourMinuteSecondMillis)
         val appliedDate = NormalisedDate(startDate)
-        timeMustBeZero(appliedDate.self)
+        timeMustBeZero(appliedDate.toRepresentation)
     }
 }
