@@ -80,18 +80,14 @@ object CreateProgressStage {
 /**
  * A DatabaseAccessFactory uses a CreateWorkflowAdapter to inform the user of:
  * <ul>
+ * <li> the start and end of a creation operation, e.g. for
+ * setting and clearing the hourglass cursor.
  * <li> progress during the creation
- * <li> to request application-specific information from the application, e.g.
- * what the current schema and code versions are.
- * <li> to request that the application create and populate its tables, given
- * the DataSource and SimpleJdbcTemplate.
  * <li> to inform the user of any failures.
  * </ul>
- * The start and end of a creation operation can also be signalled, e.g. for
- * setting and clearing the hourglass cursor.
  *
  */
-trait CreateWorkflowAdapter {
+trait CreateWorkflowAdapter extends UserDatabaseCreator {
 
     /**
      * The creation operation is starting. Always called before any progress.
@@ -104,27 +100,6 @@ trait CreateWorkflowAdapter {
      * @param description a short text to show the user
      */
     def reportProgress(progressStage: CreateProgressStage.Enum, description: String)
-
-    /**
-     * Create the tables for the application. This will be called before
-     * populateApplicationTables, so that you can create any tables needed by
-     * your application.
-     * @param access the DatabaseAccess, which contains the DataSource, for
-     * low-level access to the database, the Spring SimpleJdbcTemplate, for
-     * easier access to the database atop JDBC, and the Version/Sequence DAOs
-     */
-    def createApplicationTables(access: DatabaseAccess[_])
-
-    /**
-     * Populate the tables for the application. This is called after
-     * createApplicationTables, so that you can populate the tables previously
-     * created. After this, your UserDatabaseAccessFactory's apply function
-     * will be called, to create your UserDatabaseAccess facade.
-     * @param access the DatabaseAccess, which contains the DataSource, for
-     * low-level access to the database, the Spring SimpleJdbcTemplate, for
-     * easier access to the database atop JDBC, and the Version/Sequence DAOs
-     */
-    def populateApplicationTables(access: DatabaseAccess[_])
 
     /**
      * Report to the user that a serious problem has occurred.
