@@ -16,11 +16,9 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
-import java.sql.Date
-import org.devzendo.commondb.DateUtils
+import org.devzendo.commondb.NormalisedDate
 
 case class Transaction(id: Int, accountId: Int, index: Int, amount: Int,
                        isCredit: Boolean, isReconciled: Boolean,
-                       origTransactionDate: Date, accountBalance: Int) {
-//    val transactionDate = DateUtils.normalise(origTransactionDate)
+                       origTransactionDate: NormalisedDate, accountBalance: Int) {
 }
