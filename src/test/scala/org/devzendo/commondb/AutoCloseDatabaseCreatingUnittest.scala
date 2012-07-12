@@ -23,10 +23,10 @@ class AutoCloseDatabaseCreatingUnittest extends AbstractTempFolderUnittest with 
     val schemaVersion = SchemaVersion("0.4")
 
     def createDatabase(databaseName: String)  {
-        database = databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None, None)
     }
 
     def createDatabase(databaseDirectory: File, databaseName: String, password: Option[Password]): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None, None)
+        databaseAccessFactory.create(databaseDirectory, databaseName, password, codeVersion, schemaVersion, None, None, None)
     }
 }

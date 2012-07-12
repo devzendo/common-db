@@ -24,11 +24,11 @@ abstract class AbstractDatabaseMigrationUnittest extends AbstractTempFolderUnitt
     val newSchemaVersion = SchemaVersion("0.5")
 
     protected[this] def createOldDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None)
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None, None)
     }
 
     protected[this] def createNewDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
-        databaseAccessFactory.create(temporaryDirectory, databaseName, None, newCodeVersion, newSchemaVersion, None, None)
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, newCodeVersion, newSchemaVersion, None, None, None)
     }
 
     protected[this] def openNewDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter): Option[DatabaseAccess[_]] = {

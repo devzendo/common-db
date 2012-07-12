@@ -33,17 +33,19 @@ class TestCreatingDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest wit
     def createDatabaseProgressReporting() {
         val creatorAdapter = EasyMock.createStrictMock(classOf[CreateWorkflowAdapter])
         EasyMock.checkOrder(creatorAdapter, true)
+        val creator = EasyMock.createStrictMock(classOf[UserDatabaseCreator])
+        EasyMock.checkOrder(creator, true)
         creatorAdapter.startCreating()
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Creating), EasyMock.eq("Starting to create 'newdb'"))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.CreatingTables), EasyMock.eq("Creating tables"))
-        creatorAdapter.createApplicationTables(EasyMock.isA(classOf[DatabaseAccess[_]]))
+        creator.createApplicationTables(EasyMock.isA(classOf[DatabaseAccess[_]]))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.PopulatingTables), EasyMock.eq("Populating tables"))
-        creatorAdapter.populateApplicationTables(EasyMock.isA(classOf[DatabaseAccess[_]]))
+        creator.populateApplicationTables(EasyMock.isA(classOf[DatabaseAccess[_]]))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Created), EasyMock.eq("Created 'newdb'"))
         creatorAdapter.stopCreating()
         EasyMock.replay(creatorAdapter)
 
-        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter), None)
+        database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter), Some(creator), None)
 
         EasyMock.verify(creatorAdapter)
     }

@@ -28,14 +28,14 @@ class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkSequenceInitialValue() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checksequenceinitialvalue", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checksequenceinitialvalue", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database.get.sequenceDao.nextSequence must be (0L)
     }
 
     @Test
     def checkSequenceIncrements() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checksequenceinitialvalue", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checksequenceinitialvalue", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         val sequenceDao = database.get.sequenceDao
 

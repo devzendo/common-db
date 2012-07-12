@@ -87,7 +87,7 @@ object CreateProgressStage {
  * </ul>
  *
  */
-trait CreateWorkflowAdapter extends UserDatabaseCreator {
+trait CreateWorkflowAdapter {
 
     /**
      * The creation operation is starting. Always called before any progress.

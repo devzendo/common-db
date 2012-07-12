@@ -26,7 +26,7 @@ class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnit
     @Test
     def encryptedDatabaseCannotBeOpenedWithWrongPasswordAttemptAbandoned() {
         val databaseName = "encrypteddbopenwithwrongpasswordattemptabandoned"
-        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(creationPassword), codeVersion, schemaVersion, None, None).get.close()
+        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(creationPassword), codeVersion, schemaVersion, None, None, None).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
@@ -50,7 +50,7 @@ class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnit
     @Test
     def encryptedDatabaseCannotBeOpenedWithWrongPasswordHaveAnotherGo() {
         val databaseName = "encrypteddbopenwithwrongpasswordhaveanothergo"
-        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(creationPassword), codeVersion, schemaVersion, None, None).get.close()
+        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(creationPassword), codeVersion, schemaVersion, None, None, None).get.close()
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)

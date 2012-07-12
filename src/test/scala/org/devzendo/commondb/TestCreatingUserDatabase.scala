@@ -29,13 +29,7 @@ trait CakeDao {
     def cakeAgeIs(name: CakeName, age: CakeAge)
 }
 
-class CakeCreateWorkflowAdapter extends CreateWorkflowAdapter {
-    def startCreating() {
-    }
-
-    def reportProgress(progressStage: Enum, description: String) {
-    }
-
+class CakeUserDatabaseCreator extends UserDatabaseCreator {
     def createApplicationTables(access: DatabaseAccess[_]) {
         access.jdbcTemplate.getJdbcOperations.execute("CREATE TABLE Cakes(name VARCHAR(40), age VARCHAR(40))")
     }
@@ -46,6 +40,14 @@ class CakeCreateWorkflowAdapter extends CreateWorkflowAdapter {
             access.jdbcTemplate.update("INSERT INTO Cakes (name, age) VALUES (?, ?)",
                 cake_age._1, cake_age._2: java.lang.Integer)
         }
+    }
+}
+
+class CakeCreateWorkflowAdapter extends CreateWorkflowAdapter {
+    def startCreating() {
+    }
+
+    def reportProgress(progressStage: Enum, description: String) {
     }
 
     def seriousProblemOccurred(exception: DataAccessException) {
@@ -101,7 +103,7 @@ class TestCreatingUserDatabase extends AbstractTempFolderUnittest with Assertion
 
     def createCakeDatabase(name: String) = {
         cakeDatabaseAccessFactory.create(temporaryDirectory, name, None, codeVersion, schemaVersion,
-            Some(new CakeCreateWorkflowAdapter), Some(cakeUserDatabaseFactory))
+            Some(new CakeCreateWorkflowAdapter), Some(new CakeUserDatabaseCreator), Some(cakeUserDatabaseFactory))
     }
 
     @Test

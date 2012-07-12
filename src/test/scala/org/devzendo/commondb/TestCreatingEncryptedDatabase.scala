@@ -31,7 +31,7 @@ class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest wi
     @Test
     def encryptedDatabaseLooksRandom() {
         val databaseName = "encrypteddb"
-        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(password), codeVersion, schemaVersion, None, None).get.close()
+        databaseAccessFactory.create(temporaryDirectory, databaseName, Some(password), codeVersion, schemaVersion, None, None, None).get.close()
 
         databaseLooksRandom(temporaryDirectory, databaseName) must equal(true)
     }
@@ -39,7 +39,7 @@ class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest wi
     @Test
     def unencryptedDatabaseDoesNotLookRandom() {
         val databaseName = "plaindb"
-        databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None).get.close()
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None, None).get.close()
 
         databaseLooksRandom(temporaryDirectory, databaseName) must equal(false)
     }

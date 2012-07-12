@@ -179,8 +179,10 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
      *                    VersionTypes for details of the allowed formats.
      * @param workflowAdapter an optional CreateWorkflowAdapter that will be
      *                        called back to notify you of the progress of
-     *                        creation, and to provide the means by which you
-     *                        create and populate your application's tables.
+     *                        creation
+     * @param userDatabaseCreator an optional UserDatabaseCreator that can
+     *                            provide the means by which you create and
+     *                            populate your application's tables.
      * @param userDatabaseAccessFactory an optional function that will
      *                                  instantiate your UserDatabaseAccess,
      *                                  for setting into the returned
@@ -196,6 +198,7 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
         workflowAdapter: Option[CreateWorkflowAdapter],
+        userDatabaseCreator: Option[UserDatabaseCreator],
         userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]]
 
     /**

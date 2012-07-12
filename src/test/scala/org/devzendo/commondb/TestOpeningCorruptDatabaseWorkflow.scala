@@ -27,7 +27,7 @@ class TestOpeningCorruptDatabaseWorkflow extends AutoCloseDatabaseCreatingUnitte
     @Test
     def corruptDatabaseDoesNotOpenProgressReporting() {
         val databaseName = "corruptdb"
-        databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None).get.close()
+        databaseAccessFactory.create(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, None, None, None).get.close()
 
         corruptDatabase(temporaryDirectory, databaseName)
 

@@ -28,7 +28,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionPopulation() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checkversionpopulation", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionpopulation", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
@@ -46,7 +46,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def checkVersionsCanBeUpdated() {
-        database = databaseAccessFactory.create(temporaryDirectory, "checkversionscanbeupdated", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "checkversionscanbeupdated", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database must be('defined)
         def versionsDao = database.get.versionsDao
@@ -68,28 +68,28 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
 
     @Test
     def nonExistentVersionsAreFoundToBeNone() {
-        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsarefoundtobenone", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database.get.versionsDao.findVersion(classOf[CustomTransactionVersion]) must be(None)
     }
 
     @Test
     def nonExistentVersionsDoNotExist() {
-        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsdonotexist", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "nonexistentversionsdonotexist", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database.get.versionsDao.exists(classOf[CustomTransactionVersion]) must equal(false)
     }
 
     @Test
     def existentVersionsDoExist() {
-        database = databaseAccessFactory.create(temporaryDirectory, "existentversionsdoexist", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "existentversionsdoexist", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         database.get.versionsDao.exists(classOf[SchemaVersion]) must equal(true)
     }
 
     @Test
     def customVersionsCanBePersisted() {
-        database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None, None)
+        database = databaseAccessFactory.create(temporaryDirectory, "customversionscanbepersisted", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
         def versionsDao = database.get.versionsDao
         val customVersion = CustomTransactionVersion("v12.75alpha")

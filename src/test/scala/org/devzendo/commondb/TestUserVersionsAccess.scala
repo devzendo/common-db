@@ -29,6 +29,7 @@ class RobotDatabaseAccess(override val databaseAccess: DatabaseAccess[RobotDatab
     def close() {
     }
 }
+
 class RobotCreateWorkflowAdapter extends CreateWorkflowAdapter {
 
     def reportProgress(progressStage: CreateProgressStage.Enum, description: String) {
@@ -37,17 +38,18 @@ class RobotCreateWorkflowAdapter extends CreateWorkflowAdapter {
     def startCreating() {
     }
 
-    def createApplicationTables(access: DatabaseAccess[_]) {
-    }
-
-    def populateApplicationTables(access: DatabaseAccess[_]) {
-    }
-
-
     def seriousProblemOccurred(exception: DataAccessException) {
     }
 
     def stopCreating() {
+    }
+}
+
+class RobotUserDatabaseCreator extends UserDatabaseCreator {
+    def createApplicationTables(access: DatabaseAccess[_]) {
+    }
+
+    def populateApplicationTables(access: DatabaseAccess[_]) {
     }
 }
 
@@ -91,7 +93,10 @@ class TestUserVersionsAccess extends AbstractTempFolderUnittest with AssertionsF
     @Test
     def versionsTableAccessibleWhenUserAccessFactoryIsCreating() {
         val openWorkflowAdapter = new RobotCreateWorkflowAdapter
-        val userDatabase = robotDatabaseAccessFactory.create(temporaryDirectory, "versionsatcreate", None, codeVersion, schemaVersion, Some(openWorkflowAdapter),
+        val userDatabaseCreator = new RobotUserDatabaseCreator
+        val userDatabase = robotDatabaseAccessFactory.create(temporaryDirectory, "versionsatcreate", None, codeVersion, schemaVersion,
+            Some(openWorkflowAdapter),
+            Some(userDatabaseCreator),
             Some(robotUserDatabaseFactory))
 
         userDatabase must be('defined)

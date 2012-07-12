@@ -157,9 +157,12 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                   codeVersion: CodeVersion,
                   schemaVersion: SchemaVersion,
                   workflowAdapter: Option[CreateWorkflowAdapter],
+                  userDatabaseCreator: Option[UserDatabaseCreator],
                   userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
+        val creator = new LoggingDecoratorUserDatabaseCreator(userDatabaseCreator)
+
         adapter.startCreating()
         DatabaseAccessFactory.LOGGER.info("Creating database '" + databaseName + "' at path '" + databasePath + "'")
         adapter.reportProgress(CreateProgressStage.Creating, "Starting to create '" + databaseName + "'")
@@ -170,10 +173,10 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         val access: DatabaseAccess[U] = JdbcTemplateDatabaseAccess[U](databasePath, databaseName, details._1, details._2)
 
         createTables(access, adapter)
-        adapter.createApplicationTables(access)
+        creator.createApplicationTables(access)
 
         populateTables(access, adapter, codeVersion, schemaVersion)
-        adapter.populateApplicationTables(access)
+        creator.populateApplicationTables(access)
 
         for (userFactory <- userDatabaseAccessFactory) {
             access.user = Some(userFactory.apply(access))
@@ -411,6 +414,32 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
      * CreateWorkflowAdapter.
      *
      */
+    private class LoggingDecoratorUserDatabaseCreator(creator: Option[UserDatabaseCreator]) extends UserDatabaseCreator {
+
+        def createApplicationTables(access: DatabaseAccess[_]) {
+            DatabaseAccessFactory.LOGGER.info("Creating application tables")
+            for (c <- creator) {
+                c.createApplicationTables(access)
+            }
+            DatabaseAccessFactory.LOGGER.info("Created application tables")
+        }
+
+        def populateApplicationTables(access: DatabaseAccess[_]) {
+            DatabaseAccessFactory.LOGGER.info("Populating application tables")
+            for (c <- creator) {
+                c.populateApplicationTables(access)
+            }
+            DatabaseAccessFactory.LOGGER.info("Populated application tables")
+        }
+    }
+
+
+    /**
+     * A CreateWorkflowAdapter that decorates an existing CreateWorkflowAdapter,
+     * logging all calls made prior to passing them on to the decorated
+     * CreateWorkflowAdapter.
+     *
+     */
     private class LoggingDecoratorCreateWorkflowAdapter(adapter: Option[CreateWorkflowAdapter]) extends CreateWorkflowAdapter {
 
         def startCreating() {
@@ -425,22 +454,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             for (a <- adapter) {
                 a.reportProgress(progressStage, description)
             }
-        }
-
-        def createApplicationTables(access: DatabaseAccess[_]) {
-            DatabaseAccessFactory.LOGGER.info("Creating application tables")
-            for (a <- adapter) {
-                a.createApplicationTables(access)
-            }
-            DatabaseAccessFactory.LOGGER.info("Created application tables")
-        }
-
-        def populateApplicationTables(access: DatabaseAccess[_]) {
-            DatabaseAccessFactory.LOGGER.info("Populating application tables")
-            for (a <- adapter) {
-                a.populateApplicationTables(access)
-            }
-            DatabaseAccessFactory.LOGGER.info("Populated application tables")
         }
 
         def seriousProblemOccurred(exception: DataAccessException) {

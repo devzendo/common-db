@@ -25,7 +25,7 @@ import org.springframework.dao.DataAccessException
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.junit.After
 
-private class BeanMinderUnittestCreateWorkflowAdapter extends JdbcTemplateBeanMinderCreateWorkflowAdapter with CreateWorkflowAdapter {
+private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example
     def startCreating() {}
     def reportProgress(progressStage: Enum, description: String) {}
@@ -50,6 +50,7 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
             temporaryDirectory, name, None,
             codeVersion, schemaVersion,
             Some(new BeanMinderUnittestCreateWorkflowAdapter),
+            Some(new JdbcTemplateBeanMinderCreateWorkflowAdapter),
             Some(beanMinderUserDatabaseFactory))
     }
 
