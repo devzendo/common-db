@@ -47,6 +47,6 @@ class TestCreatingDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest wit
 
         database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter), Some(creator), None)
 
-        EasyMock.verify(creatorAdapter)
+        EasyMock.verify(creatorAdapter, creator)
     }
 }
