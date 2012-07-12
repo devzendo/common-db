@@ -53,7 +53,7 @@ class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsF
     }
 
     def openCheeseDatabase(name: String) = {
-        cheesyDatabaseAccessFactory.open(temporaryDirectory, name, None, codeVersion, schemaVersion, None,
+        cheesyDatabaseAccessFactory.open(temporaryDirectory, name, None, codeVersion, schemaVersion, None, None,
             Some(cheeseUserDatabaseFactory))
     }
 

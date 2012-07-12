@@ -43,7 +43,7 @@ class TestCreatingDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest wit
         creator.populateApplicationTables(EasyMock.isA(classOf[DatabaseAccess[_]]))
         creatorAdapter.reportProgress(EasyMock.eq(CreateProgressStage.Created), EasyMock.eq("Created 'newdb'"))
         creatorAdapter.stopCreating()
-        EasyMock.replay(creatorAdapter)
+        EasyMock.replay(creatorAdapter, creator)
 
         database = databaseAccessFactory.create(temporaryDirectory, "newdb", None, codeVersion, schemaVersion, Some(creatorAdapter), Some(creator), None)
 

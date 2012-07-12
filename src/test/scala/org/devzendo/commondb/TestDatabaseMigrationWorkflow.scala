@@ -29,6 +29,8 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
+        val userDatabaseMigrator = EasyMock.createStrictMock(classOf[UserDatabaseMigrator])
+        EasyMock.checkOrder(userDatabaseMigrator, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemaprogress'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemaprogress'"))
@@ -37,12 +39,12 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.requestMigration()
         EasyMock.expectLastCall().andReturn(true)
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemaprogress'"))
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
+        userDatabaseMigrator.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         openerAdapter.migrationSucceeded()
         openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
+        EasyMock.replay(openerAdapter, userDatabaseMigrator)
 
-        database = openNewDatabase(databaseName, openerAdapter)
+        database = openNewDatabase(databaseName, openerAdapter, userDatabaseMigrator)
         database must be('defined)
 
         EasyMock.verify(openerAdapter)
@@ -56,6 +58,8 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
+        val userDatabaseMigrator = EasyMock.createStrictMock(classOf[UserDatabaseMigrator])
+        EasyMock.checkOrder(userDatabaseMigrator, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemacancelmigrationprogress'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemacancelmigrationprogress'"))
@@ -66,9 +70,9 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationCancelled), EasyMock.eq("Migration of database 'oldschemacancelmigrationprogress' cancelled"))
         openerAdapter.migrationCancelled()
         openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
+        EasyMock.replay(openerAdapter, userDatabaseMigrator)
 
-        database = openNewDatabase(databaseName, openerAdapter)
+        database = openNewDatabase(databaseName, openerAdapter, userDatabaseMigrator)
         database must be(None)
 
         EasyMock.verify(openerAdapter)
@@ -81,6 +85,8 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
+        val userDatabaseMigrator = EasyMock.createStrictMock(classOf[UserDatabaseMigrator])
+        EasyMock.checkOrder(userDatabaseMigrator, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'oldschemamigrationfailureprogress'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'oldschemamigrationfailureprogress'"))
@@ -89,17 +95,17 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.requestMigration()
         EasyMock.expectLastCall().andReturn(true)
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Migrating), EasyMock.eq("Migrating database 'oldschemamigrationfailureprogress'"))
-        openerAdapter.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
+        userDatabaseMigrator.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         EasyMock.expectLastCall().andThrow(new DataIntegrityViolationException("Fake failure", new RuntimeException("some cause")))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationFailed), EasyMock.eq("Migration of database 'oldschemamigrationfailureprogress' failed: Fake failure; nested exception is java.lang.RuntimeException: some cause"))
         openerAdapter.migrationFailed(EasyMock.isA(classOf[DataIntegrityViolationException]))
         openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
+        EasyMock.replay(openerAdapter, userDatabaseMigrator)
 
-        database = openNewDatabase(databaseName, openerAdapter)
+        database = openNewDatabase(databaseName, openerAdapter, userDatabaseMigrator)
         database must be(None)
 
-        EasyMock.verify(openerAdapter)
+        EasyMock.verify(openerAdapter, userDatabaseMigrator)
     }
 
     @Test
@@ -109,6 +115,8 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
 
         val openerAdapter = EasyMock.createStrictMock(classOf[OpenWorkflowAdapter])
         EasyMock.checkOrder(openerAdapter, true)
+        val userDatabaseMigrator = EasyMock.createStrictMock(classOf[UserDatabaseMigrator])
+        EasyMock.checkOrder(userDatabaseMigrator, true)
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.OpenStarting), EasyMock.eq("Starting to open 'futureschemamigrationfailureprogress'"))
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.Opening), EasyMock.eq("Opening database 'futureschemamigrationfailureprogress'"))
@@ -116,11 +124,11 @@ class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest wi
         openerAdapter.reportProgress(EasyMock.eq(OpenProgressStage.MigrationNotPossible), EasyMock.eq("Database 'futureschemamigrationfailureprogress' has a more modern schema than this application supports"))
         openerAdapter.migrationNotPossible()
         openerAdapter.stopOpening()
-        EasyMock.replay(openerAdapter)
+        EasyMock.replay(openerAdapter, userDatabaseMigrator)
 
-        database = openOldDatabase(databaseName, openerAdapter)
+        database = openOldDatabase(databaseName, openerAdapter, userDatabaseMigrator)
         database must be(None)
 
-        EasyMock.verify(openerAdapter)
+        EasyMock.verify(openerAdapter, userDatabaseMigrator)
     }
 }

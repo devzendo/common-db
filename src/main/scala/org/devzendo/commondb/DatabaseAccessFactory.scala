@@ -232,9 +232,10 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
      * @param workflowAdapter an optional OpenWorkflowAdapter that will be
      *                        called back to notify you of the progress of
      *                        opening, and to provide the means by which you
-     *                        can provide further attempts at passwords, and
-     *                        migrate your application's tables/contents to
-     *                        the latest schemaVersion.
+     *                        can provide further attempts at passwords.
+     * @param userDatabaseMigrator an optional UserDatabaseMigrator that will
+     *                             be called back to migrate your application's
+     *                             tables/contents to the latest schemaVersion.
      * @param userDatabaseAccessFactory an optional function that will
      *                                  instantiate your UserDatabaseAccess,
      *                                  for setting into the returned
@@ -250,5 +251,6 @@ trait DatabaseAccessFactory[U <: UserDatabaseAccess] {
         codeVersion: CodeVersion,
         schemaVersion: SchemaVersion,
         workflowAdapter: Option[OpenWorkflowAdapter],
+        userDatabaseMigrator: Option[UserDatabaseMigrator],
         userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]]
 }

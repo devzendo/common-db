@@ -25,7 +25,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
 
     @Test
     def databaseDoesNotExistSoReturnsNone() {
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None, None) must be(None)
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, None, None, None) must be(None)
     }
 
     @Test
@@ -40,7 +40,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter), None)
+        databaseAccessFactory.open(temporaryDirectory, "doesnotexist", None, codeVersion, schemaVersion, Some(openerAdapter), None, None)
 
         EasyMock.verify(openerAdapter)
     }
@@ -57,7 +57,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainprogress", None, codeVersion, schemaVersion, Some(openerAdapter), None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainprogress", None, codeVersion, schemaVersion, Some(openerAdapter), None, None)
 
         EasyMock.verify(openerAdapter)
     }
@@ -66,7 +66,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
     def plainOpenDatabaseIsActuallyOpen() {
         createDatabase(temporaryDirectory, "plainopenisopen", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainopenisopen", None, codeVersion, schemaVersion, None, None, None)
 
         database must be('defined)
         database.get.isClosed must equal(false)
@@ -76,7 +76,7 @@ class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with
     def plainOpenDatabaseCloseActuallyCloses() {
         createDatabase(temporaryDirectory, "plainclose", None).get.close()
 
-        database = databaseAccessFactory.open(temporaryDirectory, "plainclose", None, codeVersion, schemaVersion, None, None)
+        database = databaseAccessFactory.open(temporaryDirectory, "plainclose", None, codeVersion, schemaVersion, None, None, None)
 
         database must be('defined)
         database.get.close()

@@ -200,12 +200,12 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         access.versionsDao.persistVersion(codeVersion)
     }
 
-    private[this] def migrate(databaseName: String, access: DatabaseAccess[U], adapter: OpenWorkflowAdapter, currentSchemaVersion: SchemaVersion, codeVersion: CodeVersion, schemaVersion: SchemaVersion): Boolean = {
+    private[this] def migrate(databaseName: String, access: DatabaseAccess[U], adapter: OpenWorkflowAdapter, migrator: UserDatabaseMigrator, currentSchemaVersion: SchemaVersion, codeVersion: CodeVersion, schemaVersion: SchemaVersion): Boolean = {
         adapter.reportProgress(OpenProgressStage.MigrationRequired, "Database '" + databaseName + "' requires migration")
         if (adapter.requestMigration()) {
             adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
             try {
-                adapter.migrateSchema(access, currentSchemaVersion)
+                migrator.migrateSchema(access, currentSchemaVersion)
                 adapter.migrationSucceeded()
                 access.versionsDao.persistVersion(schemaVersion)
             } catch {
@@ -232,9 +232,11 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                 codeVersion: CodeVersion,
                 schemaVersion: SchemaVersion,
                 workflowAdapter: Option[OpenWorkflowAdapter],
+                userDatabaseMigrator: Option[UserDatabaseMigrator],
                 userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)
+        val migrator = new LoggingDecoratorUserDatabaseMigrator(userDatabaseMigrator)
 
         adapter.startOpening()
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' from path '" + databasePath + "'")
@@ -273,7 +275,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
                         return None
                     case -1 => // opened old database, so migrate it if request succeeds
                         DatabaseAccessFactory.LOGGER.info("This database has an older schema version")
-                        if (!migrate(databaseName, access, adapter, currentSchemaVersion, codeVersion, schemaVersion)) {
+                        if (!migrate(databaseName, access, adapter, migrator, currentSchemaVersion, codeVersion, schemaVersion)) {
                             adapter.stopOpening()
                             access.close()
                             return None
@@ -511,23 +513,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             requestedMigration
         }
 
-        @throws(classOf[DataAccessException])
-        def migrateSchema(access: DatabaseAccess[_],
-                          currentSchemaVersion: SchemaVersion) {
-            DatabaseAccessFactory.LOGGER.info("Migrating from schema version '"
-                + currentSchemaVersion + "' to latest version")
-            try {
-                for (a <- adapter) {
-                    a.migrateSchema(access, currentSchemaVersion)
-                }
-                DatabaseAccessFactory.LOGGER.info("Migration succeeded")
-            } catch {
-                case e: DataAccessException =>
-                    DatabaseAccessFactory.LOGGER.error("Migration failed: " + e.getMessage, e)
-                throw e
-            }
-        }
-
         def migrationSucceeded() {
             DatabaseAccessFactory.LOGGER.info("Migration succeeded")
             for (a <- adapter) {
@@ -574,6 +559,31 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             DatabaseAccessFactory.LOGGER.info("Stop opening")
             for (a <- adapter) {
                 a.stopOpening()
+            }
+        }
+    }
+
+    /**
+     * A UserDatabaseMigrator that decorates an existing UserDatabaseMigrator,
+     * logging all calls made prior to passing them on to the decorated
+     * UserDatabaseMigrator.
+     *
+     */
+    private class LoggingDecoratorUserDatabaseMigrator(migrator: Option[UserDatabaseMigrator]) extends UserDatabaseMigrator {
+        @throws(classOf[DataAccessException])
+        def migrateSchema(access: DatabaseAccess[_],
+                          currentSchemaVersion: SchemaVersion) {
+            DatabaseAccessFactory.LOGGER.info("Migrating from schema version '"
+                + currentSchemaVersion + "' to latest version")
+            try {
+                for (m <- migrator) {
+                    m.migrateSchema(access, currentSchemaVersion)
+                }
+                DatabaseAccessFactory.LOGGER.info("Migration succeeded")
+            } catch {
+                case e: DataAccessException =>
+                    DatabaseAccessFactory.LOGGER.error("Migration failed: " + e.getMessage, e)
+                    throw e
             }
         }
     }

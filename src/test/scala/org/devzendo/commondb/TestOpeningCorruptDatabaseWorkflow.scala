@@ -41,7 +41,7 @@ class TestOpeningCorruptDatabaseWorkflow extends AutoCloseDatabaseCreatingUnitte
         openerAdapter.stopOpening()
         EasyMock.replay(openerAdapter)
 
-        databaseAccessFactory.open(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, Some(openerAdapter), None)
+        databaseAccessFactory.open(temporaryDirectory, databaseName, None, codeVersion, schemaVersion, Some(openerAdapter), None, None)
         database must not(be('defined))
 
         EasyMock.verify(openerAdapter)

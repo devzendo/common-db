@@ -41,7 +41,7 @@ class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnit
         EasyMock.replay(openerAdapter)
 
         val incorrectPassword = Password("evilhacker")
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, Some(incorrectPassword), codeVersion, schemaVersion, Some(openerAdapter), None)
+        database = databaseAccessFactory.open(temporaryDirectory, databaseName, Some(incorrectPassword), codeVersion, schemaVersion, Some(openerAdapter), None, None)
         database must not(be('defined))
 
         EasyMock.verify(openerAdapter)
@@ -78,7 +78,7 @@ class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnit
         EasyMock.replay(openerAdapter)
 
         val incorrectPassword = Password("evilhacker")
-        database = databaseAccessFactory.open(temporaryDirectory, databaseName, Some(incorrectPassword), codeVersion, schemaVersion, Some(openerAdapter), None)
+        database = databaseAccessFactory.open(temporaryDirectory, databaseName, Some(incorrectPassword), codeVersion, schemaVersion, Some(openerAdapter), None, None)
         database must be('defined)
 
         EasyMock.verify(openerAdapter)
