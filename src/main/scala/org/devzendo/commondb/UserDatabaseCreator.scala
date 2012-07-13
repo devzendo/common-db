@@ -17,9 +17,9 @@
 package org.devzendo.commondb
 
 /**
- * A DatabaseAccessFactory uses a UserDatabaseCreator to request that the
- * application create and populate its tables, given the DataSource and
- * SimpleJdbcTemplate.
+ * The DatabaseAccessFactory's create() method uses a UserDatabaseCreator to
+ * request that the application create and populate its tables, given the
+ * DataSource and SimpleJdbcTemplate.
  *
  */
 trait UserDatabaseCreator {

@@ -69,7 +69,7 @@ object CreateProgressStage {
     }
 
     /**
-     * Failed to creation for a serious reason
+     * Failed to create the database for a serious reason
      */
     case object CreationFailed extends Enum {
         val index = 4
@@ -78,12 +78,13 @@ object CreateProgressStage {
 }
 
 /**
- * A DatabaseAccessFactory uses a CreateWorkflowAdapter to inform the user of:
+ * The DatabaseAccessFactory's create() method uses a CreateWorkflowAdapter to
+ * inform the user of user-interface events:
  * <ul>
- * <li> the start and end of a creation operation, e.g. for
- * setting and clearing the hourglass cursor.
+ * <li> the start of a creation operation, e.g. for setting the hourglass cursor
  * <li> progress during the creation
  * <li> to inform the user of any failures.
+ * <li> the end of a creation operation, e.g. for clearing the hourglass cursor
  * </ul>
  *
  */

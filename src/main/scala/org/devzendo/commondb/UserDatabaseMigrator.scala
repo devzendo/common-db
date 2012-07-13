@@ -18,14 +18,26 @@ package org.devzendo.commondb
 
 import org.springframework.dao.DataAccessException
 
+/**
+ * The DatabaseAccessFactory's open() method uses a UserDatabaseMigrator to
+ * migrate the database contents to that required by the current version of
+ * your application, given the DataSource and SimpleJdbcTemplate.
+ *
+ * This callback is only used if the OpenWorkflowAdapter's requestMigration()
+ * method was responded to with true - i.e. the user was asked if a migration
+ * is OK, and said "Yes" (or if your code always responds true to that).
+ *
+ */
 trait UserDatabaseMigrator {
     /**
      * The database schema is at a version older than that given
-     * by the application, so migrate it to the latest version. The
-     * framework will record the new version in the Versions
-     * table, after migration. If the exception is thrown, the
-     * entire migration will be rolled back, and the open
-     * terminated.
+     * by the application, so migrate it to the latest version.
+     *
+     * The framework will record the new version in the Versions
+     * table, after migration.
+     *
+     * If an exception is thrown by the migrateSchema method, the entire
+     * migration will be rolled back, and the open terminated.
      *
      * @param access the DatabaseAccess, which contains the DataSource, for
      * low-level access to the database, the Spring SimpleJdbcTemplate, for

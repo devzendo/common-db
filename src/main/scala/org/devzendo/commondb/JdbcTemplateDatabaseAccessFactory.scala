@@ -204,6 +204,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         adapter.reportProgress(OpenProgressStage.MigrationRequired, "Database '" + databaseName + "' requires migration")
         if (adapter.requestMigration()) {
             adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
+            // TODO perform a migration inside a transaction?
             try {
                 migrator.migrateSchema(access, currentSchemaVersion)
                 adapter.migrationSucceeded()

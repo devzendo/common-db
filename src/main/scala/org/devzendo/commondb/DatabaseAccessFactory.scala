@@ -95,7 +95,8 @@ trait SequenceDao {
 /**
  * The UserDatabaseAccess abstract class is subclassed to provide access to the
  * DAOs of your application. Given a DatabaseAccess[YourUserDatabaseAccess]
- * object, user code can call its user() method to access user DAOs.
+ * object, user code can call its user() method to access user DAOs via an
+ * instance of YourUserDatabaseAccess.
  * @param databaseAccess the underlying access abstraction.
  */
 abstract class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
@@ -110,6 +111,10 @@ abstract class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
  * The DatabaseAccess gives access to the framework/user database abstractions,
  * provides a mechanism in which operations can be performed inside a
  * transaction, and finally allows the database to be closed.
+ *
+ * These are obtained from the DatabaseAccessFactory, and are not directly
+ * instantiatable from user code.
+ *
  * @param databasePath the directory in which the database's file set are to be
  *                     stored.
  * @param databaseName the common prefix name used by the database's file set.

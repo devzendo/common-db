@@ -136,16 +136,17 @@ object OpenProgressStage {
 }
 
 /**
- * A DatabaseAccessFactory uses an OpenWorkflowAdapter to inform the user of:
+ * The DatabaseAccessFactory's open() method uses an OpenWorkflowAdapter to
+ * inform the user of user-interface events, and to make requests to the user
+ * via your user interface:
  * <ul>
+ * <li> the start of an open operation, e.g. for setting the hourglass cursor
  * <li> progress during the open
- * <li> to request any password
+ * <li> to (repeatedly) request any password
  * <li> to request confirmation for migration
- * <li> to perform the migration, if needed
- * <li> to inform the user of any failures.
+ * <li> to inform the user of any failures
+ * <li> the end of an open operation, e.g. for clearing the hourglass cursor
  * </ul>
- * The start and end of an open operation can also be signalled, e.g. for
- * setting and clearing the hourglass cursor.
  *
  */
 trait OpenWorkflowAdapter {
@@ -192,8 +193,9 @@ trait OpenWorkflowAdapter {
     /**
      * Report to the user the migration cannot be done as this
      * database is at a more recent version than the application
-     * supports.
-     * TODO: possibly add the details of the application that is
+     * supports. i.e. you're trying to open a database created by a more
+     * modern version of the software than you have.
+     * TODO: possibly add the version details of the application that is
      * present in the database?
      */
     def migrationNotPossible()
@@ -202,7 +204,7 @@ trait OpenWorkflowAdapter {
      * The migration failed and its effects have been rolled
      * back (as far is as practical, given H2's auto-commit
      * of DML when DDL is executed - ignoring the context
-     * of any outstanding transaction.
+     * of any outstanding transaction).
      * @param exception the data access exception that has occurred.
      */
     def migrationFailed(exception: DataAccessException)
