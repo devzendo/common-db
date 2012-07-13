@@ -151,10 +151,10 @@ abstract class Version(version: String) extends Comparable[Version] {
         if (elementSignum != 0) {
             return elementSignum
         }
-        // version numbers are identical, but shorter numbers of elements mean
-        // earlier releases (e.g. 1.0 is earlier than 1.0.1)
-        // TODO: I don't think these size comparisons work - compareElementForElement
-        // will have catered for this by right-zero-padding?
+        // Version numbers are identical, but shorter numbers of elements mean
+        // earlier releases (e.g. 1.0 is earlier than 1.0.0)
+        // compareElementForElement will perform right-zero-padding, and checks
+        // for 1.0 < 1.0.1, but not 1.0 < 1.0.0
         if (this.versionNumberIntegers.size < obj.versionNumberIntegers.size) {
             return -1
         }
