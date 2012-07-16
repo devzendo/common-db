@@ -19,6 +19,10 @@ package org.devzendo.commondb
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.easymock.EasyMock
+import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
+
+case class MigrationTransactionVersion(version: String) extends Version(version)
+
 
 class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
@@ -26,8 +30,8 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
     def openOldDatabaseUpdatesSchemaVersionToCurrent() {
         val databaseName = "oldschemaupdate"
         createOldDatabase(databaseName).get.close()
-        val openerAdapter = createMigratingAdapter()
-        val userDatabaseMigrator = createMigrator()
+        val openerAdapter = createSucceedingMigratingAdapter()
+        val userDatabaseMigrator = createSucceedingMigrator()
 
         database = openNewDatabase(databaseName, openerAdapter, userDatabaseMigrator)
         val updatedSchemaVersion = database.get.versionsDao.findVersion(classOf[SchemaVersion]).get
@@ -40,7 +44,7 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
     def openOldDatabaseMigrationCanPerformChanges() {
         val databaseName = "oldschemachangesmade"
         createOldDatabase(databaseName).get.close()
-        val openerAdapter = createMigratingAdapter()
+        val openerAdapter = createSucceedingMigratingAdapter()
 
         val userDatabaseMigrator = new UserDatabaseMigrator {
             def migrateSchema(access: DatabaseAccess[_], currentSchemaVersion: SchemaVersion) {
@@ -64,7 +68,7 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         EasyMock.verify(openerAdapter)
     }
 
-    private[this] def createMigratingAdapter(): OpenWorkflowAdapter = {
+    private[this] def createSucceedingMigratingAdapter(): OpenWorkflowAdapter = {
         val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
         openerAdapter.startOpening()
         openerAdapter.reportProgress(EasyMock.isA(classOf[OpenProgressStage.Enum]), EasyMock.isA(classOf[String]))
@@ -78,7 +82,7 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         openerAdapter
     }
 
-    private[this] def createMigrator(): UserDatabaseMigrator = {
+    private[this] def createSucceedingMigrator(): UserDatabaseMigrator = {
         val userDatabaseMigrator = EasyMock.createMock(classOf[UserDatabaseMigrator])
         userDatabaseMigrator.migrateSchema(EasyMock.isA(classOf[DatabaseAccess[_]]), EasyMock.eq(oldSchemaVersion))
         EasyMock.replay(userDatabaseMigrator)
@@ -86,9 +90,59 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         userDatabaseMigrator
     }
 
-    // TODO migrations occur in a transaction.
+    /**
+     * Being mindful of H2's restriction on executing DDL in a transaction;
+     * see TestTransactionHandling.
+     */
+    @Test
+    def migrationsArePerformedInATransactionThatIsRolledBackOnFailure() {
+        val databaseName = "failedmigrationrollsback"
+        createOldDatabase(databaseName).get.close()
+        val openerAdapter = createFailingMigratingAdapter()
+        var existsInTransaction = false
 
+        val userDatabaseMigrator = new UserDatabaseMigrator {
+            def migrateSchema(access: DatabaseAccess[_], currentSchemaVersion: SchemaVersion) {
+                val versionsDao = access.versionsDao
+                val version = new MigrationTransactionVersion("1.0")
+                versionsDao.persistVersion(version)
+                existsInTransaction = versionsDao.exists(classOf[MigrationTransactionVersion])
+                throw new DataIntegrityViolationException("A simulated access failure")
+            }
+        }
 
-    // TODO migration failure rolls back the transaction
+        database = openNewDatabase(databaseName, openerAdapter, userDatabaseMigrator)
+        database must be(None)
+        existsInTransaction must equal(true)
+        EasyMock.verify(openerAdapter)
 
+        val oldDatabase = openOldDatabase(databaseName)
+        try {
+            // If we can open it successfully with the old version, it wasn't
+            // migrated (the schema version wasn't updated) - else we'd get a
+            // MigrationNotPossible (opening future database)
+            oldDatabase must be('defined)
+            // let's prove the transaction was rolled back...
+            val versionsDao = oldDatabase.get.versionsDao
+            versionsDao.exists(classOf[MigrationTransactionVersion]) must equal(false)
+        } finally {
+            for (o <- oldDatabase) {
+                o.close()
+            }
+        }
+    }
+
+    private[this] def createFailingMigratingAdapter(): OpenWorkflowAdapter = {
+        val openerAdapter = EasyMock.createMock(classOf[OpenWorkflowAdapter])
+        openerAdapter.startOpening()
+        openerAdapter.reportProgress(EasyMock.isA(classOf[OpenProgressStage.Enum]), EasyMock.isA(classOf[String]))
+        EasyMock.expectLastCall().anyTimes()
+        openerAdapter.requestMigration()
+        EasyMock.expectLastCall().andReturn(true)
+        openerAdapter.migrationFailed(EasyMock.isA(classOf[DataAccessException]))
+        openerAdapter.stopOpening()
+        EasyMock.replay(openerAdapter)
+
+        openerAdapter
+    }
 }

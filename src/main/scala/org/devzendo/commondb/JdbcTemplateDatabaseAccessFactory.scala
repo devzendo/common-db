@@ -26,8 +26,9 @@ import collection.mutable.ListBuffer
 import org.springframework.jdbc.datasource.{DataSourceTransactionManager, SingleConnectionDataSource, DataSourceUtils}
 import org.h2.constant.ErrorCode
 import scala.throws
-import org.springframework.transaction.support.TransactionTemplate
+import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
 import org.h2.engine.Database
+import org.springframework.transaction.TransactionStatus
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -204,13 +205,19 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         adapter.reportProgress(OpenProgressStage.MigrationRequired, "Database '" + databaseName + "' requires migration")
         if (adapter.requestMigration()) {
             adapter.reportProgress(OpenProgressStage.Migrating, "Migrating database '" + databaseName + "'")
-            // TODO perform a migration inside a transaction?
             try {
-                migrator.migrateSchema(access, currentSchemaVersion)
-                adapter.migrationSucceeded()
-                access.versionsDao.persistVersion(schemaVersion)
+                val transactionTemplate = access.createTransactionTemplate
+                transactionTemplate.execute(new TransactionCallback[Unit]() {
+                    def doInTransaction(status: TransactionStatus) {
+                        migrator.migrateSchema(access, currentSchemaVersion)
+                        adapter.migrationSucceeded()
+                        access.versionsDao.persistVersion(schemaVersion)
+                        // Template now commits transaction
+                    }
+                })
             } catch {
                 case dae: DataAccessException =>
+                    // Template now rolls back transaction
                     DatabaseAccessFactory.LOGGER.error("Migration failed: " + dae.getMessage, dae)
                     adapter.reportProgress(OpenProgressStage.MigrationFailed, "Migration of database '" + databaseName + "' failed: " + dae.getMessage)
                     adapter.migrationFailed(dae)

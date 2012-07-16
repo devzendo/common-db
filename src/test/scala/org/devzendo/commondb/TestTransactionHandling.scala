@@ -24,9 +24,11 @@ import org.springframework.dao.{DataAccessException, DataIntegrityViolationExcep
 import org.slf4j.LoggerFactory
 
 case class CustomTransactionVersion(version: String) extends Version(version)
+
 object TestTransactionHandling {
     val LOGGER = LoggerFactory.getLogger(classOf[TestTransactionHandling])
 }
+
 class TestTransactionHandling extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
 
     @Test
@@ -77,7 +79,7 @@ class TestTransactionHandling extends AutoCloseDatabaseCreatingUnittest with Ass
     }
 
     /**
-     * Unfortunately, H2 does not deal nicely DDL inside a
+     * Unfortunately, H2 does not deal nicely with DDL inside a
      * transaction - it'll not allow it to be rolled back.
      * <p>
      * This will change though:

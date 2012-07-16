@@ -38,6 +38,10 @@ abstract class AbstractDatabaseMigrationUnittest extends AbstractTempFolderUnitt
         databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, newSchemaVersion, Some(openerAdapter), Some(userDatabaseMigrator), None)
     }
 
+    protected[this] def openOldDatabase(databaseName: String): Option[DatabaseAccess[_]] = {
+        databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, None, None, None)
+    }
+
     protected[this] def openOldDatabase(databaseName: String, openerAdapter: OpenWorkflowAdapter, userDatabaseMigrator: UserDatabaseMigrator): Option[DatabaseAccess[_]] = {
         databaseAccessFactory.open(temporaryDirectory, databaseName, None, oldCodeVersion, oldSchemaVersion, Some(openerAdapter), Some(userDatabaseMigrator), None)
     }
