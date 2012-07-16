@@ -1,11 +1,9 @@
 Documentation
 
-CreateOrOpen method in the factory.
-
-A method to get a Jdbc factory without having to know the concrete type of the
-factory class.
-
 Sizable example.
 
 Convert DataAccessException into Either?
 Add a DSL for more idiomatic template usage? (Scala in Depth illustrates this)
+
+Migration failure is terminal: the database is returned as None - might want to
+reconsider this? This is what MiniMiser did.
