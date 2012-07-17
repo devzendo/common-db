@@ -18,7 +18,7 @@ package org.devzendo.commondb.beanminder.persistence.impl
 
 import org.devzendo.commondb.{UserDatabaseCreator, DatabaseAccess}
 
-class JdbcTemplateBeanMinderCreateWorkflowAdapter extends UserDatabaseCreator {
+class JdbcTemplateBeanMinderUserDatabaseCreator extends UserDatabaseCreator {
     /**
      * Create the tables for the application. This will be called before
      * populateApplicationTables, so that you can create any tables needed by

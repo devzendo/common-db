@@ -16,7 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
-import impl.{JdbcTemplateBeanMinderCreateWorkflowAdapter, JdbcTemplateBeanMinderDatabaseAccess}
+import impl.{JdbcTemplateBeanMinderUserDatabaseCreator, JdbcTemplateBeanMinderDatabaseAccess}
 import org.devzendo.commondb._
 import org.devzendo.commondb.CodeVersion
 import org.devzendo.commondb.DatabaseAccess
@@ -50,7 +50,7 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
             temporaryDirectory, name, None,
             codeVersion, schemaVersion,
             Some(new BeanMinderUnittestCreateWorkflowAdapter),
-            Some(new JdbcTemplateBeanMinderCreateWorkflowAdapter),
+            Some(new JdbcTemplateBeanMinderUserDatabaseCreator),
             Some(beanMinderUserDatabaseFactory))
     }
 
