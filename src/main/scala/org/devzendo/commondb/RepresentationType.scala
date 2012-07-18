@@ -28,4 +28,6 @@ abstract case class RepresentationType[T](value: T) {
      * @return the value
      */
     def toRepresentation: T = value
+
+    // TODO implement equals and hashCode
 }

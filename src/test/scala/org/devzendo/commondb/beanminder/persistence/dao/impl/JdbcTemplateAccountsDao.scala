@@ -37,8 +37,13 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
 
     def deleteAccount(account: Account) {} // TODO
 
-    private[this] def updateAccount(account: Account): Account = { // TODO
-        null
+    private[this] def updateAccount(account: Account): Account = {
+        jdbcTemplate.update(
+            "UPDATE Accounts SET name = ?, with = ?, accountCode = ?, currentBalance = ? WHERE id = ?",
+            Array[Any](account.name.toRepresentation, account.withBank.toRepresentation,
+                account.accountCode.toRepresentation,
+                account.currentBalance.toRepresentation, account.id))
+        account
     }
 
     private[this] def insertAccount(account: Account): Account = {

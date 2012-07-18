@@ -51,6 +51,34 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
 //        transactionsDao.findTransactionsForAccount(savedAccount).size must equal(0)
     }
 
+    @Test
+    def someAccountDetailsCanBeChanged() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val accountsDao = userAccess.accountsDao
+
+        val newAccount = createTestAccount()
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        savedAccount.id must not equal(newAccount.id)
+
+        val renamedAccount = accountsDao.saveAccount(savedAccount.withName(AccountName("My bank account")))
+        renamedAccount.name must equal(AccountName("My bank account"))
+        renamedAccount.id must equal(savedAccount.id)
+
+        val recodedAccount = accountsDao.saveAccount(renamedAccount.withAccountCode(AccountCode("0101010")))
+        recodedAccount.accountCode must equal(AccountCode("0101010"))
+        recodedAccount.id must equal(renamedAccount.id)
+
+        val movedAccount = accountsDao.saveAccount(recodedAccount.withNewBank(BankName("Another bank")))
+        movedAccount.withBank must equal(BankName("Another bank"))
+        movedAccount.id must equal(recodedAccount.id)
+
+        // These don't change
+        movedAccount.currentBalance must equal(CurrentBalance(5600))
+        movedAccount.currentBalance must equal(InitialBalance(5600)) // TODO this passes and shouldn't since they are different representation types
+        movedAccount.initialBalance must equal(InitialBalance(5600))
+    }
+
     def createTestAccount() =
         Account(
             AccountName("Test account"),
