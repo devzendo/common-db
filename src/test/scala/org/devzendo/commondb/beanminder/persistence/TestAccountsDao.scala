@@ -61,11 +61,11 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         val savedAccount = accountsDao.saveAccount(newAccount)
         savedAccount.id must not equal(newAccount.id)
 
-        val renamedAccount = accountsDao.saveAccount(savedAccount.withName(AccountName("My bank account")))
+        val renamedAccount = accountsDao.saveAccount(savedAccount.withNewName(AccountName("My bank account")))
         renamedAccount.name must equal(AccountName("My bank account"))
         renamedAccount.id must equal(savedAccount.id)
 
-        val recodedAccount = accountsDao.saveAccount(renamedAccount.withAccountCode(AccountCode("0101010")))
+        val recodedAccount = accountsDao.saveAccount(renamedAccount.withNewAccountCode(AccountCode("0101010")))
         recodedAccount.accountCode must equal(AccountCode("0101010"))
         recodedAccount.id must equal(renamedAccount.id)
 
