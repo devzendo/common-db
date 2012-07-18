@@ -16,10 +16,38 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
+import domain.Account
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.junit.{Assert, Test}
 
 class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseName = "testaccountsdao"
 
-    // To be continued....
+    @Test
+    def anEmptyAccountCanBeCreated() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val accountsDao = userAccess.accountsDao
+
+        val newAccount = createTestAccount()
+        val savedAccount = accountsDao.saveAccount(newAccount)
+
+        savedAccount.id must be > (0)
+        savedAccount.accountCode must equal(newAccount.accountCode)
+        savedAccount.name must equal(newAccount.name)
+        savedAccount.withBank must equal(newAccount.withBank)
+        savedAccount.currentBalance must equal(newAccount.currentBalance)
+        savedAccount.initialBalance must equal(newAccount.initialBalance)
+
+        // The current balance is initialised to the initial balance
+        savedAccount.currentBalance must equal(savedAccount.initialBalance)
+
+        // No transactions for this account
+        // TODO add this back in when the transactionsDao is written
+//        val transactionsDao = userAccess.transactionsDao
+//        transactionsDao.findTransactionsForAccount(savedAccount).size must equal(0)
+    }
+
+    def createTestAccount() = // TODO use representation types
+        Account("Test account", "Imaginary Bank of London", "123456", 5600)
 }

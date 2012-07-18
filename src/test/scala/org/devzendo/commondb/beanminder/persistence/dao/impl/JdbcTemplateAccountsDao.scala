@@ -17,7 +17,49 @@
 package org.devzendo.commondb.beanminder.persistence.dao.impl
 
 import org.devzendo.commondb.beanminder.persistence.dao.AccountsDao
+import org.devzendo.commondb.beanminder.persistence.domain.Account
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
+import org.springframework.jdbc.support.GeneratedKeyHolder
+import org.springframework.jdbc.core.PreparedStatementCreator
+import java.sql.{PreparedStatement, SQLException, Connection}
 
-class JdbcTemplateAccountsDao extends AccountsDao {
+class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends AccountsDao {
+    def findAllAccounts() = null // TODO
 
+
+    def saveAccount(account: Account): Account = {
+        if (account.id != -1) {
+            updateAccount(account)
+        } else {
+            insertAccount(account)
+        }
+    }
+
+    def deleteAccount(account: Account) {} // TODO
+
+    private[this] def updateAccount(account: Account): Account = { // TODO
+        null
+    }
+
+    private[this] def insertAccount(account: Account): Account = {
+        val keyHolder = new GeneratedKeyHolder()
+        jdbcTemplate.getJdbcOperations.update(new PreparedStatementCreator() {
+            @throws(classOf[SQLException])
+            def createPreparedStatement(conn: Connection): PreparedStatement = {
+                val sql = "INSERT INTO Accounts " +
+                    "(name, with, accountCode, initialBalance, currentBalance) " +
+                    "VALUES (?, ?, ?, ?, ?)"
+                val ps = conn.prepareStatement(sql, Array[String]("id"))
+                ps.setString(1, account.name)
+                ps.setString(2, account.withBank)
+                ps.setString(3, account.accountCode)
+                ps.setInt(4, account.initialBalance)
+                ps.setInt(5, account.currentBalance)
+                ps
+            }
+        }, keyHolder)
+        val key = keyHolder.getKey.intValue()
+        new Account(key, account.name, account.withBank, account.accountCode,
+            account.initialBalance, account.currentBalance)
+    }
 }

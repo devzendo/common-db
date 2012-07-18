@@ -16,6 +16,14 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
+
+object Account {
+    def apply(name: String, withBank: String, accountCode: String,
+              initialBalance: Int): Account = {
+        new Account(-1, name, withBank, accountCode, initialBalance, initialBalance)
+    }
+}
+
 case class Account(id: Int, name: String, withBank: String, accountCode: String,
                    initialBalance: Int, currentBalance: Int)
 

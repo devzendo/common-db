@@ -23,7 +23,7 @@ import org.devzendo.commondb.{UserDatabaseAccess, DatabaseAccess}
 
 class JdbcTemplateBeanMinderDatabaseAccess(override val databaseAccess: DatabaseAccess[BeanMinderDatabaseAccess]) extends UserDatabaseAccess(databaseAccess) with BeanMinderDatabaseAccess {
     def accountsDao: AccountsDao = {
-        new JdbcTemplateAccountsDao()
+        new JdbcTemplateAccountsDao(databaseAccess.jdbcTemplate)
     }
     def transactionsDao: TransactionsDao = {
         new JdbcTemplateTransactionsDao()

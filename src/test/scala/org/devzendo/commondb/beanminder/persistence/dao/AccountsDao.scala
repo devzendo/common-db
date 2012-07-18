@@ -16,6 +16,27 @@
 
 package org.devzendo.commondb.beanminder.persistence.dao
 
-trait AccountsDao {
+import org.devzendo.commondb.beanminder.persistence.domain.Account
 
+trait AccountsDao {
+    /**
+     * Find all the accounts sorted by name.
+     * @return all the accounts, sorted on name.
+     */
+    def findAllAccounts(): List[Account]
+
+    /**
+     * Save (insert or update) an account.
+     * @param account the account to insert or update
+     * @return the saved account; if inserted, the id will contain
+     * the primary key.
+     */
+    def saveAccount(account: Account): Account
+
+    /**
+     * Delete an account, cascading the deletion of all its
+     * transactions.
+     * @param account the account to delete
+     */
+    def deleteAccount(account: Account)
 }

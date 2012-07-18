@@ -54,7 +54,7 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
             Some(beanMinderUserDatabaseFactory))
     }
 
-    var database: Option[DatabaseAccess[_]] = None
+    var database: Option[DatabaseAccess[BeanMinderDatabaseAccess]] = None
 
     @After
     def closeDatabase() {

@@ -17,7 +17,16 @@
 package org.devzendo.commondb.beanminder.persistence.dao.impl
 
 import org.devzendo.commondb.beanminder.persistence.dao.TransactionsDao
+import org.devzendo.commondb.beanminder.persistence.domain.{Transaction, Account}
 
 class JdbcTemplateTransactionsDao extends TransactionsDao {
+    def findTransactionsForAccount(account: Account) = null // TODO
 
+    def findTransactionsForAccountByIndexRange(account: Account, fromIndex: Int, toIndex: Int) = null // TODO
+
+    def saveTransaction(account: Account, transaction: Transaction) = null // TODO
+
+    def deleteTransaction(account: Account, transaction: Transaction) = null // TODO
+
+    def getNumberOfTransactions(account: Account) = 0 // TODO
 }
