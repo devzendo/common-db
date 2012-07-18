@@ -16,9 +16,12 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
-import domain.Account
+import domain._
+import domain.AccountCode
+import domain.AccountName
+import domain.BankName
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.{Assert, Test}
+import org.junit.Test
 
 class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseName = "testaccountsdao"
@@ -48,6 +51,10 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
 //        transactionsDao.findTransactionsForAccount(savedAccount).size must equal(0)
     }
 
-    def createTestAccount() = // TODO use representation types
-        Account("Test account", "Imaginary Bank of London", "123456", 5600)
+    def createTestAccount() =
+        Account(
+            AccountName("Test account"),
+            BankName("Imaginary Bank of London"),
+            AccountCode("123456"),
+            InitialBalance(5600))
 }

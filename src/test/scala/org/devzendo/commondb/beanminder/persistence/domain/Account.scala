@@ -16,14 +16,22 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
+import org.devzendo.commondb.RepresentationType
+
+case class AccountName(name: String) extends RepresentationType[String](name)
+case class BankName(name: String) extends RepresentationType[String](name)
+case class AccountCode(code: String) extends RepresentationType[String](code)
+case class InitialBalance(balance: Int) extends RepresentationType[Int](balance)
+case class CurrentBalance(balance: Int) extends RepresentationType[Int](balance)
 
 object Account {
-    def apply(name: String, withBank: String, accountCode: String,
-              initialBalance: Int): Account = {
-        new Account(-1, name, withBank, accountCode, initialBalance, initialBalance)
+    def apply(name: AccountName, withBank: BankName, accountCode: AccountCode,
+              initialBalance: InitialBalance): Account = {
+        new Account(-1, name, withBank, accountCode, initialBalance, CurrentBalance(initialBalance.toRepresentation))
     }
 }
 
-case class Account(id: Int, name: String, withBank: String, accountCode: String,
-                   initialBalance: Int, currentBalance: Int)
+case class Account(id: Int, name: AccountName, withBank: BankName,
+                   accountCode: AccountCode,
+                   initialBalance: InitialBalance, currentBalance: CurrentBalance)
 

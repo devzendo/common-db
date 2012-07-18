@@ -50,11 +50,11 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
                     "(name, with, accountCode, initialBalance, currentBalance) " +
                     "VALUES (?, ?, ?, ?, ?)"
                 val ps = conn.prepareStatement(sql, Array[String]("id"))
-                ps.setString(1, account.name)
-                ps.setString(2, account.withBank)
-                ps.setString(3, account.accountCode)
-                ps.setInt(4, account.initialBalance)
-                ps.setInt(5, account.currentBalance)
+                ps.setString(1, account.name.toRepresentation)
+                ps.setString(2, account.withBank.toRepresentation)
+                ps.setString(3, account.accountCode.toRepresentation)
+                ps.setInt(4, account.initialBalance.toRepresentation)
+                ps.setInt(5, account.currentBalance.toRepresentation)
                 ps
             }
         }, keyHolder)
