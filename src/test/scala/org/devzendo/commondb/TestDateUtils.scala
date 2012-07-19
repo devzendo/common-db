@@ -20,8 +20,6 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import java.util
 import java.sql.Date
-//import org.devzendo.commondb.NormalisedDate._
-
 
 class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     @Test
@@ -41,6 +39,7 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         calendar.get(util.Calendar.MILLISECOND) must be(0)
 
     }
+
     /**
      * @return a time in milliseconds that does have hours, minutes, seconds, and millisecond
      * values that are positive
