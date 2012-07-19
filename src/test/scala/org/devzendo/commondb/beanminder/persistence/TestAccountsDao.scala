@@ -43,7 +43,8 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         savedAccount.initialBalance must equal(newAccount.initialBalance)
 
         // The current balance is initialised to the initial balance
-        savedAccount.currentBalance must equal(savedAccount.initialBalance)
+        // Need to compare representation values as these are different types
+        savedAccount.currentBalance.toRepresentation must equal(savedAccount.initialBalance.toRepresentation)
 
         // No transactions for this account
         // TODO add this back in when the transactionsDao is written
@@ -75,7 +76,6 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
 
         // These don't change
         movedAccount.currentBalance must equal(CurrentBalance(5600))
-        movedAccount.currentBalance must equal(InitialBalance(5600)) // TODO this passes and shouldn't since they are different representation types
         movedAccount.initialBalance must equal(InitialBalance(5600))
     }
 

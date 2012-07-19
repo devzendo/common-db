@@ -22,12 +22,26 @@ package org.devzendo.commondb
  * @param value the value to be held in the representation
  * @tparam T the underlying type of the representation
  */
-abstract case class RepresentationType[T](value: T) {
+abstract case class RepresentationType[T](value: T) extends Equals {
     /**
      * Obtain the value as the underlying type
      * @return the value
      */
     def toRepresentation: T = value
 
-    // TODO implement equals and hashCode
+    override def canEqual(other: Any) = other.isInstanceOf[RepresentationType[T]]
+
+    override def hashCode: Int = 17 + this.getClass.## + value.##
+
+    override def equals(other: Any): Boolean = other match {
+        case null => false
+        case x: RepresentationType[T] =>
+            if (x eq this)
+                true
+            else
+                (x.## == this.##) && (x canEqual this) && (x.value == this.value)
+        case _ => false
+    }
+
+    override def toString: String = this.getClass.getSimpleName + "(" + value + ")"
 }
