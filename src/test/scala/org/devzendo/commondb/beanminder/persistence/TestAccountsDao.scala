@@ -78,11 +78,4 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         movedAccount.currentBalance must equal(CurrentBalance(5600))
         movedAccount.initialBalance must equal(InitialBalance(5600))
     }
-
-    def createTestAccount() =
-        Account(
-            AccountName("Test account"),
-            BankName("Imaginary Bank of London"),
-            AccountCode("123456"),
-            InitialBalance(5600))
 }

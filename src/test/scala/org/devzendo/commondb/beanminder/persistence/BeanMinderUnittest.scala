@@ -16,6 +16,10 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
+import domain._
+import domain.AccountCode
+import domain.AccountName
+import domain.BankName
 import impl.{JdbcTemplateBeanMinderUserDatabaseCreator, JdbcTemplateBeanMinderDatabaseAccess}
 import org.devzendo.commondb._
 import org.devzendo.commondb.CodeVersion
@@ -24,6 +28,10 @@ import scala.Some
 import org.springframework.dao.DataAccessException
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.junit.After
+import org.devzendo.commondb.CodeVersion
+import org.devzendo.commondb.DatabaseAccess
+import org.devzendo.commondb.SchemaVersion
+import scala.Some
 
 private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example
@@ -62,4 +70,11 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
             d.close()
         }
     }
+
+    def createTestAccount() =
+        Account(
+            AccountName("Test account"),
+            BankName("Imaginary Bank of London"),
+            AccountCode("123456"),
+            InitialBalance(5600))
 }
