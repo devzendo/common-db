@@ -33,9 +33,4 @@ object Account {
 
 case class Account(id: Int, name: AccountName, withBank: BankName,
                    accountCode: AccountCode,
-                   initialBalance: InitialBalance, currentBalance: CurrentBalance) {
-    def withNewName(newName: AccountName) = new Account(id, newName, withBank, accountCode, initialBalance, currentBalance)
-    def withNewAccountCode(newCode: AccountCode) = new Account(id, name, withBank, newCode, initialBalance, currentBalance)
-    def withNewBank(newBank: BankName) = new Account(id, name, newBank, accountCode, initialBalance, currentBalance)
-}
-
+                   initialBalance: InitialBalance, currentBalance: CurrentBalance)
