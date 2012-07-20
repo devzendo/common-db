@@ -28,7 +28,7 @@ object Transaction {
 case class Transaction(id: Int, accountId: Int, index: Int, amount: Int,
                        isCredit: Boolean, isReconciled: Boolean,
                        origTransactionDate: NormalisedDate, accountBalance: Int) {
-    if (amount < 0) {
+    if (amount <= 0) {
         throw new IllegalArgumentException("Transaction amounts must be positive; " + amount + " is negative")
     }
 }

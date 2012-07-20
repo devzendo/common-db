@@ -28,4 +28,12 @@ class TestTransaction extends BeanMinderUnittest with MustMatchersForJUnit {
             Transaction(-200, false, false, todayNormalised())
         } must produce [IllegalArgumentException]
     }
+
+    @Test
+    def cannotCreateTransactionsWithZeroAmounts() {
+        evaluating {
+            Transaction(0, false, false, todayNormalised())
+        } must produce [IllegalArgumentException]
+    }
+
 }
