@@ -18,6 +18,7 @@ package org.devzendo.commondb.beanminder.persistence
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.springframework.dao.DataAccessException
 
 class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseName = "testtransactionsdao"
@@ -26,13 +27,11 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     def cannotCommitTransactionAgainstUnsavedAccount() {
         database = createBeanMinderDatabase(databaseName)
         var userAccess = database.get.user.get
-        val accountsDao = userAccess.accountsDao
         val newAccount = createTestAccount()
         // note: unsaved Account
-        // TODO add this back in when the transactionsDao is written
         val transactionsDao = userAccess.transactionsDao
-        //        evaluating {
-        //            transactionsDao.findTransactionsForAccount(newAccount)
-        //        } must produce [DataAccessException]
+        evaluating {
+            transactionsDao.findTransactionsForAccount(newAccount)
+        } must produce [DataAccessException]
     }
 }

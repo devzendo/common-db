@@ -25,10 +25,12 @@ class JdbcTemplateBeanMinderDatabaseAccess(override val databaseAccess: Database
     def accountsDao: AccountsDao = {
         new JdbcTemplateAccountsDao(databaseAccess.jdbcTemplate)
     }
+
     def transactionsDao: TransactionsDao = {
-        new JdbcTemplateTransactionsDao()
+        new JdbcTemplateTransactionsDao(databaseAccess.jdbcTemplate)
     }
-    def close {
+
+    def close() {
 
     }
 }

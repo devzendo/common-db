@@ -47,9 +47,8 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         savedAccount.currentBalance.toRepresentation must equal(savedAccount.initialBalance.toRepresentation)
 
         // No transactions for this account
-        // TODO add this back in when the transactionsDao is written
-//        val transactionsDao = userAccess.transactionsDao
-//        transactionsDao.findTransactionsForAccount(savedAccount).size must equal(0)
+        val transactionsDao = userAccess.transactionsDao
+        transactionsDao.findTransactionsForAccount(savedAccount).size must equal(0)
     }
 
     @Test
