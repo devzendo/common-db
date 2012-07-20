@@ -16,19 +16,16 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
-import org.devzendo.commondb.NormalisedDate
+import org.scalatest.junit.MustMatchersForJUnit
+import org.junit.Test
+import org.devzendo.commondb.beanminder.persistence.BeanMinderUnittest
 
-object Transaction {
-    def apply(amount: Int, isCredit: Boolean,
-        isReconciled: Boolean, transactionDate: NormalisedDate) = {
-        new Transaction(-1, -1, -1, amount, isCredit, isReconciled, transactionDate, -1)
-    }
-}
+class TestTransaction extends BeanMinderUnittest with MustMatchersForJUnit {
 
-case class Transaction(id: Int, accountId: Int, index: Int, amount: Int,
-                       isCredit: Boolean, isReconciled: Boolean,
-                       origTransactionDate: NormalisedDate, accountBalance: Int) {
-    if (amount < 0) {
-        throw new IllegalArgumentException("Transaction amounts must be positive; " + amount + " is negative")
+    @Test
+    def cannotCreateTransactionsWithNegativeAmounts() {
+        evaluating {
+            Transaction(-200, false, false, todayNormalised())
+        } must produce [IllegalArgumentException]
     }
 }

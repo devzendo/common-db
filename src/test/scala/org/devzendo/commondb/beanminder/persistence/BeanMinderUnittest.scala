@@ -32,6 +32,7 @@ import org.devzendo.commondb.CodeVersion
 import org.devzendo.commondb.DatabaseAccess
 import org.devzendo.commondb.SchemaVersion
 import scala.Some
+import java.sql.Date
 
 private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example
@@ -77,4 +78,9 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
             BankName("Imaginary Bank of London"),
             AccountCode("123456"),
             InitialBalance(5600))
+
+    /**
+     * @return today, normalised as an SQL date
+     */
+    def todayNormalised() = DateUtils.normalise(new Date(System.currentTimeMillis()))
 }
