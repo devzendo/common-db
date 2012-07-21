@@ -79,7 +79,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
                 ps.setInt(3, transaction.amount)
                 ps.setBoolean(4, transaction.isCredit)
                 ps.setBoolean(5, transaction.isReconciled)
-                ps.setDate(6, transaction.origTransactionDate.toRepresentation)
+                ps.setDate(6, transaction.transactionDate.toRepresentation)
                 ps.setInt(7, newBalance)
                 ps
             }
@@ -87,7 +87,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         val key = keyHolder.getKey.intValue()
         val savedTransaction = new Transaction(key, reloadedAccount.id,
             transactionIndex, transaction.amount, transaction.isCredit,
-            transaction.isReconciled, transaction.origTransactionDate,
+            transaction.isReconciled, transaction.transactionDate,
             newBalance)
         // Update the account balance
         val newBalanceAccount = new Account(

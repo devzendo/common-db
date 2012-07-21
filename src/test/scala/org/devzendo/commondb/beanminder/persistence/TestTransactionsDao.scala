@@ -56,7 +56,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         savedTransaction.amount must equal (200)
         savedTransaction.isCredit must equal (true)
         savedTransaction.isReconciled must equal (false)
-        savedTransaction.origTransactionDate must equal (today)
+        savedTransaction.transactionDate must equal (today)
 
         val transactions = transactionsDao.findTransactionsForAccount(updatedAccount)
         transactions must have size (1)
