@@ -16,19 +16,23 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
-import org.devzendo.commondb.NormalisedDate
+import org.devzendo.commondb.{RepresentationType, NormalisedDate}
+
+case class Index(index: Int) extends RepresentationType[Int](index)
+case class Amount(amount: Int) extends RepresentationType[Int](amount)
+case class AccountBalance(balance: Int) extends RepresentationType[Int](balance)
 
 object Transaction {
-    def apply(amount: Int, isCredit: Boolean,
+    def apply(amount: Amount, isCredit: Boolean,
         isReconciled: Boolean, transactionDate: NormalisedDate) = {
-        new Transaction(-1, -1, -1, amount, isCredit, isReconciled, transactionDate, -1)
+        new Transaction(-1, -1, Index(-1), amount, isCredit, isReconciled, transactionDate, AccountBalance(-1))
     }
 }
 
-case class Transaction(id: Int, accountId: Int, index: Int, amount: Int,
+case class Transaction(id: Int, accountId: Int, index: Index, amount: Amount,
                        isCredit: Boolean, isReconciled: Boolean,
-                       transactionDate: NormalisedDate, accountBalance: Int) {
-    if (amount <= 0) {
+                       transactionDate: NormalisedDate, accountBalance: AccountBalance) {
+    if (amount.toRepresentation <= 0) {
         throw new IllegalArgumentException("Transaction amounts must be positive; " + amount + " is negative")
     }
 }

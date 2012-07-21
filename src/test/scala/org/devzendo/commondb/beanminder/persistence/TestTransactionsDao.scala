@@ -16,7 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
-import domain.Transaction
+import domain.{Amount, Transaction}
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.springframework.dao.DataAccessException
@@ -47,13 +47,13 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         val transactionsDao = userAccess.transactionsDao
         val savedAccount = accountsDao.saveAccount(newAccount)
         val today = todayNormalised()
-        val newTransaction = Transaction(200, isCredit = true, isReconciled = false, transactionDate = today)
+        val newTransaction = Transaction(Amount(200), isCredit = true, isReconciled = false, transactionDate = today)
 
         val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
 
         savedTransaction.id must be > (0)
         savedTransaction.accountId must equal(updatedAccount.id)
-        savedTransaction.amount must equal (200)
+        savedTransaction.amount must equal (Amount(200))
         savedTransaction.isCredit must equal (true)
         savedTransaction.isReconciled must equal (false)
         savedTransaction.transactionDate must equal (today)

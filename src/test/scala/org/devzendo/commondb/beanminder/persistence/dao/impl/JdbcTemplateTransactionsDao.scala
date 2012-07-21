@@ -17,13 +17,15 @@
 package org.devzendo.commondb.beanminder.persistence.dao.impl
 
 import org.devzendo.commondb.beanminder.persistence.dao.TransactionsDao
-import org.devzendo.commondb.beanminder.persistence.domain.{CurrentBalance, Transaction, Account}
+import org.devzendo.commondb.beanminder.persistence.domain._
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.jdbc.core.simple.{SimpleJdbcTemplate, ParameterizedRowMapper}
 import java.sql.{Connection, SQLException, ResultSet}
 import collection.JavaConverters._
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator
+import org.devzendo.commondb.beanminder.persistence.domain.Amount
+import org.devzendo.commondb.beanminder.persistence.domain.CurrentBalance
 
 class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends TransactionsDao {
     var accountsDao: JdbcTemplateAccountsDao = null
@@ -76,7 +78,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
                 val ps = conn.prepareStatement(sql, Array[String]("id"))
                 ps.setInt(1, reloadedAccount.id)
                 ps.setInt(2, transactionIndex)
-                ps.setInt(3, transaction.amount)
+                ps.setInt(3, transaction.amount.toRepresentation)
                 ps.setBoolean(4, transaction.isCredit)
                 ps.setBoolean(5, transaction.isReconciled)
                 ps.setDate(6, transaction.transactionDate.toRepresentation)
@@ -86,9 +88,9 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         }, keyHolder)
         val key = keyHolder.getKey.intValue()
         val savedTransaction = new Transaction(key, reloadedAccount.id,
-            transactionIndex, transaction.amount, transaction.isCredit,
+            Index(transactionIndex), transaction.amount, transaction.isCredit,
             transaction.isReconciled, transaction.transactionDate,
-            newBalance)
+            AccountBalance(newBalance))
         // Update the account balance
         val newBalanceAccount = new Account(
             reloadedAccount.id, reloadedAccount.name, reloadedAccount.withBank,
@@ -99,9 +101,9 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
 
     private def getSignedAmount(transaction: Transaction) = {
         if (transaction.isCredit)
-            transaction.amount
+            transaction.amount.toRepresentation
         else
-            (-1 * transaction.amount)
+            (-1 * transaction.amount.toRepresentation)
     }
 
     private def createTransactionMapper() = new ParameterizedRowMapper[Transaction]() {
@@ -109,12 +111,12 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         def mapRow(rs: ResultSet, rowNum: Int) = new Transaction(
             rs.getInt("id"),
             rs.getInt("accountId"),
-            rs.getInt("index"),
-            rs.getInt("amount"),
+            Index(rs.getInt("index")),
+            Amount(rs.getInt("amount")),
             rs.getBoolean("isCredit"),
             rs.getBoolean("isReconciled"),
             rs.getDate("transactionDate"),
-            rs.getInt("accountBalance")
+            AccountBalance(rs.getInt("accountBalance"))
         )
     }
 }

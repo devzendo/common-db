@@ -25,14 +25,14 @@ class TestTransaction extends BeanMinderUnittest with MustMatchersForJUnit {
     @Test
     def cannotCreateTransactionsWithNegativeAmounts() {
         evaluating {
-            Transaction(-200, false, false, todayNormalised())
+            Transaction(Amount(-200), false, false, todayNormalised())
         } must produce [IllegalArgumentException]
     }
 
     @Test
     def cannotCreateTransactionsWithZeroAmounts() {
         evaluating {
-            Transaction(0, false, false, todayNormalised())
+            Transaction(Amount(0), false, false, todayNormalised())
         } must produce [IllegalArgumentException]
     }
 
