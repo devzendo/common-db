@@ -26,6 +26,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator
 import org.devzendo.commondb.beanminder.persistence.domain.Amount
 import org.devzendo.commondb.beanminder.persistence.domain.CurrentBalance
+import org.devzendo.commondb.beanminder.persistence.domain.CreditDebit
+import org.devzendo.commondb.beanminder.persistence.domain.Reconciled
 
 class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends TransactionsDao {
     var accountsDao: JdbcTemplateAccountsDao = null
@@ -79,8 +81,8 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
                 ps.setInt(1, reloadedAccount.id)
                 ps.setInt(2, transactionIndex)
                 ps.setInt(3, transaction.amount.toRepresentation)
-                ps.setBoolean(4, transaction.isCredit)
-                ps.setBoolean(5, transaction.isReconciled)
+                ps.setBoolean(4, transaction.isCredit == CreditDebit.Credit)
+                ps.setBoolean(5, transaction.isReconciled == Reconciled.Reconciled)
                 ps.setDate(6, transaction.transactionDate.toRepresentation)
                 ps.setInt(7, newBalance)
                 ps
@@ -100,7 +102,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
     }
 
     private def getSignedAmount(transaction: Transaction) = {
-        if (transaction.isCredit)
+        if (transaction.isCredit == CreditDebit.Credit)
             transaction.amount.toRepresentation
         else
             (-1 * transaction.amount.toRepresentation)
@@ -113,8 +115,8 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
             rs.getInt("accountId"),
             Index(rs.getInt("index")),
             Amount(rs.getInt("amount")),
-            rs.getBoolean("isCredit"),
-            rs.getBoolean("isReconciled"),
+            if (rs.getBoolean("isCredit")) CreditDebit.Credit else CreditDebit.Debit,
+            if (rs.getBoolean("isReconciled")) Reconciled.Reconciled else Reconciled.NotReconciled,
             rs.getDate("transactionDate"),
             AccountBalance(rs.getInt("accountBalance"))
         )

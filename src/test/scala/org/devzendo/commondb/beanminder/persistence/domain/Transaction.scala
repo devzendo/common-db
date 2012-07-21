@@ -22,15 +22,27 @@ case class Index(index: Int) extends RepresentationType[Int](index)
 case class Amount(amount: Int) extends RepresentationType[Int](amount)
 case class AccountBalance(balance: Int) extends RepresentationType[Int](balance)
 
+object CreditDebit extends Enumeration {
+    type CreditDebit = Value
+    val Credit, Debit = Value
+}
+object Reconciled extends Enumeration {
+    type Reconciled = Value
+    val Reconciled, NotReconciled = Value
+}
+import CreditDebit._
+import Reconciled._
+
+
 object Transaction {
-    def apply(amount: Amount, isCredit: Boolean,
-        isReconciled: Boolean, transactionDate: NormalisedDate) = {
+    def apply(amount: Amount, isCredit: CreditDebit,
+        isReconciled: Reconciled, transactionDate: NormalisedDate) = {
         new Transaction(-1, -1, Index(-1), amount, isCredit, isReconciled, transactionDate, AccountBalance(-1))
     }
 }
 
 case class Transaction(id: Int, accountId: Int, index: Index, amount: Amount,
-                       isCredit: Boolean, isReconciled: Boolean,
+                       isCredit: CreditDebit, isReconciled: Reconciled,
                        transactionDate: NormalisedDate, accountBalance: AccountBalance) {
     if (amount.toRepresentation <= 0) {
         throw new IllegalArgumentException("Transaction amounts must be positive; " + amount + " is negative")
