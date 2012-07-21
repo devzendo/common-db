@@ -17,15 +17,17 @@
 package org.devzendo.commondb.beanminder.persistence.dao.impl
 
 import org.devzendo.commondb.beanminder.persistence.dao.AccountsDao
-import org.devzendo.commondb.beanminder.persistence.domain.Account
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
+import org.devzendo.commondb.beanminder.persistence.domain._
+import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator
-import java.sql.{PreparedStatement, SQLException, Connection}
+import java.sql.{ResultSet, PreparedStatement, SQLException, Connection}
+import org.devzendo.commondb.beanminder.persistence.domain.AccountName
+import org.devzendo.commondb.beanminder.persistence.domain.AccountCode
+import org.devzendo.commondb.beanminder.persistence.domain.BankName
 
 class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends AccountsDao {
     def findAllAccounts() = null // TODO
-
 
     def saveAccount(account: Account): Account = {
         if (account.id != -1) {
@@ -35,9 +37,22 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
         }
     }
 
-    def deleteAccount(account: Account) {} // TODO
+    def deleteAccount(account: Account) {
+        // TODO
+    }
 
-    private[this] def updateAccount(account: Account): Account = {
+
+    /**
+     * For use by the DAO layer, load an account given its data which may be old.
+     * @param account the account to reload
+     * @return the reloaded Account
+     */
+    private[impl] def loadAccount(account: Account): Account = {
+        val sql = "SELECT id, name, with, accountCode, initialBalance, currentBalance FROM Accounts WHERE id = ?"
+        jdbcTemplate.queryForObject(sql, createAccountMapper(), account.id: java.lang.Integer)
+    }
+
+    private[impl] def updateAccount(account: Account): Account = {
         jdbcTemplate.update(
             "UPDATE Accounts SET name = ?, with = ?, accountCode = ?, currentBalance = ? WHERE id = ?",
             Array[Any](account.name.toRepresentation, account.withBank.toRepresentation,
@@ -46,7 +61,7 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
         account
     }
 
-    private[this] def insertAccount(account: Account): Account = {
+    private def insertAccount(account: Account): Account = {
         val keyHolder = new GeneratedKeyHolder()
         jdbcTemplate.getJdbcOperations.update(new PreparedStatementCreator() {
             @throws(classOf[SQLException])
@@ -66,5 +81,15 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
         val key = keyHolder.getKey.intValue()
         new Account(key, account.name, account.withBank, account.accountCode,
             account.initialBalance, account.currentBalance)
+    }
+
+    private def createAccountMapper() = new ParameterizedRowMapper[Account]() {
+        def mapRow(rs: ResultSet, rowNum: Int) = new Account(
+            rs.getInt("id"),
+            AccountName(rs.getString("name")),
+            BankName(rs.getString("with")),
+            AccountCode(rs.getString("accountCode")),
+            InitialBalance(rs.getInt("initialBalance")),
+            CurrentBalance(rs.getInt("currentBalance")))
     }
 }

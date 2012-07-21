@@ -25,6 +25,7 @@ object Transaction {
     }
 }
 
+// TODO rename origTransactionDate
 case class Transaction(id: Int, accountId: Int, index: Int, amount: Int,
                        isCredit: Boolean, isReconciled: Boolean,
                        origTransactionDate: NormalisedDate, accountBalance: Int) {

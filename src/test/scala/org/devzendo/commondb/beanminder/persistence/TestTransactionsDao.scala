@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
+import domain.Transaction
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.springframework.dao.DataAccessException
@@ -30,8 +31,35 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         val newAccount = createTestAccount()
         // note: unsaved Account
         val transactionsDao = userAccess.transactionsDao
+
         evaluating {
             transactionsDao.findTransactionsForAccount(newAccount)
+
         } must produce [DataAccessException]
+    }
+
+    @Test
+    def transactionCanBeAddedToAccount() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+        val newTransaction = Transaction(200, isCredit = true, isReconciled = false, transactionDate = today)
+
+        val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
+
+        savedTransaction.id must be > (0)
+        savedTransaction.accountId must equal(updatedAccount.id)
+        savedTransaction.amount must equal (200)
+        savedTransaction.isCredit must equal (true)
+        savedTransaction.isReconciled must equal (false)
+        savedTransaction.origTransactionDate must equal (today)
+
+        val transactions = transactionsDao.findTransactionsForAccount(updatedAccount)
+        transactions must have size (1)
+        transactions(0) must equal (savedTransaction)
     }
 }

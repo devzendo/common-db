@@ -82,5 +82,5 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
     /**
      * @return today, normalised as an SQL date
      */
-    def todayNormalised() = DateUtils.normalise(new Date(System.currentTimeMillis()))
+    def todayNormalised() = NormalisedDate(new Date(System.currentTimeMillis()))
 }
