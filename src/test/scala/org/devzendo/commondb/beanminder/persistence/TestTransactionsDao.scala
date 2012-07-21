@@ -16,7 +16,8 @@
 
 package org.devzendo.commondb.beanminder.persistence
 
-import domain.{Reconciled, CreditDebit, Amount, Transaction}
+import domain._
+import domain.Amount
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.springframework.dao.DataAccessException
@@ -61,5 +62,23 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         val transactions = transactionsDao.findTransactionsForAccount(updatedAccount)
         transactions must have size (1)
         transactions(0) must equal (savedTransaction)
+    }
+
+    @Test
+    def addCreditTransactionToAccountIncreasesBalance() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+        val newTransaction = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
+
+        val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
+
+        updatedAccount.currentBalance must equal (CurrentBalance(5800))
+        // initial balance should not change
+        updatedAccount.initialBalance must equal (InitialBalance(5600))
     }
 }
