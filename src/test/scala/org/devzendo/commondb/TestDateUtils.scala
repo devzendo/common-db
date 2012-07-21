@@ -30,6 +30,13 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         timeMustBeZero(normalisedDate)
     }
 
+    @Test
+    def testMillisFromEpochNormalisation() {
+        val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
+        val normalisedDate = DateUtils.normalise(millisWithHourMinuteSecondMillis)
+        timeMustBeZero(normalisedDate)
+    }
+
     def timeMustBeZero(normalisedDate: Date) {
         val calendar = new util.GregorianCalendar()
         calendar.setTime(normalisedDate)
@@ -37,7 +44,6 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         calendar.get(util.Calendar.MINUTE) must be(0)
         calendar.get(util.Calendar.SECOND) must be(0)
         calendar.get(util.Calendar.MILLISECOND) must be(0)
-
     }
 
     /**
@@ -74,5 +80,44 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val startDate = new Date(millisWithHourMinuteSecondMillis)
         val appliedDate = NormalisedDate(startDate)
         timeMustBeZero(appliedDate.toRepresentation)
+    }
+
+    @Test
+    def testApplyFactoryConversionOfMillisSinceEpoch() {
+        val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()
+        val appliedDate = NormalisedDate(millisWithHourMinuteSecondMillis)
+        timeMustBeZero(appliedDate.toRepresentation)
+    }
+
+    @Test
+    def normalisedDatesMsApartHaveSameHashCodesAndAreEqual() {
+        val millis1 = createSQLDateWithMillis()
+        val appliedDate1 = NormalisedDate(millis1)
+        val millis2 = millis1 + 4000
+        val appliedDate2 = NormalisedDate(millis2)
+
+        appliedDate1.hashCode must equal (appliedDate2.hashCode)
+        appliedDate1 must equal(appliedDate2)
+        appliedDate2 must equal(appliedDate1)
+
+        appliedDate1.toRepresentation.hashCode must equal (appliedDate2.toRepresentation.hashCode)
+        appliedDate1.toRepresentation must equal(appliedDate2.toRepresentation)
+        appliedDate2.toRepresentation must equal(appliedDate1.toRepresentation)
+    }
+
+    @Test
+    def normalisedDatesADayApartHaveDifferentHashCodesAndAreNotEqual() {
+        val millis1 = createSQLDateWithMillis()
+        val appliedDate1 = NormalisedDate(millis1)
+        val millis2 = millis1 + (1000 * 60 * 60 * 24)
+        val appliedDate2 = NormalisedDate(millis2)
+
+        appliedDate1.hashCode must not equal (appliedDate2.hashCode)
+        appliedDate1 must not equal(appliedDate2)
+        appliedDate2 must not equal(appliedDate1)
+
+        appliedDate1.toRepresentation.hashCode must not equal (appliedDate2.toRepresentation.hashCode)
+        appliedDate1.toRepresentation must not equal(appliedDate2.toRepresentation)
+        appliedDate2.toRepresentation must not equal(appliedDate1.toRepresentation)
     }
 }

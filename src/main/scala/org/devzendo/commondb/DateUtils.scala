@@ -27,6 +27,10 @@ object NormalisedDate {
     def apply(nonNormalisedDate: Date): NormalisedDate = {
         new NormalisedDate(XDate(DateUtils.normalise(nonNormalisedDate)))
     }
+
+    def apply(nonNormalisedDate: Long): NormalisedDate = {
+        new NormalisedDate(XDate(DateUtils.normalise(nonNormalisedDate)))
+    }
 }
 
 case class XDate(date: Date) extends RepresentationType[Date](date)
@@ -36,6 +40,19 @@ case class XDate(date: Date) extends RepresentationType[Date](date)
 // object.
 case class NormalisedDate private(nonNormalisedDate: XDate) extends RepresentationType[Date](nonNormalisedDate.toRepresentation) {
     override def toRepresentation: Date = DateUtils.normalise(nonNormalisedDate.toRepresentation)
+
+    override def hashCode: Int = 37*17 + ((value.getTime ^ (value.getTime >>> 32)).asInstanceOf[Int])
+
+    override def equals(other: Any): Boolean = other match {
+        case null => false
+        case x: NormalisedDate =>
+            if (x.toRepresentation.getTime == this.toRepresentation.getTime)
+                true
+            else
+                false
+        case _ => false
+    }
+
 }
 
 object DateUtils {
@@ -51,9 +68,26 @@ object DateUtils {
         calendar.set(util.Calendar.MILLISECOND, 0)
         calendar.set(util.Calendar.SECOND, 0)
         calendar.set(util.Calendar.MINUTE, 0)
-        calendar.set(util.Calendar.HOUR, 0)
+        calendar.set(util.Calendar.HOUR_OF_DAY, 0)
         new Date(calendar.getTimeInMillis)
     }
+
+    /**
+     * Given a Date, in milliseconds since the epoch, return a
+     * new Date with the same Year, Month, Day, with the time parts set to zero.
+     * @param initialDate the date in ms since the epoch
+     * @return the date without time components
+     */
+    def normalise(initialDate: Long): Date = {
+        val calendar = new util.GregorianCalendar()
+        calendar.setTimeInMillis(initialDate)
+        calendar.set(util.Calendar.MILLISECOND, 0)
+        calendar.set(util.Calendar.SECOND, 0)
+        calendar.set(util.Calendar.MINUTE, 0)
+        calendar.set(util.Calendar.HOUR_OF_DAY, 0)
+        new Date(calendar.getTimeInMillis)
+    }
+
 }
 
 

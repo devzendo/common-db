@@ -22,9 +22,6 @@ import domain.AccountName
 import domain.BankName
 import impl.{JdbcTemplateBeanMinderUserDatabaseCreator, JdbcTemplateBeanMinderDatabaseAccess}
 import org.devzendo.commondb._
-import org.devzendo.commondb.CodeVersion
-import org.devzendo.commondb.DatabaseAccess
-import scala.Some
 import org.springframework.dao.DataAccessException
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.junit.After
@@ -32,7 +29,6 @@ import org.devzendo.commondb.CodeVersion
 import org.devzendo.commondb.DatabaseAccess
 import org.devzendo.commondb.SchemaVersion
 import scala.Some
-import java.sql.Date
 
 private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example
@@ -82,5 +78,5 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
     /**
      * @return today, normalised as an SQL date
      */
-    def todayNormalised() = NormalisedDate(new Date(System.currentTimeMillis()))
+    def todayNormalised() = NormalisedDate(System.currentTimeMillis())
 }
