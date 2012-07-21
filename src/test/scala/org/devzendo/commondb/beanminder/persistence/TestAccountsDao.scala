@@ -77,4 +77,32 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         movedAccount.currentBalance must equal(CurrentBalance(5600))
         movedAccount.initialBalance must equal(InitialBalance(5600))
     }
+
+    @Test
+    def accountsCanBeListed() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val accountsDao = userAccess.accountsDao
+
+        val accountOne = createTestAccount()
+        val savedAccountOne = accountsDao.saveAccount(accountOne)
+        val accountTwo = createSecondTestAccount()
+        val savedAccountTwo = accountsDao.saveAccount(accountTwo)
+
+        val allAccounts = accountsDao.findAllAccounts()
+        allAccounts must have size (2)
+        allAccounts(0) must not equal (allAccounts(1))
+        // ordered by name
+        allAccounts(0) must equal(savedAccountTwo) // Aardvark...
+        allAccounts(1) must equal(savedAccountOne) // Test...
+    }
+
+    private def createSecondTestAccount() =
+        Account(
+            AccountName("Aardvark Test account"),
+            BankName("Imaginary Bank of London"),
+            AccountCode("867456"),
+            InitialBalance(50))
+
+
 }

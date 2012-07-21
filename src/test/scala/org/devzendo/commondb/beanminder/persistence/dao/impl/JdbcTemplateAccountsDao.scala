@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence.dao.impl
 
+import collection.JavaConverters._
 import org.devzendo.commondb.beanminder.persistence.dao.AccountsDao
 import org.devzendo.commondb.beanminder.persistence.domain._
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
@@ -27,7 +28,10 @@ import org.devzendo.commondb.beanminder.persistence.domain.AccountCode
 import org.devzendo.commondb.beanminder.persistence.domain.BankName
 
 class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends AccountsDao {
-    def findAllAccounts() = null // TODO
+    def findAllAccounts(): List[Account] = {
+        val sql = "SELECT id, name, with, accountCode, initialBalance, currentBalance FROM Accounts ORDER BY name"
+        jdbcTemplate.query(sql, createAccountMapper()).asScala.toList
+    }
 
     def saveAccount(account: Account): Account = {
         if (account.id != -1) {
