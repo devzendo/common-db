@@ -27,6 +27,7 @@ import org.devzendo.commondb.beanminder.persistence.domain.Amount
 import org.devzendo.commondb.beanminder.persistence.domain.AccountBalance
 import org.devzendo.commondb.beanminder.persistence.domain.Index
 import org.devzendo.commondb.beanminder.persistence.domain.CurrentBalance
+import org.springframework.dao.DataIntegrityViolationException
 
 class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends TransactionsDao {
     var accountsDao: JdbcTemplateAccountsDao = null
@@ -50,10 +51,68 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         }
     }
 
-    def deleteTransaction(account: Account, transaction: Transaction) = null // TODO
+    def deleteTransaction(account: Account, transaction: Transaction): Account = {
+        accountsDao.ensureAccountSaved(account)
+        ensureTransactionSaved(transaction)
+        // Always reload the account to get the correct balance.
+        val reloadedAccount = accountsDao.loadAccount(account)
+//        LOGGER.debug("the reloaded account is " + account);
+
+        // Calculate a delta to apply to the account and all subsequent transactions
+        val reloadedTransaction = loadTransaction(transaction)
+//        LOGGER.debug("the reloaded transaction is " + reloadedTransaction);
+        val transactionAmountSigned = getSignedAmount(reloadedTransaction)
+//        LOGGER.debug("will subtract " + transactionAmountSigned + " from account and subsequent transactions");
+
+        // Update the account with the new balance
+        val newBalanceAccount = new Account(
+            reloadedAccount.id, reloadedAccount.name, reloadedAccount.withBank, reloadedAccount.accountCode,
+            reloadedAccount.initialBalance,
+            CurrentBalance(reloadedAccount.currentBalance.toRepresentation - transactionAmountSigned))
+        val updatedAccount = accountsDao.updateAccount(newBalanceAccount)
+//        LOGGER.debug("The updated account is " + updatedAccount);
+
+        // Update all subsequent transactions, accountBalance -= transactionAmountSigned, index--
+        val numberOfTransactions = getNumberOfTransactions(reloadedAccount)
+        deleteTransactionById(reloadedTransaction)
+        for (index <- reloadedTransaction.index.toRepresentation + 1 until numberOfTransactions) {
+            subtractDeltaFromTransactionAccountBalanceAndDecrementIndexByIndex(updatedAccount, index, transactionAmountSigned)
+        }
+
+        updatedAccount
+    }
 
     def getNumberOfTransactions(account: Account) = {
         jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Transactions WHERE accountId = ?", account.id: java.lang.Integer)
+    }
+
+    private def subtractDeltaFromTransactionAccountBalanceAndDecrementIndexByIndex(account: Account, transactionIndex: Int, deltaToSubtract: Int) {
+        // TODO this seems overkill, and could be replaced by:
+        // SELECT accountBalance FROM Transactions WHERE accountId = ? AND index = ?
+        // UPDATE Transactions SET accountBalance = ?, index = ? WHERE accountId = ? AND id = ?
+        val transaction = loadTransaction(account, transactionIndex)
+//        LOGGER.debug("tx#" + transactionIndex + " to apply delta of " + deltaToSubtract + " to is " + transaction);
+        val updatedTransaction = new Transaction(
+            transaction.id,
+            transaction.accountId,
+            Index(transactionIndex - 1),
+            transaction.amount,
+            transaction.isCredit,
+            transaction.isReconciled,
+            transaction.transactionDate,
+            AccountBalance(transaction.accountBalance.toRepresentation - deltaToSubtract))
+//        LOGGER.debug("saved, that's: " + updatedTransaction);
+        updateTransaction(updatedTransaction)
+    }
+
+    private def deleteTransactionById(transaction: Transaction) {
+        jdbcTemplate.update("DELETE FROM Transactions WHERE id = ?", transaction.id: java.lang.Integer)
+    }
+
+    private def ensureTransactionSaved(transaction: Transaction) {
+        if (transaction.id == -1) {
+            throw new DataIntegrityViolationException("Cannot process an unsaved transaction")
+        }
     }
 
     /**

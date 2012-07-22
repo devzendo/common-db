@@ -236,7 +236,6 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         allTransactions(3).accountBalance must equal(AccountBalance(6320))
     }
 
-
     @Test
     def updateATransactionByAlsoChangingCreditDebitFlag() {
         database = createBeanMinderDatabase(databaseName)
@@ -274,5 +273,55 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         allTransactions(1).isCredit must equal(CreditDebit.Debit)
         allTransactions(1).index.toRepresentation must equal(1)
         allTransactions(1).accountBalance.toRepresentation must equal(5600 + 200 - 30)
+    }
+
+    @Test
+    def deleteATransactionAndSubsequentTransactionsAndAccountBalanceUpdated() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        // Transaction 0
+        val newTransaction0 = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (_, savedTransaction0) = transactionsDao.saveTransaction(savedAccount, newTransaction0)
+
+        // Transaction 1
+        val newTransaction1 = Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        transactionsDao.saveTransaction(savedAccount, newTransaction1)
+
+        // Transaction 2
+        val newTransaction2 = Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today)
+        transactionsDao.saveTransaction(savedAccount, newTransaction2)
+
+        // Transaction 3
+        val newTransaction3 = Transaction(Amount(500), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (accountBeforeDelete, _) = transactionsDao.saveTransaction(savedAccount, newTransaction3)
+        accountBeforeDelete.currentBalance.toRepresentation must equal(5600 + 200 + 20 - 10 + 500)
+
+        // Delete Transaction 0
+        val updatedAccount = transactionsDao.deleteTransaction(accountBeforeDelete, savedTransaction0)
+
+        // Have the account, the updated transaction, and subsequent transactions been modified? The
+        // transactions' indices should have changed also.
+        updatedAccount.currentBalance.toRepresentation must equal(5600 + 20 - 10 + 500)
+
+        val allTransactions = transactionsDao.findTransactionsForAccount(savedAccount)
+        allTransactions must have size (3)
+
+        allTransactions(0).amount.toRepresentation must equal(20)
+        allTransactions(0).index.toRepresentation must equal(0)
+        allTransactions(0).accountBalance.toRepresentation must equal(5620)
+
+        allTransactions(1).amount.toRepresentation must equal(10)
+        allTransactions(1).index.toRepresentation must equal(1)
+        allTransactions(1).accountBalance.toRepresentation must equal(5610)
+
+        allTransactions(2).amount.toRepresentation must equal(500)
+        allTransactions(2).index.toRepresentation must equal(2)
+        allTransactions(2).accountBalance.toRepresentation must equal(6110)
     }
 }
