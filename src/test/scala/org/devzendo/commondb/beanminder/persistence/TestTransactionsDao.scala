@@ -181,4 +181,58 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         allTransactions(2).amount must equal(Amount(10))
         allTransactions(2).index must equal(Index(2))
     }
+
+    @Test
+    def updateATransactionAndSubsequentTransactionsAndAccountBalanceUpdated() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        // Transaction 0
+        val newTransaction0 = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (savedAccount0, savedTransaction0) = transactionsDao.saveTransaction(savedAccount, newTransaction0)
+
+        // Transaction 1
+        val newTransaction1 = Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (savedAccount1, savedTransaction1) = transactionsDao.saveTransaction(savedAccount0, newTransaction1)
+
+        // Transaction 2
+        val newTransaction2 = Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today)
+        val (savedAccount2, savedTransaction2) = transactionsDao.saveTransaction(savedAccount1, newTransaction2)
+
+        // Transaction 3
+        val newTransaction3 = Transaction(Amount(500), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (accountBeforeUpdate, savedTransaction3) = transactionsDao.saveTransaction(savedAccount2, newTransaction3)
+        accountBeforeUpdate.currentBalance must be (CurrentBalance(5600 + 200 + 20 - 10 + 500))
+
+        // Update Transaction 1
+        val alteredTransaction1 = savedTransaction1 copy (amount = Amount(30)) // +10
+        val (reloadedAccount, savedUpdatedTransaction1) = transactionsDao.saveTransaction(accountBeforeUpdate, alteredTransaction1)
+
+        // Have the account, the updated transaction, and subsequent transactions been modified?
+        reloadedAccount.currentBalance must be (CurrentBalance(5600 + 200 + 30 - 10 + 500))
+
+        val allTransactions = transactionsDao.findTransactionsForAccount(savedAccount)
+        allTransactions must have size (4)
+
+        allTransactions(0).amount must equal(Amount(200))
+        allTransactions(0).index must equal(Index(0))
+        allTransactions(0).accountBalance must equal(AccountBalance(5800))
+
+        allTransactions(1).amount must equal(Amount(30))
+        allTransactions(1).index must equal(Index(1))
+        allTransactions(1).accountBalance must equal(AccountBalance(5830))
+
+        allTransactions(2).amount must equal(Amount(10))
+        allTransactions(2).index must equal(Index(2))
+        allTransactions(2).accountBalance must equal(AccountBalance(5820))
+
+        allTransactions(3).amount must equal(Amount(500))
+        allTransactions(3).index must equal(Index(3))
+        allTransactions(3).accountBalance must equal(AccountBalance(6320))
+    }
 }

@@ -24,9 +24,9 @@ import collection.JavaConverters._
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.jdbc.core.PreparedStatementCreator
 import org.devzendo.commondb.beanminder.persistence.domain.Amount
+import org.devzendo.commondb.beanminder.persistence.domain.AccountBalance
+import org.devzendo.commondb.beanminder.persistence.domain.Index
 import org.devzendo.commondb.beanminder.persistence.domain.CurrentBalance
-import org.devzendo.commondb.beanminder.persistence.domain.CreditDebit
-import org.devzendo.commondb.beanminder.persistence.domain.Reconciled
 
 class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends TransactionsDao {
     var accountsDao: JdbcTemplateAccountsDao = null
@@ -43,12 +43,11 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
 
     def saveTransaction(account: Account, transaction: Transaction): (Account, Transaction) = {
         accountsDao.ensureAccountSaved(account)
-        //        if (transaction.id == -1) {
-        insertTransaction(account, transaction)
-        //        } /*else {
-        //            return updateTransaction(account, transaction)
-        //        }   */
-
+        if (transaction.id == -1) {
+            insertTransaction(account, transaction)
+        } else {
+            updateTransaction(account, transaction)
+        }
     }
 
     def deleteTransaction(account: Account, transaction: Transaction) = null // TODO
@@ -57,7 +56,113 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Transactions WHERE accountId = ?", account.id: java.lang.Integer)
     }
 
+    /**
+     * For use by the DAO layer, reload the transaction given its data that may be old
+     * @param transaction the transaction to reload
+     * @return the loaded transaction
+     */
+    private def loadTransaction(transaction: Transaction): Transaction = {
+        val sql = "SELECT id, accountId, index, amount, isCredit, isReconciled, transactionDate, accountBalance " +
+            "FROM Transactions WHERE id = ?"
+        jdbcTemplate.queryForObject(sql, createTransactionMapper(), transaction.id: java.lang.Integer)
+    }
 
+    /**
+     * For use by the DAO layer, reload the transaction given its Account and index
+     * @param account the Account for which the transaction should be loaded
+     * @param index the index of the transaction within the account
+     * @return the loaded transaction
+     */
+    private def loadTransaction(account: Account, index: Int): Transaction = {
+        val sql = "SELECT id, accountId, index, amount, isCredit, isReconciled, transactionDate, accountBalance " +
+            "FROM Transactions WHERE accountId = ? AND index = ?"
+        jdbcTemplate.queryForObject(sql, createTransactionMapper(), account.id: java.lang.Integer, index: java.lang.Integer)
+    }
+
+    /**
+     * Update a transaction with new data; does not change the account FK.
+     * @param updatedTransaction the transaction to update
+     * @return the updated transaction
+     */
+    private def updateTransaction(updatedTransaction: Transaction): Transaction = {
+        jdbcTemplate.update(
+            "UPDATE Transactions SET " +
+                "index = ?, amount = ?, isCredit = ?, isReconciled = ?, transactionDate = ?, accountBalance = ? " +
+                "WHERE id = ?",
+            Array[Any](
+                updatedTransaction.index.toRepresentation,
+                updatedTransaction.amount.toRepresentation,
+                updatedTransaction.isCredit == CreditDebit.Credit,
+                updatedTransaction.isReconciled == Reconciled.Reconciled,
+                updatedTransaction.transactionDate.toRepresentation,
+                updatedTransaction.accountBalance.toRepresentation,
+                updatedTransaction.id: java.lang.Integer))
+        updatedTransaction
+    }
+
+    private def updateTransaction(account: Account, updatedTransaction: Transaction): (Account, Transaction) = {
+        // Always reload the account to get the correct balance.
+        val reloadedAccount = accountsDao.loadAccount(account)
+//        LOGGER.debug("the reloaded account is " + account)
+
+        // Calculate a delta to apply to the account and all subsequent transactions
+        val committedTransaction = loadTransaction(updatedTransaction)
+//        LOGGER.debug("the committed transaction is " + committedTransaction);
+//        LOGGER.debug("the updated transaction is   " + updatedTransaction);
+        val committedAmountSigned = getSignedAmount(committedTransaction)
+        val updatedAmountSigned = getSignedAmount(updatedTransaction)
+        val deltaToAdd = updatedAmountSigned - committedAmountSigned
+//        LOGGER.debug("the delta to add (updated - committed) is " + deltaToAdd);
+
+        // Update the account with the new balance
+        val newBalanceAccount = new Account(
+            reloadedAccount.id, reloadedAccount.name, reloadedAccount.withBank, reloadedAccount.accountCode,
+            reloadedAccount.initialBalance,
+            CurrentBalance(reloadedAccount.currentBalance.toRepresentation + deltaToAdd))
+        val updatedAccount = accountsDao.updateAccount(newBalanceAccount)
+//        LOGGER.debug("The updated account is " + updatedAccount);
+
+        // Update this transaction, by creating a new version of it from the committed version, not changing
+        // any id or index fields.
+        val newUpdatedTransaction = new Transaction(
+            committedTransaction.id,
+            committedTransaction.accountId,
+            committedTransaction.index,
+            updatedTransaction.amount,
+            updatedTransaction.isCredit,
+            updatedTransaction.isReconciled,
+            updatedTransaction.transactionDate,
+            AccountBalance(committedTransaction.accountBalance.toRepresentation + deltaToAdd))
+        val savedUpdatedTransaction = updateTransaction(newUpdatedTransaction)
+//        LOGGER.debug("the saved updated transaction is " + savedUpdatedTransaction);
+
+        // Update all subsequent transactions
+        val numberOfTransactions = getNumberOfTransactions(reloadedAccount)
+        for (index <- savedUpdatedTransaction.index.toRepresentation + 1 until numberOfTransactions) {
+            addDeltaToTransactionAccountBalanceByIndex(updatedAccount, index, deltaToAdd)
+        }
+
+        (updatedAccount, savedUpdatedTransaction)
+    }
+
+    private def addDeltaToTransactionAccountBalanceByIndex(account: Account, index: Int, deltaToAdd: Int) {
+        // TODO this seems overkill, and could be replaced by:
+        // SELECT accountBalance FROM Transactions WHERE accountId = ? AND index = ?
+        // UPDATE Transactions SET accountBalance = ? WHERE accountId = ? AND index = ?
+        val transaction = loadTransaction(account, index)
+//        LOGGER.debug("tx#" + index + " to apply delta of " + deltaToAdd + " to is " + transaction);
+        val updatedTransaction = new Transaction(
+            transaction.id,
+            transaction.accountId,
+            transaction.index,
+            transaction.amount,
+            transaction.isCredit,
+            transaction.isReconciled,
+            transaction.transactionDate,
+            AccountBalance(transaction.accountBalance.toRepresentation + deltaToAdd))
+//        LOGGER.debug("saved, that's: " + updatedTransaction);
+        updateTransaction(updatedTransaction)
+    }
 
     private def insertTransaction(account: Account, transaction: Transaction): (Account, Transaction) = {
         // Always reload the account to get the correct balance.
