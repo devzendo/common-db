@@ -350,6 +350,51 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         evaluating {
             transactionsDao.deleteTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
         } must produce [DataAccessException]
-
     }
+
+    @Test
+    def transactionsCanBeFoundByIndexRange() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today))
+
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(500), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
+        val midRangeIndices = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, 1, 2)
+        checkTransactionAmounts(midRangeIndices, 20, 10)
+
+        val firstIndex = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, 0, 0)
+        checkTransactionAmounts(firstIndex, 200)
+
+        val lastIndex = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, 3, 3)
+        checkTransactionAmounts(lastIndex, 500)
+
+        val allIndices = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, 0, 3)
+        checkTransactionAmounts(allIndices, 200, 20, 10, 500)
+
+        val allIndicesByOutOfRangeIndices = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, -3, 9)
+        checkTransactionAmounts(allIndicesByOutOfRangeIndices, 200, 20, 10, 500)
+
+        val noIndicesByInvertedOrderIndices = transactionsDao.findTransactionsForAccountByIndexRange(savedAccount, 3, 0)
+        checkTransactionAmounts(noIndicesByInvertedOrderIndices)
+    }
+
+    def checkTransactionAmounts(transactionList: List[Transaction], amounts: Int*) {
+        transactionList must have size (amounts.length)
+        for (i <- 0 until amounts.length) {
+            assert(amounts(i) == transactionList(i).amount.toRepresentation,
+                "Transaction amount at index " + i + " is " + transactionList(i).amount + " but should be " + amounts(i))
+        }
+    }
+
 }

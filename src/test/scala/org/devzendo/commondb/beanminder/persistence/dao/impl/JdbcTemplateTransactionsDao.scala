@@ -40,7 +40,13 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
         jdbcTemplate.query(sql, createTransactionMapper(), account.id: java.lang.Integer).asScala.toList
     }
 
-    def findTransactionsForAccountByIndexRange(account: Account, fromIndex: Int, toIndex: Int) = null // TODO
+    def findTransactionsForAccountByIndexRange(account: Account, fromIndex: Int, toIndex: Int): List[Transaction] = {
+        accountsDao.ensureAccountSaved(account)
+        val sql = "SELECT id, accountId, index, amount, isCredit, isReconciled, transactionDate, accountBalance " +
+            "FROM Transactions WHERE accountId = ? AND (index >= ? AND index <= ?)" +
+            "ORDER BY index ASC"
+        jdbcTemplate.query(sql, createTransactionMapper(), account.id: java.lang.Integer, fromIndex: java.lang.Integer, toIndex: java.lang.Integer).asScala.toList
+    }
 
     def saveTransaction(account: Account, transaction: Transaction): (Account, Transaction) = {
         accountsDao.ensureAccountSaved(account)
