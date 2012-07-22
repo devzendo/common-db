@@ -337,4 +337,19 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         } must produce [DataAccessException]
     }
 
+    @Test
+    def cannotDeleteAnUnsavedTransaction() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        evaluating {
+            transactionsDao.deleteTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+        } must produce [DataAccessException]
+
+    }
 }
