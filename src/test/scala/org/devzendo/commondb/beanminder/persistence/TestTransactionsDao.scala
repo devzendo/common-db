@@ -150,4 +150,35 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         savedTransaction3.accountBalance must equal(AccountBalance(5810))
         savedAccount3.currentBalance must equal(CurrentBalance(5810))
     }
+
+    @Test
+    def transactionsAreListedOrderedByIndex() {
+        // if the select is not ordered by index, this insertion seems to yield
+        // a list in the order inserted here, but it needs the ORDER BY index
+        // ASC for correctness, so I'll test for it anyway
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+        // Transaction 0
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
+        // Transaction 1
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
+        // Transaction 2
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today))
+
+        val allTransactions = transactionsDao.findTransactionsForAccount(savedAccount)
+        allTransactions must have size (3)
+        allTransactions(0).amount must equal(Amount(200))
+        allTransactions(0).index must equal(Index(0))
+        allTransactions(1).amount must equal(Amount(20))
+        allTransactions(1).index must equal(Index(1))
+        allTransactions(2).amount must equal(Amount(10))
+        allTransactions(2).index must equal(Index(2))
+    }
 }
