@@ -26,6 +26,7 @@ import java.sql.{ResultSet, PreparedStatement, SQLException, Connection}
 import org.devzendo.commondb.beanminder.persistence.domain.AccountName
 import org.devzendo.commondb.beanminder.persistence.domain.AccountCode
 import org.devzendo.commondb.beanminder.persistence.domain.BankName
+import org.springframework.dao.DataIntegrityViolationException
 
 class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends AccountsDao {
     def findAllAccounts(): List[Account] = {
@@ -42,9 +43,18 @@ class JdbcTemplateAccountsDao(jdbcTemplate: SimpleJdbcTemplate) extends Accounts
     }
 
     def deleteAccount(account: Account) {
-        // TODO
+        ensureAccountSaved(account)
+        val sql = "DELETE FROM Accounts WHERE id = ?"
+        jdbcTemplate.update(sql, account.id: java.lang.Integer)
     }
 
+
+    private[impl] def ensureAccountSaved(account: Account) {
+        if (account.id == -1) {
+            throw new DataIntegrityViolationException(
+                "Cannot store a transaction against an unsaved account")
+        }
+    }
 
     /**
      * For use by the DAO layer, load an account given its data which may be old.

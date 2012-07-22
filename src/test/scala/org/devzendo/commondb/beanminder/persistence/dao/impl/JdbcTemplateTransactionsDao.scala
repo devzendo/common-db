@@ -18,7 +18,6 @@ package org.devzendo.commondb.beanminder.persistence.dao.impl
 
 import org.devzendo.commondb.beanminder.persistence.dao.TransactionsDao
 import org.devzendo.commondb.beanminder.persistence.domain._
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.jdbc.core.simple.{SimpleJdbcTemplate, ParameterizedRowMapper}
 import java.sql.{Connection, SQLException, ResultSet}
 import collection.JavaConverters._
@@ -33,7 +32,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
     var accountsDao: JdbcTemplateAccountsDao = null
 
     def findTransactionsForAccount(account: Account): List[Transaction] = {
-        ensureAccountSaved(account)
+        accountsDao.ensureAccountSaved(account)
         val sql = "SELECT id, accountId, index, amount, isCredit, isReconciled, transactionDate, accountBalance " +
             "FROM Transactions WHERE accountId = ?" +
             "ORDER BY index ASC"
@@ -43,7 +42,7 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
     def findTransactionsForAccountByIndexRange(account: Account, fromIndex: Int, toIndex: Int) = null // TODO
 
     def saveTransaction(account: Account, transaction: Transaction): (Account, Transaction) = {
-        ensureAccountSaved(account)
+        accountsDao.ensureAccountSaved(account)
         //        if (transaction.id == -1) {
         insertTransaction(account, transaction)
         //        } /*else {
@@ -57,12 +56,6 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
     def getNumberOfTransactions(account: Account) = 0 // TODO
 
 
-    private def ensureAccountSaved(account: Account) {
-        if (account.id == -1) {
-            throw new DataIntegrityViolationException(
-                "Cannot store a transaction against an unsaved account")
-        }
-    }
 
     private def insertTransaction(account: Account, transaction: Transaction): (Account, Transaction) = {
         // Always reload the account to get the correct balance.

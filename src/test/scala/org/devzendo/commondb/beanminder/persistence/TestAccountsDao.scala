@@ -22,6 +22,7 @@ import domain.AccountName
 import domain.BankName
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.springframework.dao.DataAccessException
 
 class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
     val databaseName = "testaccountsdao"
@@ -95,6 +96,53 @@ class TestAccountsDao extends BeanMinderUnittest with AssertionsForJUnit with Mu
         // ordered by name
         allAccounts(0) must equal(savedAccountTwo) // Aardvark...
         allAccounts(1) must equal(savedAccountOne) // Test...
+    }
+
+    @Test
+    def cannotDeleteUnsavedAccount() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val accountsDao = userAccess.accountsDao
+        val newAccount = createTestAccount()
+        // note: unsaved Account
+
+        evaluating {
+            accountsDao.deleteAccount(newAccount)
+
+        } must produce [DataAccessException]
+    }
+
+    @Test
+    def deleteAccountDeletesAccountAndAllReferencedTransactions() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val accountOne = createTestAccount()
+        val savedAccount = accountsDao.saveAccount(accountOne)
+        val today = todayNormalised()
+        val newTransaction = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
+
+        checkAccountExistence(updatedAccount.id, exists = true)
+        checkTransactionExistence(savedTransaction.id, exists = true)
+
+        accountsDao.deleteAccount(updatedAccount)
+
+        checkAccountExistence(updatedAccount.id, exists = false)
+        checkTransactionExistence(savedTransaction.id, exists = false)
+    }
+
+    private def checkTransactionExistence(id: Int, exists: Boolean) {
+        id must not equal (-1)
+        val numTransactions = database.get.jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Transactions WHERE id = ?", id: java.lang.Integer)
+        numTransactions == 1 must equal(exists)
+    }
+
+    private def checkAccountExistence(id: Int, exists: Boolean) {
+        id must not equal (-1)
+        val numAccounts = database.get.jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Accounts WHERE id = ?", id: java.lang.Integer)
+        numAccounts == 1 must equal(exists)
     }
 
     private def createSecondTestAccount() =
