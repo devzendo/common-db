@@ -334,6 +334,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         evaluating {
             transactionsDao.deleteTransaction(createTestAccount(), Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
         } must produce [DataAccessException]
     }
 
@@ -349,6 +350,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         evaluating {
             transactionsDao.deleteTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+
         } must produce [DataAccessException]
     }
 
@@ -397,7 +399,6 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         }
     }
 
-
     @Test
     def cannotFindTransactionsByIndexRangeForAnUnsavedAccount() {
         database = createBeanMinderDatabase(databaseName)
@@ -407,6 +408,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         evaluating {
             transactionsDao.findTransactionsForAccountByIndexRange(newAccount, 0, 0)
+
         } must produce [DataAccessException]
     }
 
@@ -419,6 +421,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         evaluating {
             transactionsDao.findTransactionsForAccount(newAccount)
+
         } must produce [DataAccessException]
     }
 }
