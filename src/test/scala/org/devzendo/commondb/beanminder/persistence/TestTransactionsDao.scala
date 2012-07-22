@@ -99,4 +99,20 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         // initial balance should not change
         updatedAccount.initialBalance must equal (InitialBalance(5600))
     }
+
+    @Test
+    def numberOfTransactionsIsCorrectAfterSavingTransactions() {
+        database = createBeanMinderDatabase(databaseName)
+        var userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+        transactionsDao.getNumberOfTransactions(savedAccount) must equal(0)
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today))
+        transactionsDao.getNumberOfTransactions(savedAccount) must equal(1)
+        transactionsDao.saveTransaction(savedAccount, Transaction(Amount(400), CreditDebit.Credit, Reconciled.NotReconciled, today))
+        transactionsDao.getNumberOfTransactions(savedAccount) must equal(2)
+    }
 }

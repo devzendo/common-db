@@ -53,7 +53,9 @@ class JdbcTemplateTransactionsDao(jdbcTemplate: SimpleJdbcTemplate) extends Tran
 
     def deleteTransaction(account: Account, transaction: Transaction) = null // TODO
 
-    def getNumberOfTransactions(account: Account) = 0 // TODO
+    def getNumberOfTransactions(account: Account) = {
+        jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Transactions WHERE accountId = ?", account.id: java.lang.Integer)
+    }
 
 
 
