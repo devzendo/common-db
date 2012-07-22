@@ -115,4 +115,39 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         transactionsDao.saveTransaction(savedAccount, Transaction(Amount(400), CreditDebit.Credit, Reconciled.NotReconciled, today))
         transactionsDao.getNumberOfTransactions(savedAccount) must equal(2)
     }
+
+    @Test
+    def transactionsHaveMonotonicallyIncreasingIndexAndCorrectAccountBalance() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount() // balance 5600
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        // Transaction 1
+        val newTransaction1 = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today) // +200 = 5800
+        newTransaction1.index must equal(Index(-1)) // HMMM internal detail?
+        newTransaction1.accountBalance must equal(AccountBalance(-1)) // HMMM internal detail?
+
+        val (savedAccount1, savedTransaction1) = transactionsDao.saveTransaction(savedAccount, newTransaction1)
+        savedTransaction1.index must equal(Index(0))
+        savedTransaction1.accountBalance must equal(AccountBalance(5800)) // TODO use the same representation type for a transaction's view of the account balance?
+        savedAccount1.currentBalance must equal(CurrentBalance(5800))
+
+        // Transaction 2
+        val newTransaction2 = Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today) // +20 = 5820
+        val (savedAccount2, savedTransaction2) = transactionsDao.saveTransaction(savedAccount1, newTransaction2)
+        savedTransaction2.index must equal(Index(1))
+        savedTransaction2.accountBalance must equal(AccountBalance(5820))
+        savedAccount2.currentBalance must equal(CurrentBalance(5820))
+
+        // Transaction 3
+        val newTransaction3 = Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today) // -10 = 5810
+        val (savedAccount3, savedTransaction3) = transactionsDao.saveTransaction(savedAccount2, newTransaction3)
+        savedTransaction3.index must equal(Index(2))
+        savedTransaction3.accountBalance must equal(AccountBalance(5810))
+        savedAccount3.currentBalance must equal(CurrentBalance(5810))
+    }
 }
