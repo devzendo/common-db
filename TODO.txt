@@ -1,6 +1,10 @@
 Documentation
 
-Sizable example.
+Move example into a separate multimodule project.
+
+Remove dependency on GroupParent
+
+Add to central maven repository rather than the svn repo.
 
 Convert DataAccessException into Either?
 Add a DSL for more idiomatic template usage? (Scala in Depth illustrates this)
