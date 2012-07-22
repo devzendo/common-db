@@ -397,4 +397,28 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         }
     }
 
+
+    @Test
+    def cannotFindTransactionsByIndexRangeForAnUnsavedAccount() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val transactionsDao = userAccess.transactionsDao
+
+        evaluating {
+            transactionsDao.findTransactionsForAccountByIndexRange(newAccount, 0, 0)
+        } must produce [DataAccessException]
+    }
+
+    @Test
+    def cannotFindAllTransactionsForAnUnsavedAccount() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val transactionsDao = userAccess.transactionsDao
+
+        evaluating {
+            transactionsDao.findTransactionsForAccount(newAccount)
+        } must produce [DataAccessException]
+    }
 }
