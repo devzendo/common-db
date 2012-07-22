@@ -235,4 +235,44 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         allTransactions(3).index must equal(Index(3))
         allTransactions(3).accountBalance must equal(AccountBalance(6320))
     }
+
+
+    @Test
+    def updateATransactionByAlsoChangingCreditDebitFlag() {
+        database = createBeanMinderDatabase(databaseName)
+        val userAccess = database.get.user.get
+        val newAccount = createTestAccount()
+        val accountsDao = userAccess.accountsDao
+        val transactionsDao = userAccess.transactionsDao
+        val savedAccount = accountsDao.saveAccount(newAccount)
+        val today = todayNormalised()
+
+        // Transaction 0
+        val newTransaction0 = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        transactionsDao.saveTransaction(savedAccount, newTransaction0)
+
+        // Transaction 1, the last one in the a/c.
+        val newTransaction1 = Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today)
+        val (accountBeforeUpdate, savedTransaction1) = transactionsDao.saveTransaction(savedAccount, newTransaction1)
+        accountBeforeUpdate.currentBalance.toRepresentation must equal (5600 + 200 + 20)
+
+        // Update Transaction 1. +10, but change to a debit, so effect on the a/c is -50
+        val updatedSavedTransaction1 = savedTransaction1 copy (amount = Amount(30), isCredit = CreditDebit.Debit)
+        val (reloadedAccount, _) = transactionsDao.saveTransaction(savedAccount, updatedSavedTransaction1)
+
+        // Have the account, the updated transaction, and subsequent transactions been modified?
+        reloadedAccount.currentBalance.toRepresentation must equal (5600 + 200 - 30)
+
+        val allTransactions = transactionsDao.findTransactionsForAccount(savedAccount)
+        allTransactions must have size (2)
+
+        allTransactions(0).amount.toRepresentation must equal(200)
+        allTransactions(0).index.toRepresentation must equal(0)
+        allTransactions(0).accountBalance.toRepresentation must equal(5800)
+
+        allTransactions(1).amount.toRepresentation must equal(30)
+        allTransactions(1).isCredit must equal(CreditDebit.Debit)
+        allTransactions(1).index.toRepresentation must equal(1)
+        allTransactions(1).accountBalance.toRepresentation must equal(5600 + 200 - 30)
+    }
 }
