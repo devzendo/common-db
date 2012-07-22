@@ -28,7 +28,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     @Test
     def cannotCommitTransactionAgainstUnsavedAccount() {
         database = createBeanMinderDatabase(databaseName)
-        var userAccess = database.get.user.get
+        val userAccess = database.get.user.get
         val newAccount = createTestAccount()
         // note: unsaved Account
         val transactionsDao = userAccess.transactionsDao
@@ -42,7 +42,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     @Test
     def transactionCanBeAddedToAccount() {
         database = createBeanMinderDatabase(databaseName)
-        var userAccess = database.get.user.get
+        val userAccess = database.get.user.get
         val newAccount = createTestAccount()
         val accountsDao = userAccess.accountsDao
         val transactionsDao = userAccess.transactionsDao
@@ -67,7 +67,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     @Test
     def addCreditTransactionToAccountIncreasesBalance() {
         database = createBeanMinderDatabase(databaseName)
-        var userAccess = database.get.user.get
+        val userAccess = database.get.user.get
         val newAccount = createTestAccount()
         val accountsDao = userAccess.accountsDao
         val transactionsDao = userAccess.transactionsDao
@@ -75,7 +75,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
         val today = todayNormalised()
         val newTransaction = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
 
-        val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
+        val (updatedAccount, _) = transactionsDao.saveTransaction(savedAccount, newTransaction)
 
         updatedAccount.currentBalance must equal (CurrentBalance(5800))
         // initial balance should not change
@@ -85,7 +85,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     @Test
     def addDebitTransactionToAccountDecreasesBalance() {
         database = createBeanMinderDatabase(databaseName)
-        var userAccess = database.get.user.get
+        val userAccess = database.get.user.get
         val newAccount = createTestAccount()
         val accountsDao = userAccess.accountsDao
         val transactionsDao = userAccess.transactionsDao
@@ -94,7 +94,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         val newTransaction = Transaction(Amount(200), CreditDebit.Debit, Reconciled.NotReconciled, today)
 
-        val (updatedAccount, savedTransaction) = transactionsDao.saveTransaction(savedAccount, newTransaction)
+        val (updatedAccount, _) = transactionsDao.saveTransaction(savedAccount, newTransaction)
         updatedAccount.currentBalance must equal (CurrentBalance(5400))
         // initial balance should not change
         updatedAccount.initialBalance must equal (InitialBalance(5600))
@@ -103,7 +103,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
     @Test
     def numberOfTransactionsIsCorrectAfterSavingTransactions() {
         database = createBeanMinderDatabase(databaseName)
-        var userAccess = database.get.user.get
+        val userAccess = database.get.user.get
         val newAccount = createTestAccount()
         val accountsDao = userAccess.accountsDao
         val transactionsDao = userAccess.transactionsDao
