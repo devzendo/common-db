@@ -194,7 +194,7 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         // Transaction 0
         val newTransaction0 = Transaction(Amount(200), CreditDebit.Credit, Reconciled.NotReconciled, today)
-        val (savedAccount0, savedTransaction0) = transactionsDao.saveTransaction(savedAccount, newTransaction0)
+        val (savedAccount0, _) = transactionsDao.saveTransaction(savedAccount, newTransaction0)
 
         // Transaction 1
         val newTransaction1 = Transaction(Amount(20), CreditDebit.Credit, Reconciled.NotReconciled, today)
@@ -202,16 +202,16 @@ class TestTransactionsDao extends BeanMinderUnittest with AssertionsForJUnit wit
 
         // Transaction 2
         val newTransaction2 = Transaction(Amount(10), CreditDebit.Debit, Reconciled.NotReconciled, today)
-        val (savedAccount2, savedTransaction2) = transactionsDao.saveTransaction(savedAccount1, newTransaction2)
+        val (savedAccount2, _) = transactionsDao.saveTransaction(savedAccount1, newTransaction2)
 
         // Transaction 3
         val newTransaction3 = Transaction(Amount(500), CreditDebit.Credit, Reconciled.NotReconciled, today)
-        val (accountBeforeUpdate, savedTransaction3) = transactionsDao.saveTransaction(savedAccount2, newTransaction3)
+        val (accountBeforeUpdate, _) = transactionsDao.saveTransaction(savedAccount2, newTransaction3)
         accountBeforeUpdate.currentBalance must be (CurrentBalance(5600 + 200 + 20 - 10 + 500))
 
         // Update Transaction 1
         val alteredTransaction1 = savedTransaction1 copy (amount = Amount(30)) // +10
-        val (reloadedAccount, savedUpdatedTransaction1) = transactionsDao.saveTransaction(accountBeforeUpdate, alteredTransaction1)
+        val (reloadedAccount, _) = transactionsDao.saveTransaction(accountBeforeUpdate, alteredTransaction1)
 
         // Have the account, the updated transaction, and subsequent transactions been modified?
         reloadedAccount.currentBalance must be (CurrentBalance(5600 + 200 + 30 - 10 + 500))
