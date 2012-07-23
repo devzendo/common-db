@@ -2,14 +2,19 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.devzendo</groupId>
-    <artifactId>CommonDb</artifactId>
+    <artifactId>CommonDbParent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>CommonDb</name>
+    <name>CommonDbParent</name>
     <packaging>pom</packaging>
     <description>Helper module for working with H2 databases. Helps with opening
 with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
     (Apache License v2) 2012 Matt Gumbley, DevZendo.org</description>
+
+    <modules>
+        <module>CommonDb</module>
+        <module>BeanMinder</module>
+    </modules>
 
     <properties>
         <scala.version>2.9.1</scala.version>
