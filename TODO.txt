@@ -2,12 +2,23 @@ Documentation
 
 Move example into a separate multimodule project.
 
-Remove dependency on GroupParent
+Update surefire
+
+Update h2
+
+Update junit
+
+Update scalatest
 
 Add to central maven repository rather than the svn repo.
 
-Convert DataAccessException into Either?
+Convert DataAccessException into Either? Not sure how this would affect use of
+Spring-JDBC's TransactionTemplate. Would have to wrap it to detect Validation
+failures, throw an exception to trigger the rollback, and continue to propagate
+the Validation?
+
 Add a DSL for more idiomatic template usage? (Scala in Depth illustrates this)
+Look into other Spring-JDBC DSLs.
 
 Migration failure is terminal: the database is returned as None - might want to
 reconsider this? This is what MiniMiser did.
