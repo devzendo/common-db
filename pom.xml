@@ -13,7 +13,7 @@ Based on some of the ideas from the MiniMiser framework.
 
     <modules>
         <module>CommonDb</module>
-        <module>BeanMinder</module>
+        <module>BeanMinderExample</module>
     </modules>
 
     <properties>
