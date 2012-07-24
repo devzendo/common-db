@@ -5,7 +5,7 @@
     <artifactId>BeanMinder</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>BeanMinder</name>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <description>An example of using CommonDb.
     (Apache License v2) 2012 Matt Gumbley, DevZendo.org</description>
 
@@ -19,6 +19,13 @@
         <dependency>
             <groupId>org.devzendo</groupId>
             <artifactId>CommonDb</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.devzendo</groupId>
+            <artifactId>CommonDb</artifactId>
+            <scope>test</scope>
+            <classifier>tests</classifier>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

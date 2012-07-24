@@ -5,7 +5,7 @@
     <artifactId>CommonDb</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>CommonDb</name>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <description>Helper module for working with H2 databases. Helps with opening
 with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
@@ -16,4 +16,25 @@ Based on some of the ideas from the MiniMiser framework.
         <artifactId>CommonDbParent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <forceCreation>true</forceCreation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
