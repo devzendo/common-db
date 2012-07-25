@@ -6,6 +6,8 @@ Update junit
 
 Update scalatest
 
+Update maven-scala-plugin
+
 Convert documentation to PDF; publish
 
 Add to central maven repository rather than the svn repo. Document this.
