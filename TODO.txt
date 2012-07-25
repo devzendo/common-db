@@ -1,6 +1,6 @@
 Documentation
 
-Move example into a separate multimodule project.
+Remove placeholder files.
 
 Update surefire
 
@@ -9,6 +9,8 @@ Update h2
 Update junit
 
 Update scalatest
+
+Generate ScalaDoc
 
 Add to central maven repository rather than the svn repo.
 
