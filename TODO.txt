@@ -1,12 +1,3 @@
-Update surefire
-
-Update h2
-
-Update junit
-
-Update scalatest
-
-Update maven-scala-plugin
 
 Convert documentation to PDF; publish
 

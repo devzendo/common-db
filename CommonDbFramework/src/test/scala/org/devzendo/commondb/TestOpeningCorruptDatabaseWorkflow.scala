@@ -48,16 +48,16 @@ class TestOpeningCorruptDatabaseWorkflow extends AutoCloseDatabaseCreatingUnitte
     }
 
     /**
-     * Corrupt a (database) by writing over the 2nd kilobyte of data. This
-     * will result in an open failure due to checksum mismatch.
+     * Corrupt a (database) by writing over the database file. This
+     * will result in an open failure due to an invalid version or header mismatch.
      */
     def corruptDatabase(databaseDir: File, databaseName: String) {
-        val dataFile = new File(databaseDir, databaseName + ".data.db")
-        dataFile.exists() must equal(true)
+        val dataFile = new File(databaseDir, databaseName + ".h2.db")
         try {
             val raf = new RandomAccessFile(dataFile, "rw")
-            raf.seek(1024)
-            raf.writeChars("Let's write all over the database, to see if it'll fail to open!")
+            for (i <- 0 to 10) {
+                raf.writeChars("Let's write all over the database, to see if it'll fail to open!")
+            }
             raf.close()
         } catch {
             case fnf: FileNotFoundException => fail("database file %s not found: %s".format(dataFile.getAbsolutePath, fnf.getMessage))

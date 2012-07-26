@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import java.io.File
 import javax.sql.DataSource
@@ -27,8 +28,8 @@ import org.springframework.jdbc.datasource.{DataSourceTransactionManager, Single
 import org.h2.constant.ErrorCode
 import scala.throws
 import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
-import org.h2.engine.Database
 import org.springframework.transaction.TransactionStatus
+import org.h2.engine.ExistenceChecker
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -148,7 +149,8 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
     def exists(databasePath: File, databaseName: String): Boolean = {
         val pathToDatabaseFile = new File(databasePath, databaseName)
-        Database.exists(pathToDatabaseFile.getAbsolutePath)
+        //Database.exists(pathToDatabaseFile.getAbsolutePath)
+        ExistenceChecker.exists(pathToDatabaseFile.getAbsolutePath)
     }
 
     def create(
@@ -357,11 +359,6 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
         if (!allowCreate) {
             dbURLParts.append(";IFEXISTS=TRUE")
         }
-        dbURLParts.append(";PAGE_STORE=FALSE")
-        // h2 1.2.128 is the last release
-        // that keeps the old format; 1.2.129 made the PAGE_STORE format
-        // the only one - but we want to keep the old format by default
-        // for now.
         val dbURL = dbURLParts.mkString
         DatabaseAccessFactory.LOGGER.debug("DB URL is " + dbURL)
         val driverClassName = "org.h2.Driver"
