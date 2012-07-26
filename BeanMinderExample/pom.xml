@@ -8,6 +8,26 @@
     <packaging>jar</packaging>
     <description>An example of using CommonDb.
     (Apache License v2) 2012 Matt Gumbley, DevZendo.org</description>
+    <url>http://www.devzendo.org/content/commondb</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>http://devzendo-org-commondb.googlecode.com/hg/</url>
+        <connection>scm:hg:http://devzendo-org-commondb.googlecode.com/hg/</connection>
+        <developerConnection>scm:hg:https://devzendo-org-commondb.googlecode.com/hg/</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>matt.gumbley</id>
+            <name>Matt Gumbley</name>
+            <email>matt.gumbley@devzendo.org</email>
+        </developer>
+    </developers>
 
     <parent>
         <groupId>org.devzendo</groupId>

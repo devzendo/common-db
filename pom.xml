@@ -10,6 +10,32 @@
 with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
     (Apache License v2) 2012 Matt Gumbley, DevZendo.org</description>
+    <url>http://www.devzendo.org/content/commondb</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>http://devzendo-org-commondb.googlecode.com/hg/</url>
+        <connection>scm:hg:http://devzendo-org-commondb.googlecode.com/hg/</connection>
+        <developerConnection>scm:hg:https://devzendo-org-commondb.googlecode.com/hg/</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>matt.gumbley</id>
+            <name>Matt Gumbley</name>
+            <email>matt.gumbley@devzendo.org</email>
+        </developer>
+    </developers>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 
     <modules>
         <module>CommonDbFramework</module>
