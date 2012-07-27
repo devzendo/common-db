@@ -1,11 +1,10 @@
+Move code into a better package structure.
 
 Convert documentation to PDF; publish
 
 Add to central maven repository rather than the svn repo. Document this.
 
 Change version to 0.1.0; check CI ok. Tag.
-
-Generate ScalaDoc; publish
 
 Update web page.
 
