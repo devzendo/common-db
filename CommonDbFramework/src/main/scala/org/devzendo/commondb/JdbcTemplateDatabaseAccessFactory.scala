@@ -17,6 +17,7 @@
 package org.devzendo.commondb
 
 
+import dao.{SequenceDao, VersionsDao}
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import java.io.File
 import javax.sql.DataSource
