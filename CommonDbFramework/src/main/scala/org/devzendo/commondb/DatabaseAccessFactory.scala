@@ -22,8 +22,6 @@ import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.transaction.support.TransactionTemplate
-import scala.throws
-import org.springframework.dao.DataAccessException
 import util.RepresentationType
 
 object DatabaseAccessFactory {
