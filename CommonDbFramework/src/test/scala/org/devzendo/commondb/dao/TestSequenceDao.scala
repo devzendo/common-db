@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.dao
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.slf4j.LoggerFactory
+import org.devzendo.commondb.{SchemaVersion, CodeVersion, AutoCloseDatabaseUnittest, AbstractTempFolderUnittest}
 
 
 class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
@@ -30,7 +31,7 @@ class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
     def checkSequenceInitialValue() {
         database = databaseAccessFactory.create(temporaryDirectory, "checksequenceinitialvalue", None, initialCodeVersion, initialSchemaVersion, None, None, None)
 
-        database.get.sequenceDao.nextSequence must be (0L)
+        database.get.sequenceDao.nextSequence must be(0L)
     }
 
     @Test

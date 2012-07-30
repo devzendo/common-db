@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.dao
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.devzendo.commondb._
+import org.devzendo.commondb.CodeVersion
 
 
 case class CustomVersion(version: String) extends Version(version)
@@ -34,12 +36,12 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
         def versionsDao = database.get.versionsDao
 
         def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
-        dbSchemaVersion must be ('defined)
+        dbSchemaVersion must be('defined)
         dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
         dbSchemaVersion.get must be(initialSchemaVersion)
 
         def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
-        dbCodeVersion must be ('defined)
+        dbCodeVersion must be('defined)
         dbCodeVersion.get.getClass must be(classOf[CodeVersion])
         dbCodeVersion.get must be(initialCodeVersion)
     }
@@ -56,12 +58,12 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
         versionsDao.persistVersion(newCodeVersion)
 
         def dbSchemaVersion = versionsDao.findVersion(classOf[SchemaVersion])
-        dbSchemaVersion must be ('defined)
+        dbSchemaVersion must be('defined)
         dbSchemaVersion.get.getClass must be(classOf[SchemaVersion])
         dbSchemaVersion.get must be(newSchemaVersion)
 
         def dbCodeVersion = versionsDao.findVersion(classOf[CodeVersion])
-        dbCodeVersion must be ('defined)
+        dbCodeVersion must be('defined)
         dbCodeVersion.get.getClass must be(classOf[CodeVersion])
         dbCodeVersion.get must be(newCodeVersion)
     }
@@ -96,7 +98,7 @@ class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseU
         versionsDao.persistVersion(customVersion)
 
         val dbCustomVersion = versionsDao.findVersion(classOf[CustomTransactionVersion])
-        dbCustomVersion must be ('defined)
+        dbCustomVersion must be('defined)
         dbCustomVersion.get.getClass must be(classOf[CustomTransactionVersion])
         dbCustomVersion.get must be(customVersion)
     }
