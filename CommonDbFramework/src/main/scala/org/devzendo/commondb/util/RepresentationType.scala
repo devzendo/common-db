@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.util
 
 /**
  * A mechanism for creating typesafe extensions of some underlying type that is

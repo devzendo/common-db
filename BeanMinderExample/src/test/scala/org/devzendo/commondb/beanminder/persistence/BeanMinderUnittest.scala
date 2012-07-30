@@ -29,6 +29,7 @@ import org.devzendo.commondb.CodeVersion
 import org.devzendo.commondb.DatabaseAccess
 import org.devzendo.commondb.SchemaVersion
 import scala.Some
+import util.NormalisedDate
 
 private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example

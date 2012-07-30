@@ -18,8 +18,8 @@ package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
-import java.util
 import java.sql.Date
+import util.{NormalisedDate, DateUtils}
 
 class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     @Test
@@ -38,12 +38,12 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     }
 
     def timeMustBeZero(normalisedDate: Date) {
-        val calendar = new util.GregorianCalendar()
+        val calendar = new java.util.GregorianCalendar()
         calendar.setTime(normalisedDate)
-        calendar.get(util.Calendar.HOUR) must be(0)
-        calendar.get(util.Calendar.MINUTE) must be(0)
-        calendar.get(util.Calendar.SECOND) must be(0)
-        calendar.get(util.Calendar.MILLISECOND) must be(0)
+        calendar.get(java.util.Calendar.HOUR) must be(0)
+        calendar.get(java.util.Calendar.MINUTE) must be(0)
+        calendar.get(java.util.Calendar.SECOND) must be(0)
+        calendar.get(java.util.Calendar.MILLISECOND) must be(0)
     }
 
     /**
@@ -51,14 +51,14 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
      * values that are positive
      */
     def createSQLDateWithMillis(): Long = {
-        val calendar = new util.GregorianCalendar()
-        calendar.set(util.Calendar.YEAR, 2009)
-        calendar.set(util.Calendar.MONDAY, 2)
-        calendar.set(util.Calendar.DAY_OF_MONTH, 22)
-        calendar.set(util.Calendar.HOUR, 4)
-        calendar.set(util.Calendar.MINUTE, 30)
-        calendar.set(util.Calendar.SECOND, 23)
-        calendar.set(util.Calendar.MILLISECOND, 223)
+        val calendar = new java.util.GregorianCalendar()
+        calendar.set(java.util.Calendar.YEAR, 2009)
+        calendar.set(java.util.Calendar.MONDAY, 2)
+        calendar.set(java.util.Calendar.DAY_OF_MONTH, 22)
+        calendar.set(java.util.Calendar.HOUR, 4)
+        calendar.set(java.util.Calendar.MINUTE, 30)
+        calendar.set(java.util.Calendar.SECOND, 23)
+        calendar.set(java.util.Calendar.MILLISECOND, 223)
         calendar.getTimeInMillis
     }
 

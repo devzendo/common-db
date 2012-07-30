@@ -20,6 +20,7 @@ import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.springframework.dao.{EmptyResultDataAccessException, DataAccessException}
+import util.RepresentationType
 
 case class CakeAge(age: Int) extends RepresentationType[Int](age)
 case class CakeName(name: String) extends RepresentationType[String](name)

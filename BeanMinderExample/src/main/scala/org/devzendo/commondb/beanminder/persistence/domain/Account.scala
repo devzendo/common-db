@@ -16,7 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
-import org.devzendo.commondb.RepresentationType
+import org.devzendo.commondb.util.RepresentationType
 
 case class AccountName(name: String) extends RepresentationType[String](name)
 case class BankName(name: String) extends RepresentationType[String](name)

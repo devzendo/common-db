@@ -18,6 +18,7 @@ package org.devzendo.commondb
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import util.RepresentationType
 
 private case class OneString(thing: String) extends RepresentationType[String](thing)
 private case class TwoString(thing: String) extends RepresentationType[String](thing)
@@ -61,7 +62,7 @@ class TestRepresentationType extends AssertionsForJUnit with MustMatchersForJUni
     }
 
     @Test
-    def toStringShowsType() {
+    def representationTypetoStringShowsType() {
         OneString("hi").toString must equal("OneString(hi)")
         OneString(null).toString must equal("OneString(null)")
     }

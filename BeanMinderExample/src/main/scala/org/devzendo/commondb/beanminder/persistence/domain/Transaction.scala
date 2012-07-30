@@ -16,7 +16,7 @@
 
 package org.devzendo.commondb.beanminder.persistence.domain
 
-import org.devzendo.commondb.{RepresentationType, NormalisedDate}
+import org.devzendo.commondb.util.{RepresentationType, NormalisedDate}
 
 case class Index(index: Int) extends RepresentationType[Int](index)
 case class Amount(amount: Int) extends RepresentationType[Int](amount)
