@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.util
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
-import util.RepresentationType
 
 private case class OneString(thing: String) extends RepresentationType[String](thing)
+
 private case class TwoString(thing: String) extends RepresentationType[String](thing)
+
 private case class OneInt(thing: Int) extends RepresentationType[Int](thing)
 
 class TestRepresentationType extends AssertionsForJUnit with MustMatchersForJUnit {
@@ -38,27 +39,27 @@ class TestRepresentationType extends AssertionsForJUnit with MustMatchersForJUni
     def instancesOfSameRepresentationWithDifferentContentTypeAreNotEqual() {
         val one1 = OneString("hi")
         val one2 = OneString("a suffusion of yellow")
-        one1 must not equal(one2)
-        one2 must not equal(one1)
-        one1.hashCode() must not equal(one2.hashCode())
+        one1 must not equal (one2)
+        one2 must not equal (one1)
+        one1.hashCode() must not equal (one2.hashCode())
     }
 
     @Test
     def instancesOfDifferentRepresentationTypeWithSameContentAreNotEqual() {
         val one1 = OneString("hi")
         val two1 = TwoString("hi")
-        one1 must not equal(two1)
-        two1 must not equal(one1)
-        one1.hashCode() must not equal(two1.hashCode())
+        one1 must not equal (two1)
+        two1 must not equal (one1)
+        one1.hashCode() must not equal (two1.hashCode())
     }
 
     @Test
     def instancesOfDifferentRepresentationTypeWithDifferentContentTypesAreNotEqual() {
         val one1 = OneString("hi")
         val one2 = OneInt(42)
-        one1 must not equal(one2)
-        one2 must not equal(one1)
-        one1.hashCode() must not equal(one2.hashCode())
+        one1 must not equal (one2)
+        one2 must not equal (one1)
+        one1.hashCode() must not equal (one2.hashCode())
     }
 
     @Test

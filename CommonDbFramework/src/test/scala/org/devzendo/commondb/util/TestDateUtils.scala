@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.util
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import java.sql.Date
-import util.{NormalisedDate, DateUtils}
 
 class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
     @Test
@@ -48,7 +47,7 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
 
     /**
      * @return a time in milliseconds that does have hours, minutes, seconds, and millisecond
-     * values that are positive
+     *         values that are positive
      */
     def createSQLDateWithMillis(): Long = {
         val calendar = new java.util.GregorianCalendar()
@@ -96,11 +95,11 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val millis2 = millis1 + 4000
         val appliedDate2 = NormalisedDate(millis2)
 
-        appliedDate1.hashCode must equal (appliedDate2.hashCode)
+        appliedDate1.hashCode must equal(appliedDate2.hashCode)
         appliedDate1 must equal(appliedDate2)
         appliedDate2 must equal(appliedDate1)
 
-        appliedDate1.toRepresentation.hashCode must equal (appliedDate2.toRepresentation.hashCode)
+        appliedDate1.toRepresentation.hashCode must equal(appliedDate2.toRepresentation.hashCode)
         appliedDate1.toRepresentation must equal(appliedDate2.toRepresentation)
         appliedDate2.toRepresentation must equal(appliedDate1.toRepresentation)
     }
@@ -113,11 +112,11 @@ class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
         val appliedDate2 = NormalisedDate(millis2)
 
         appliedDate1.hashCode must not equal (appliedDate2.hashCode)
-        appliedDate1 must not equal(appliedDate2)
-        appliedDate2 must not equal(appliedDate1)
+        appliedDate1 must not equal (appliedDate2)
+        appliedDate2 must not equal (appliedDate1)
 
         appliedDate1.toRepresentation.hashCode must not equal (appliedDate2.toRepresentation.hashCode)
-        appliedDate1.toRepresentation must not equal(appliedDate2.toRepresentation)
-        appliedDate2.toRepresentation must not equal(appliedDate1.toRepresentation)
+        appliedDate1.toRepresentation must not equal (appliedDate2.toRepresentation)
+        appliedDate2.toRepresentation must not equal (appliedDate1.toRepresentation)
     }
 }
