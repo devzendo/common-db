@@ -31,21 +31,6 @@ object DatabaseAccessFactory {
 }
 
 /**
- * The UserDatabaseAccess abstract class is subclassed to provide access to the
- * DAOs of your application. Given a DatabaseAccess[YourUserDatabaseAccess]
- * object, user code can call its user() method to access user DAOs via an
- * instance of YourUserDatabaseAccess.
- * @param databaseAccess the underlying access abstraction.
- */
-abstract class UserDatabaseAccess(val databaseAccess: DatabaseAccess[_]) {
-    /**
-     * Called by the framework before the database is closed to give user
-     * code the opportunity to flush/tidy up.
-     */
-    def close()
-}
-
-/**
  * The DatabaseAccess gives access to the framework/user database abstractions,
  * provides a mechanism in which operations can be performed inside a
  * transaction, and finally allows the database to be closed.
