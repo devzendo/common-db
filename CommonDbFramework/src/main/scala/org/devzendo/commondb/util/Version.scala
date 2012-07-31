@@ -16,10 +16,6 @@
 
 package org.devzendo.commondb.util
 
-object VersionTypes
-// I don't need a type, but it shuts IntelliJ up about the
-// types in here not matching the filename
-
 /**
  * A typesafe representation of a version of something.
  * This isn't sealed so that application code can have typesafe versions of its
