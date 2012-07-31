@@ -16,12 +16,9 @@
 
 package org.devzendo.commondb
 
-import dao.{SchemaVersion, CodeVersion, SequenceDao, VersionsDao}
+import dao.{SchemaVersion, CodeVersion}
 import java.io.File
-import javax.sql.DataSource
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import org.slf4j.LoggerFactory
-import org.springframework.transaction.support.TransactionTemplate
 import util.RepresentationType
 
 object DatabaseAccessFactory {
@@ -30,36 +27,6 @@ object DatabaseAccessFactory {
     val LOGGER = LoggerFactory.getLogger(classOf[DatabaseAccessFactory[_]])
 }
 
-/**
- * The DatabaseAccess gives access to the framework/user database abstractions,
- * provides a mechanism in which operations can be performed inside a
- * transaction, and finally allows the database to be closed.
- *
- * These are obtained from the DatabaseAccessFactory, and are not directly
- * instantiatable from user code.
- *
- * @param databasePath the directory in which the database's file set are to be
- *                     stored.
- * @param databaseName the common prefix name used by the database's file set.
- * @param dataSource the JDBC DataSource that can be used to perform low-level
- *                   operations on the database.
- * @param jdbcTemplate the Spring-JDBC template that is used to perform JDBC
- *                     operations.
- * @tparam U a subclass of UserDatabaseAccess, from which user DAOs may be
- *           obtained
- */
-abstract case class DatabaseAccess[U <: UserDatabaseAccess](
-        databasePath: File,
-        databaseName: String,
-        dataSource: DataSource,
-        jdbcTemplate: SimpleJdbcTemplate) {
-    var user: Option[U] = None
-    def close()
-    def isClosed: Boolean
-    def versionsDao: VersionsDao
-    def sequenceDao: SequenceDao
-    def createTransactionTemplate: TransactionTemplate
-}
 
 /**
  * A representation type for type-safe password strings.
