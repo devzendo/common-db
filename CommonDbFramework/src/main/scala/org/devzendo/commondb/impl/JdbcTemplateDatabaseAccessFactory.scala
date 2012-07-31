@@ -16,136 +16,23 @@
 
 package org.devzendo.commondb.impl
 
-import org.devzendo.commondb.dao.{VersionsDao, SequenceDao}
-import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate
 import java.io.File
 import javax.sql.DataSource
-import org.springframework.jdbc.CannotGetJdbcConnectionException
-import java.sql.{SQLException, ResultSet}
-import org.springframework.dao.{DataAccessResourceFailureException, EmptyResultDataAccessException, DataAccessException}
+import java.sql.SQLException
+import org.springframework.dao.{DataAccessResourceFailureException, DataAccessException}
 import collection.mutable.ListBuffer
-import org.springframework.jdbc.datasource.{DataSourceTransactionManager, SingleConnectionDataSource, DataSourceUtils}
+import org.springframework.jdbc.datasource.SingleConnectionDataSource
 import org.h2.constant.ErrorCode
 import scala.throws
-import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
+import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.TransactionStatus
 import org.h2.engine.ExistenceChecker
-import org.devzendo.commondb.util.Version
 import org.devzendo.commondb._
 import dao.CodeVersion
 import dao.SchemaVersion
 import scala.Some
 import org.devzendo.commondb.Password
-
-private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
-
-    @throws(classOf[DataAccessException])
-    def findVersion[V <: Version](versionType: Class[V]): Option[V] = {
-
-        val sql = "SELECT version FROM Versions WHERE entity = ?"
-        val mapper: ParameterizedRowMapper[V] = new ParameterizedRowMapper[V]() {
-            // notice the return type with respect to Java 5 covariant return types
-            def mapRow(rs: ResultSet, rowNum: Int) = {
-                val ctor = versionType.getConstructor(classOf[String])
-                ctor.newInstance(rs.getString("version"))
-            }
-        }
-        //noinspection deprecation
-        try {
-            Some(jdbcTemplate.queryForObject(sql, mapper, versionType.getSimpleName))
-        } catch {
-            case e: EmptyResultDataAccessException => None
-        }
-    }
-
-    @throws(classOf[DataAccessException])
-    def persistVersion[V <: Version](version: V) {
-        if (count(version.getClass) == 0) {
-            jdbcTemplate.update(
-                "INSERT INTO Versions (entity, version) VALUES (?, ?)",
-                version.getClass.getSimpleName, version.toRepresentation)
-        } else {
-            jdbcTemplate.update(
-                "UPDATE Versions SET version = ? WHERE entity = ?",
-                version.toRepresentation, version.getClass.getSimpleName)
-        }
-    }
-
-    @throws(classOf[DataAccessException])
-    def exists[V <: Version](versionType: Class[V]): Boolean = {
-        count(versionType) == 1
-    }
-
-    @throws(classOf[DataAccessException])
-    private[this] def count[V <: Version](versionType: Class[V]): Int = {
-        jdbcTemplate.queryForInt(
-            "SELECT COUNT(0) FROM Versions WHERE entity = ?",
-            versionType.getSimpleName)
-    }
-}
-
-private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends SequenceDao {
-    @throws(classOf[DataAccessException])
-    def nextSequence: Long = {
-        jdbcTemplate.queryForLong("SELECT NEXT VALUE FOR SEQUENCE Sequence")
-    }
-}
-
-sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
-                                                                         override val databasePath: File,
-                                                                         override val databaseName: String,
-                                                                         override val dataSource: DataSource,
-                                                                         override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate) {
-    private[this] var closed: Boolean = false
-    private[this] val transactionManager = new DataSourceTransactionManager(dataSource)
-
-    val versionsDao: VersionsDao = new JdbcTemplateVersionsDao(jdbcTemplate)
-    val sequenceDao: SequenceDao = new JdbcTemplateSequenceDao(jdbcTemplate)
-
-    def close() {
-        if (closed) {
-            DatabaseAccessFactory.LOGGER.info("Database '" + databaseName + "' at '" + databasePath + "' is already closed")
-            return
-        }
-
-        try {
-            DatabaseAccessFactory.LOGGER.info("Closing database '" + databaseName + "' at '" + databasePath + "'")
-            for (u <- user) {
-                u.close()
-            }
-            DataSourceUtils.getConnection(dataSource).close()
-            DatabaseAccessFactory.LOGGER.info("Closed database '" + databaseName + "' at '" + databasePath + "'")
-            closed = true
-        } catch {
-            case e: CannotGetJdbcConnectionException =>
-                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on close: " + e.getMessage, e)
-            case s: SQLException =>
-                DatabaseAccessFactory.LOGGER.warn("SQL Exception on close: " + s.getMessage, s)
-        }
-    }
-
-    def isClosed: Boolean = {
-        if (closed)
-            return true
-        try {
-            return DataSourceUtils.getConnection(dataSource).isClosed
-        }
-        catch {
-            case e: CannotGetJdbcConnectionException => {
-                DatabaseAccessFactory.LOGGER.warn("Can't get JDBC Connection on isClosed: " + e.getMessage, e)
-            }
-            case e: SQLException => {
-                DatabaseAccessFactory.LOGGER.warn("SQL Exception on isClosed: " + e.getMessage, e)
-            }
-        }
-        false
-    }
-
-    def createTransactionTemplate: TransactionTemplate = {
-        new TransactionTemplate(transactionManager)
-    }
-
-}
 
 class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends DatabaseAccessFactory[U] {
     private[this] val CREATION_DDL_STRINGS = List[String](
@@ -160,14 +47,14 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     }
 
     def create(
-                  databasePath: File,
-                  databaseName: String,
-                  password: Option[Password],
-                  codeVersion: CodeVersion,
-                  schemaVersion: SchemaVersion,
-                  workflowAdapter: Option[CreateWorkflowAdapter],
-                  userDatabaseCreator: Option[UserDatabaseCreator],
-                  userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
+            databasePath: File,
+            databaseName: String,
+            password: Option[Password],
+            codeVersion: CodeVersion,
+            schemaVersion: SchemaVersion,
+            workflowAdapter: Option[CreateWorkflowAdapter],
+            userDatabaseCreator: Option[UserDatabaseCreator],
+            userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorCreateWorkflowAdapter(workflowAdapter)
         val creator = new LoggingDecoratorUserDatabaseCreator(userDatabaseCreator)
@@ -242,14 +129,14 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     }
 
     def open(
-                databasePath: File,
-                databaseName: String,
-                password: Option[Password],
-                codeVersion: CodeVersion,
-                schemaVersion: SchemaVersion,
-                workflowAdapter: Option[OpenWorkflowAdapter],
-                userDatabaseMigrator: Option[UserDatabaseMigrator],
-                userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
+            databasePath: File,
+            databaseName: String,
+            password: Option[Password],
+            codeVersion: CodeVersion,
+            schemaVersion: SchemaVersion,
+            workflowAdapter: Option[OpenWorkflowAdapter],
+            userDatabaseMigrator: Option[UserDatabaseMigrator],
+            userDatabaseAccessFactory: Option[Function1[DatabaseAccess[U], U]]): Option[DatabaseAccess[U]] = {
 
         val adapter = new LoggingDecoratorOpenWorkflowAdapter(workflowAdapter)
         val migrator = new LoggingDecoratorUserDatabaseMigrator(userDatabaseMigrator)
@@ -340,10 +227,10 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
     }
 
     private[this] def accessDatabase(
-                                        databasePath: File,
-                                        databaseName: String,
-                                        password: Option[Password],
-                                        allowCreate: Boolean): (DataSource, SimpleJdbcTemplate) = {
+            databasePath: File,
+            databaseName: String,
+            password: Option[Password],
+            allowCreate: Boolean): (DataSource, SimpleJdbcTemplate) = {
         DatabaseAccessFactory.LOGGER.info("Opening database '" + databaseName + "' at '" + databasePath + "'")
         DatabaseAccessFactory.LOGGER.debug("Validating arguments")
         if (databasePath == null) {
@@ -598,5 +485,4 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
     }
-
 }

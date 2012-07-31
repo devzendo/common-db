@@ -1,0 +1,2 @@
+Building everything:
+mvn clean scala:doc source:jar install
