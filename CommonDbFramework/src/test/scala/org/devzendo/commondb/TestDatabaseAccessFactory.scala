@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+import impl.JdbcTemplateDatabaseAccessFactory
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 

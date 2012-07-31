@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.impl
 
-
-import dao.{CodeVersion, SchemaVersion, SequenceDao, VersionsDao}
+import org.devzendo.commondb.dao.{VersionsDao, SequenceDao}
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import java.io.File
 import javax.sql.DataSource
@@ -31,7 +30,12 @@ import scala.throws
 import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
 import org.springframework.transaction.TransactionStatus
 import org.h2.engine.ExistenceChecker
-import util.Version
+import org.devzendo.commondb.util.Version
+import org.devzendo.commondb._
+import dao.CodeVersion
+import dao.SchemaVersion
+import scala.Some
+import org.devzendo.commondb.Password
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 
@@ -88,10 +92,10 @@ private class JdbcTemplateSequenceDao(jdbcTemplate: SimpleJdbcTemplate) extends 
 }
 
 sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
-        override val databasePath: File,
-        override val databaseName: String,
-        override val dataSource: DataSource,
-        override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate) {
+                                                                         override val databasePath: File,
+                                                                         override val databaseName: String,
+                                                                         override val dataSource: DataSource,
+                                                                         override val jdbcTemplate: SimpleJdbcTemplate) extends DatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate) {
     private[this] var closed: Boolean = false
     private[this] val transactionManager = new DataSourceTransactionManager(dataSource)
 
@@ -194,7 +198,7 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
 
     private[this] def createTables(access: DatabaseAccess[U], adapter: CreateWorkflowAdapter) {
         adapter.reportProgress(CreateProgressStage.CreatingTables, "Creating tables")
-        CREATION_DDL_STRINGS.foreach( (ddl) => {
+        CREATION_DDL_STRINGS.foreach((ddl) => {
             access.jdbcTemplate.getJdbcOperations.execute(ddl)
         })
     }
@@ -594,4 +598,5 @@ class JdbcTemplateDatabaseAccessFactory[U <: UserDatabaseAccess] extends Databas
             }
         }
     }
+
 }

@@ -17,6 +17,7 @@
 package org.devzendo.commondb
 
 import dao.{SchemaVersion, CodeVersion}
+import impl.JdbcTemplateDatabaseAccessFactory
 import java.io.File
 import org.slf4j.LoggerFactory
 import util.RepresentationType

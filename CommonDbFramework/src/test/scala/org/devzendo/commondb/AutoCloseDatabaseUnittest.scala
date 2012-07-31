@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+import impl.JdbcTemplateDatabaseAccessFactory
 import org.junit.After
 
 trait AutoCloseDatabaseUnittest {
