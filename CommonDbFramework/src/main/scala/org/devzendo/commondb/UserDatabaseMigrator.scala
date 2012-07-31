@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+import dao.SchemaVersion
 import org.springframework.dao.DataAccessException
 
 /**

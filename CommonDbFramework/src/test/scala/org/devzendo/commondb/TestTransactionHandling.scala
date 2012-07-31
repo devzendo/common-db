@@ -22,6 +22,7 @@ import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.TransactionStatus
 import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
 import org.slf4j.LoggerFactory
+import util.Version
 
 case class CustomTransactionVersion(version: String) extends Version(version)
 

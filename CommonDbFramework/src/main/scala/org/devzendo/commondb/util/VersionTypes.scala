@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.util
 
 object VersionTypes
 // I don't need a type, but it shuts IntelliJ up about the
@@ -193,14 +193,3 @@ abstract class Version(version: String) extends Comparable[Version] {
         0
     }
 }
-
-/**
- * Represents the software version of the application that created the database.
- */
-case class CodeVersion(version: String) extends Version(version)
-
-/**
- * Represents the database schema version of the application that created the
- * database.
- */
-case class SchemaVersion(version: String) extends Version(version)

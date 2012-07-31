@@ -16,6 +16,8 @@
 
 package org.devzendo.commondb
 
+import dao.{CodeVersion, SchemaVersion}
+
 abstract class AbstractDatabaseMigrationUnittest extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest {
     val oldCodeVersion = CodeVersion("1.0")
     val oldSchemaVersion = SchemaVersion("0.4")

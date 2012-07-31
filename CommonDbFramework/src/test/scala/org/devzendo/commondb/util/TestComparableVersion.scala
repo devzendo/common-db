@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.devzendo.commondb
+package org.devzendo.commondb.util
 
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test

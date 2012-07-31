@@ -17,7 +17,7 @@
 package org.devzendo.commondb.dao
 
 import org.springframework.dao.DataAccessException
-import org.devzendo.commondb.Version
+import org.devzendo.commondb.util.Version
 
 /**
  * The VersionsDao is used to store and find the versions of various parts of

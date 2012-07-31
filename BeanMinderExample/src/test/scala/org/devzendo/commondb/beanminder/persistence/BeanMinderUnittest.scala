@@ -25,11 +25,10 @@ import org.devzendo.commondb._
 import org.springframework.dao.DataAccessException
 import org.devzendo.commondb.CreateProgressStage.Enum
 import org.junit.After
-import org.devzendo.commondb.CodeVersion
 import org.devzendo.commondb.DatabaseAccess
-import org.devzendo.commondb.SchemaVersion
 import scala.Some
 import util.NormalisedDate
+import org.devzendo.commondb.dao.{SchemaVersion, CodeVersion}
 
 private class BeanMinderUnittestCreateWorkflowAdapter extends CreateWorkflowAdapter {
     // the user interface methods here are all no-ops for this example
@@ -43,7 +42,7 @@ trait BeanMinderUnittest extends AbstractTempFolderUnittest {
     val codeVersion = CodeVersion("0.1")
     val schemaVersion = SchemaVersion("0.1")
 
-    val beanMinderDatabaseAccessFactory = DatabaseAccessFactory[BeanMinderDatabaseAccess]
+    val beanMinderDatabaseAccessFactory = DatabaseAccessFactory[BeanMinderDatabaseAccess]()
 
     def createBeanMinderDatabase(name: String) = {
         val beanMinderUserDatabaseFactory =

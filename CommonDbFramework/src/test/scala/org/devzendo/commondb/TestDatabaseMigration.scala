@@ -16,10 +16,12 @@
 
 package org.devzendo.commondb
 
+import dao.SchemaVersion
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.easymock.EasyMock
 import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
+import util.Version
 
 case class MigrationTransactionVersion(version: String) extends Version(version)
 

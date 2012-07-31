@@ -16,7 +16,7 @@
 
 package org.devzendo.commondb
 
-import dao.{SequenceDao, VersionsDao}
+import dao.{SchemaVersion, CodeVersion, SequenceDao, VersionsDao}
 import java.io.File
 import javax.sql.DataSource
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate

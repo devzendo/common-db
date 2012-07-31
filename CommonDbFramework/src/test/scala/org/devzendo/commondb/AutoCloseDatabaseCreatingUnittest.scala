@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+import dao.{CodeVersion, SchemaVersion}
 import java.io.File
 
 class AutoCloseDatabaseCreatingUnittest extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest {

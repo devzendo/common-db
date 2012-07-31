@@ -88,7 +88,7 @@ class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest wi
                 }
             }
             val randomness: Double = numWithinTolerance / 256.0
-            TestCreatingEncryptedDatabase.LOGGER.debug("Randomness is %f".format(randomness))
+            TestCreatingEncryptedDatabase.LOGGER.debug("Randomness is " + randomness.toString)
             randomness >= 0.75
         } catch {
             case e: IOException =>

@@ -19,7 +19,7 @@ package org.devzendo.commondb.dao
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.slf4j.LoggerFactory
-import org.devzendo.commondb.{SchemaVersion, CodeVersion, AutoCloseDatabaseUnittest, AbstractTempFolderUnittest}
+import org.devzendo.commondb.{AutoCloseDatabaseUnittest, AbstractTempFolderUnittest}
 
 
 class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {

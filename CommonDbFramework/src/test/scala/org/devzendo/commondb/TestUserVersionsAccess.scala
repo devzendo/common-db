@@ -16,6 +16,7 @@
 
 package org.devzendo.commondb
 
+import dao.{SchemaVersion, CodeVersion}
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.springframework.dao.DataAccessException

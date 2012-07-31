@@ -17,7 +17,7 @@
 package org.devzendo.commondb
 
 
-import dao.{SequenceDao, VersionsDao}
+import dao.{CodeVersion, SchemaVersion, SequenceDao, VersionsDao}
 import org.springframework.jdbc.core.simple.{ParameterizedRowMapper, SimpleJdbcTemplate}
 import java.io.File
 import javax.sql.DataSource
@@ -31,6 +31,7 @@ import scala.throws
 import org.springframework.transaction.support.{TransactionCallback, TransactionTemplate}
 import org.springframework.transaction.TransactionStatus
 import org.h2.engine.ExistenceChecker
+import util.Version
 
 private class JdbcTemplateVersionsDao(jdbcTemplate: SimpleJdbcTemplate) extends VersionsDao {
 

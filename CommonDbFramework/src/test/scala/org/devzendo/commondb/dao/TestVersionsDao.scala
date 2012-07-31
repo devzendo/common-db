@@ -19,8 +19,7 @@ package org.devzendo.commondb.dao
 import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
 import org.devzendo.commondb._
-import org.devzendo.commondb.CodeVersion
-
+import util.Version
 
 case class CustomVersion(version: String) extends Version(version)
 
