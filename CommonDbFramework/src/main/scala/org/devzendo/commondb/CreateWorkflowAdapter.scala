@@ -27,36 +27,29 @@ object CreateProgressStage {
          * How many steps are there in total?
          * @return the maximum value of a CreateProgressStage
          */
-        def maximumStages = 4
+        def maximumStages = 3
     }
 
     /**
      * The creation operation is starting. Sent almost immediately to give some
      * immediate feedback.
      */
-    case object CreateStarting extends Enum {
-        val index = 0
-    }
-
-    /**
-     * Sent immediately prior to creating the database.
-     */
     case object Creating extends Enum {
-        val index = 1
+        val index = 0
     }
 
     /**
      * Sent before creating the tables
      */
     case object CreatingTables extends Enum {
-        val index = 2
+        val index = 1
     }
 
     /**
      * Sent before populating the tables
      */
     case object PopulatingTables extends Enum {
-        val index = 3
+        val index = 2
     }
 
     // End states ---------------------------------------------
@@ -65,14 +58,14 @@ object CreateProgressStage {
      * Sent upon successful creation.
      */
     case object Created extends Enum {
-        val index = 4
+        val index = 3
     }
 
     /**
      * Failed to create the database for a serious reason
      */
     case object CreationFailed extends Enum {
-        val index = 4
+        val index = 3
     }
 
 }
