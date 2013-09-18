@@ -1,0 +1,6 @@
+#!/bin/sh
+# make sure the settings.xml is the sonatype-deploy one, then....
+# for releases....
+mvn clean scala:doc deploy -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/
+
+# deploy
