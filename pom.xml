@@ -10,6 +10,12 @@ with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
     (Apache License v2) 2012-2013 Matt Gumbley, DevZendo.org</description>
     <url>http://www.devzendo.org/content/commondb</url>
+
+    <organization>
+        <name>DevZendo.org</name>
+        <url>http://devzendo.org/</url>
+    </organization>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
