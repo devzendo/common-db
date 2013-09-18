@@ -1,0 +1,6 @@
+#!/bin/sh
+# make sure the settings.xml is the sonatype-deploy one, then....
+# for snapshots....
+mvn clean scala:doc deploy -Durl=https://oss.sonatype.org/content/repositories/snapshots/
+
+# deploy
