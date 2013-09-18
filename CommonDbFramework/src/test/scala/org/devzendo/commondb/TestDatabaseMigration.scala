@@ -65,7 +65,8 @@ class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with Asser
         val actual: List[Int] = for(e <- expected) yield
             jdbcTemplate.queryForInt("SELECT COUNT(0) FROM Cheeses WHERE name = ?", e._1)
 
-        (expected, actual).zip.foreach((e: ((String, Int), Int)) => {(e._1)._2 must be(e._2)})
+        val pairs = expected zip actual
+        pairs.foreach((e: ((String, Int), Int)) => {(e._1)._2 must be(e._2)})
 
         EasyMock.verify(openerAdapter)
     }

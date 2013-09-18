@@ -27,7 +27,17 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException
 import java.sql.SQLException
 import org.springframework.transaction.support.TransactionTemplate
 
-sealed case class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
+object JdbcTemplateDatabaseAccess {
+    def apply[U <: UserDatabaseAccess](
+              databasePath: File,
+              databaseName: String,
+              dataSource: DataSource,
+              jdbcTemplate: SimpleJdbcTemplate): JdbcTemplateDatabaseAccess[U] =
+        new JdbcTemplateDatabaseAccess[U](databasePath, databaseName, dataSource, jdbcTemplate)
+}
+
+
+class JdbcTemplateDatabaseAccess[U <: UserDatabaseAccess](
         override val databasePath: File,
         override val databaseName: String,
         override val dataSource: DataSource,

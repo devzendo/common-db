@@ -40,11 +40,11 @@ import org.springframework.transaction.support.TransactionTemplate
  * @tparam U a subclass of UserDatabaseAccess, from which user DAOs may be
  *           obtained
  */
-abstract case class DatabaseAccess[U <: UserDatabaseAccess](
-       databasePath: File,
-       databaseName: String,
-       dataSource: DataSource,
-       jdbcTemplate: SimpleJdbcTemplate) {
+abstract class DatabaseAccess[U <: UserDatabaseAccess](
+       val databasePath: File,
+       val databaseName: String,
+       val dataSource: DataSource,
+       val jdbcTemplate: SimpleJdbcTemplate) {
     var user: Option[U] = None
     def close()
     def isClosed: Boolean

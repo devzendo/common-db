@@ -22,7 +22,7 @@ package org.devzendo.commondb.util
  * @param value the value to be held in the representation
  * @tparam T the underlying type of the representation
  */
-abstract case class RepresentationType[T](value: T) extends Equals {
+abstract class RepresentationType[T](val value: T) extends Equals {
     /**
      * Obtain the value as the underlying type
      * @return the value
