@@ -40,7 +40,7 @@ class AbstractTempFolderUnittest  {
     var temporaryDirectory: File = null
 
     @Before
-    def before() {
+    def createTempDirBefore() {
         tempDir = new TemporaryFolder()
         tempDir.create()
         temporaryDirectory = tempDir.getRoot
@@ -48,7 +48,7 @@ class AbstractTempFolderUnittest  {
     }
 
     @After
-    def after() {
+    def deleteTempDirAfter() {
         AbstractTempFolderUnittest.LOGGER.info("tidying up temp dir")
         tempDir.delete()
     }
