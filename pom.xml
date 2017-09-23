@@ -8,7 +8,7 @@
     <description>Helper module for working with H2 databases. Helps with opening
 with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
-    (Apache License v2) 2012-2015 Matt Gumbley, DevZendo.org</description>
+    (Apache License v2) 2012-2017 Matt Gumbley, DevZendo.org</description>
     <url>http://www.devzendo.org/content/commondb</url>
 
     <organization>
@@ -35,12 +35,6 @@ Based on some of the ideas from the MiniMiser framework.
             <email>matt.gumbley@devzendo.org</email>
         </developer>
     </developers>
-
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
 
     <modules>
         <module>common-db-framework</module>
