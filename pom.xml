@@ -8,7 +8,7 @@
     <description>Helper module for working with H2 databases. Helps with opening
 with password prompting, upgrading, providing a version table, and creating.
 Based on some of the ideas from the MiniMiser framework.
-    (Apache License v2) 2012-2017 Matt Gumbley, DevZendo.org</description>
+    (Apache License v2) 2012-2018 Matt Gumbley, DevZendo.org</description>
     <url>http://www.devzendo.org/content/commondb</url>
 
     <organization>
@@ -23,11 +23,13 @@ Based on some of the ideas from the MiniMiser framework.
             <distribution>repo</distribution>
         </license>
     </licenses>
+
     <scm>
         <url>https://bitbucket.org/devzendo/common-db</url>
         <connection>scm:hg:https://bitbucket.org/devzendo/common-db</connection>
         <developerConnection>scm:hg:https://bitbucket.org/devzendo/common-db</developerConnection>
     </scm>
+
     <developers>
         <developer>
             <id>matt.gumbley</id>
@@ -36,98 +38,17 @@ Based on some of the ideas from the MiniMiser framework.
         </developer>
     </developers>
 
+    <parent>
+        <groupId>org.devzendo</groupId>
+        <artifactId>group-parent-scala</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
     <modules>
         <module>common-db-framework</module>
         <module>bean-minder-example</module>
     </modules>
-
-    <properties>
-        <scala.version>2.11.6</scala.version>
-        <scalatest.scala.version>2.11</scalatest.scala.version>
-    </properties>
-
-    <build>
-        <sourceDirectory>src/main/scala</sourceDirectory>
-        <testSourceDirectory>src/test/scala</testSourceDirectory>
-
-        <plugins>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <scalaVersion>${scala.version}</scalaVersion>
-                            <sendJavaToScalac>true</sendJavaToScalac>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <scalaVersion>${scala.version}</scalaVersion>
-                            <sendJavaToScalac>true</sendJavaToScalac>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <executable>gpg2</executable>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <dependencies>
         <!-- the clustermess that is Java logging. oh the horror! -->
@@ -184,12 +105,6 @@ Based on some of the ideas from the MiniMiser framework.
             <version>3.1.2.RELEASE</version> <!-- started with 3.0.2.RELEASE -->
         </dependency>
 
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-
         <!-- conversion of DataAccessExceptions to Validation to be done later
         <dependency>
             <groupId>org.scalaz</groupId>
@@ -216,7 +131,6 @@ Based on some of the ideas from the MiniMiser framework.
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scalatest.scala.version}</artifactId>
-            <version>2.2.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
