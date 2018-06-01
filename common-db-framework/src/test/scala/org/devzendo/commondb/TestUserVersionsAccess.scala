@@ -16,12 +16,13 @@
 
 package org.devzendo.commondb
 
-import dao.{SchemaVersion, CodeVersion}
-import impl.JdbcTemplateDatabaseAccessFactory
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.devzendo.commondb.dao.{CodeVersion, SchemaVersion}
+import org.devzendo.commondb.impl.JdbcTemplateDatabaseAccessFactory
 import org.junit.Test
-import org.springframework.dao.DataAccessException
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 
 object TestUserVersionsAccess {
     val LOGGER = LoggerFactory.getLogger(classOf[TestUserVersionsAccess])
@@ -84,7 +85,7 @@ class RobotUserDatabaseFactory extends ((DatabaseAccess[RobotDatabaseAccess]) =>
     }
 }
 
-class TestUserVersionsAccess extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestUserVersionsAccess extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchers {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 

@@ -16,17 +16,18 @@
 
 package org.devzendo.commondb
 
-import dao.SchemaVersion
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
+import org.devzendo.commondb.dao.SchemaVersion
+import org.devzendo.commondb.util.Version
 import org.easymock.EasyMock
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
-import util.Version
 
 case class MigrationTransactionVersion(version: String) extends Version(version)
 
 
-class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestDatabaseMigration extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchers{
 
     @Test
     def openOldDatabaseUpdatesSchemaVersionToCurrent() {

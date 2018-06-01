@@ -16,12 +16,13 @@
 
 package org.devzendo.commondb
 
-import dao.{SchemaVersion, CodeVersion}
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
 import org.devzendo.commondb.CreateProgressStage.Enum
-import org.springframework.dao.{EmptyResultDataAccessException, DataAccessException}
-import util.RepresentationType
+import org.devzendo.commondb.dao.{CodeVersion, SchemaVersion}
+import org.devzendo.commondb.util.RepresentationType
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
+import org.springframework.dao.{DataAccessException, EmptyResultDataAccessException}
 
 case class CakeAge(age: Int) extends RepresentationType[Int](age)
 case class CakeName(name: String) extends RepresentationType[String](name)
@@ -93,7 +94,7 @@ class CakeDatabaseAccess(override val databaseAccess: DatabaseAccess[CakeDatabas
     }
 }
 
-class TestCreatingUserDatabase extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestCreatingUserDatabase extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchers {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 

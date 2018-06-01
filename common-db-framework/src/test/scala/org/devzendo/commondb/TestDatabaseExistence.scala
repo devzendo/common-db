@@ -16,10 +16,11 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
-class TestDatabaseExistence extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestDatabaseExistence extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
 
     @Test
     def databaseDoesNotExistSoReturnsFalse() {

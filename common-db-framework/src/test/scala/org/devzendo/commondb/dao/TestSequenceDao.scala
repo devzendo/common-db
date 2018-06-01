@@ -16,13 +16,14 @@
 
 package org.devzendo.commondb.dao
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.devzendo.commondb.{AbstractTempFolderUnittest, AutoCloseDatabaseUnittest}
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.slf4j.LoggerFactory
-import org.devzendo.commondb.{AutoCloseDatabaseUnittest, AbstractTempFolderUnittest}
 
 
-class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestSequenceDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchers {
     val LOGGER = LoggerFactory.getLogger(classOf[TestSequenceDao])
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")

@@ -16,12 +16,13 @@
 
 package org.devzendo.commondb
 
-import org.junit.Test
 import org.easymock.EasyMock
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.springframework.dao.DataAccessResourceFailureException
 
-class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestOpeningDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
 
     @Test
     def databaseDoesNotExistSoReturnsNone() {

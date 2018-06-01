@@ -16,9 +16,10 @@
 
 package org.devzendo.commondb
 
-import dao.{SchemaVersion, CodeVersion}
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.devzendo.commondb.dao.{CodeVersion, SchemaVersion}
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
 trait CheeseDao {
     def nextSequence: Long // just a copy of the sequence dao operation
@@ -38,7 +39,7 @@ class CheeseDatabaseAccess(override val databaseAccess: DatabaseAccess[CheeseDat
     }
 }
 
-class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestUserDatabaseAccess extends AbstractTempFolderUnittest with AssertionsForJUnit with MustMatchers {
     val codeVersion = CodeVersion("1.0")
     val schemaVersion = SchemaVersion("0.4")
 

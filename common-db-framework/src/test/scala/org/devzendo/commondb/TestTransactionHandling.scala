@@ -16,13 +16,14 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.devzendo.commondb.util.Version
 import org.junit.Test
-import org.springframework.transaction.support.TransactionCallback
-import org.springframework.transaction.TransactionStatus
-import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.slf4j.LoggerFactory
-import util.Version
+import org.springframework.dao.{DataAccessException, DataIntegrityViolationException}
+import org.springframework.transaction.TransactionStatus
+import org.springframework.transaction.support.TransactionCallback
 
 case class CustomTransactionVersion(version: String) extends Version(version)
 
@@ -30,7 +31,7 @@ object TestTransactionHandling {
     val LOGGER = LoggerFactory.getLogger(classOf[TestTransactionHandling])
 }
 
-class TestTransactionHandling extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestTransactionHandling extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
 
     @Test
     def commitCausesDataCommit() {

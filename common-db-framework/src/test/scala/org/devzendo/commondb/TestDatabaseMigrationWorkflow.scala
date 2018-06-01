@@ -16,12 +16,13 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
 import org.easymock.EasyMock
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.springframework.dao.DataIntegrityViolationException
 
-class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestDatabaseMigrationWorkflow extends AbstractDatabaseMigrationUnittest with AssertionsForJUnit with MustMatchers {
     @Test
     def openOldDatabaseSchemaProgressNotification() {
         val databaseName = "oldschemaprogress"

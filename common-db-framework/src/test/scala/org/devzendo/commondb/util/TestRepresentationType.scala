@@ -16,8 +16,9 @@
 
 package org.devzendo.commondb.util
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
 private case class OneString(thing: String) extends RepresentationType[String](thing)
 
@@ -25,7 +26,7 @@ private case class TwoString(thing: String) extends RepresentationType[String](t
 
 private case class OneInt(thing: Int) extends RepresentationType[Int](thing)
 
-class TestRepresentationType extends AssertionsForJUnit with MustMatchersForJUnit {
+class TestRepresentationType extends AssertionsForJUnit with MustMatchers {
     @Test
     def instancesOfSameRepresentationTypeWithSameContentAreEqual() {
         val one1 = OneString("hi")

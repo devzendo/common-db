@@ -16,14 +16,15 @@
 
 package org.devzendo.commondb.dao
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
 import org.devzendo.commondb._
-import util.Version
+import org.devzendo.commondb.util.Version
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
 case class CustomVersion(version: String) extends Version(version)
 
-class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestVersionsDao extends AbstractTempFolderUnittest with AutoCloseDatabaseUnittest with AssertionsForJUnit with MustMatchers {
     val initialCodeVersion = CodeVersion("1.0")
     val initialSchemaVersion = SchemaVersion("0.4")
 

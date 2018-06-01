@@ -16,11 +16,13 @@
 
 package org.devzendo.commondb.util
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
 import java.sql.Date
 
-class TestDateUtils extends AssertionsForJUnit with MustMatchersForJUnit {
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
+
+class TestDateUtils extends AssertionsForJUnit with MustMatchers {
     @Test
     def testDateNormalisation() {
         val millisWithHourMinuteSecondMillis = createSQLDateWithMillis()

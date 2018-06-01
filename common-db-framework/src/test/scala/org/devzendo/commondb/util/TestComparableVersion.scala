@@ -16,13 +16,14 @@
 
 package org.devzendo.commondb.util
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
 case class ComparableVersion(version: String) extends Version(version)
 case class OtherComparableVersion(version: String) extends Version(version)
 
-class TestComparableVersion extends AssertionsForJUnit with MustMatchersForJUnit {
+class TestComparableVersion extends AssertionsForJUnit with MustMatchers {
 
     @Test(expected = classOf[IllegalArgumentException])
     def testNull() {

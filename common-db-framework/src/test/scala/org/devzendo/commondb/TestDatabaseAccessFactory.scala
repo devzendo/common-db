@@ -16,16 +16,17 @@
 
 package org.devzendo.commondb
 
-import impl.JdbcTemplateDatabaseAccessFactory
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import org.devzendo.commondb.impl.JdbcTemplateDatabaseAccessFactory
 import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
 class AnorakDatabaseAccess(override val databaseAccess: DatabaseAccess[AnorakDatabaseAccess]) extends UserDatabaseAccess(databaseAccess) {
     def close() {
     }
 }
 
-class TestDatabaseAccessFactory extends AssertionsForJUnit with MustMatchersForJUnit {
+class TestDatabaseAccessFactory extends AssertionsForJUnit with MustMatchers {
     @Test
     def aTypedJdbcDatabaseAccessFactoryIsAvailable() {
         val factory = DatabaseAccessFactory[AnorakDatabaseAccess]()

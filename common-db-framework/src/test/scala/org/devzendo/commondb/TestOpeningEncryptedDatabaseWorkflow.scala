@@ -16,11 +16,12 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
 import org.easymock.EasyMock
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 
-class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestOpeningEncryptedDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
     val creationPassword = Password("Squeamish Ossifrage")
 
     @Test

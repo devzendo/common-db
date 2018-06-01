@@ -16,13 +16,15 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
-import org.junit.Test
-import org.easymock.EasyMock
-import org.springframework.dao.DataAccessException
-import java.io.{IOException, FileNotFoundException, RandomAccessFile, File}
+import java.io.{File, FileNotFoundException, IOException, RandomAccessFile}
 
-class TestOpeningCorruptDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+import org.easymock.EasyMock
+import org.junit.Test
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
+import org.springframework.dao.DataAccessException
+
+class TestOpeningCorruptDatabaseWorkflow extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
 
     @Test
     def corruptDatabaseDoesNotOpenProgressReporting() {

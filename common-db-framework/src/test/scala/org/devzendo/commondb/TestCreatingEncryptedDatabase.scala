@@ -16,16 +16,18 @@
 
 package org.devzendo.commondb
 
-import org.scalatest.junit.{MustMatchersForJUnit, AssertionsForJUnit}
+import java.io.{File, FileFilter, FileInputStream, IOException}
+
 import org.junit.Test
-import java.io.{FileInputStream, IOException, FileFilter, File}
+import org.scalatest.MustMatchers
+import org.scalatest.junit.AssertionsForJUnit
 import org.slf4j.LoggerFactory
 
 object TestCreatingEncryptedDatabase {
     val LOGGER = LoggerFactory.getLogger(classOf[TestCreatingEncryptedDatabase])
 }
 
-class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchersForJUnit {
+class TestCreatingEncryptedDatabase extends AutoCloseDatabaseCreatingUnittest with AssertionsForJUnit with MustMatchers {
     val password = Password("Squeamish Ossifrage")
 
     @Test
