@@ -25,9 +25,9 @@ Based on some of the ideas from the MiniMiser framework.
     </licenses>
 
     <scm>
-        <url>https://bitbucket.org/devzendo/common-db</url>
-        <connection>scm:hg:https://bitbucket.org/devzendo/common-db</connection>
-        <developerConnection>scm:hg:https://bitbucket.org/devzendo/common-db</developerConnection>
+        <url>https://github.com/devzendo/common-db.git</url>
+        <connection>scm:git:https://github.com/devzendo/common-db.git</connection>
+        <developerConnection>scm:git:git@github.com:devzendo/common-db.git</developerConnection>
     </scm>
 
     <developers>
